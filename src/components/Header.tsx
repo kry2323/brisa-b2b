@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Constants from 'expo-constants';
-import LassaLogo from '../assets/lassa-logo.svg';
+import LassaLogo from '../../assets/lassa-logo.svg';
 
 const Header = () => {
   return (

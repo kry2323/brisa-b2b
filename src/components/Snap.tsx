@@ -1,22 +1,28 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const Snap = () => {
   const dashboardItems = [
-    { id: 1, title: 'Hazır Lastikler', value: '0', icon: '🔴' },
-    { id: 2, title: 'Hazır Olmayan\nLastikler', value: '0', icon: '🔴' },
-    { id: 3, title: 'Yıldan Bugüne\nSatışlar', value: '0', icon: '📈' },
-    { id: 4, title: 'Aydan Bugüne\nSatışlar', value: '0', icon: '📊' },
-    { id: 5, title: 'Çeyrekten Bugüne\nSatışlar', value: '0', icon: '🔴' },
-    { id: 6, title: 'Yoldaki Lastikler', value: '0', icon: '🚚' },
+    { id: 1, title: 'Ready Tyres', value: '0', icon: 'checkmark-circle' },
+    { id: 2, title: 'Not Ready Tyres', value: '0', icon: 'close-circle' },
+    { id: 3, title: 'Year to Date\nSales', value: '0', icon: 'stats-chart' },
+    { id: 4, title: 'Month to Date\nSales', value: '0', icon: 'calendar' },
+    { id: 5, title: 'Quarter to Date\nSales', value: '0', icon: 'bar-chart' },
+    { id: 6, title: 'Tyres on the Way', value: '0', icon: 'car' },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Snap</Text>
+        <View style={styles.headerLeft}>
+          {/* Snapshot simgesi – mevcutta görsel olmadığından emoji kullanıyoruz */}
+          <Text style={styles.snapshotEmoji}>📸</Text>
+          <Text style={styles.headerTitle}>Snapshot</Text>
+        </View>
+
         <View style={styles.balanceContainer}>
-          <Text style={styles.balanceLabel}>Bakiye</Text>
+          <Text style={styles.balanceLabel}>Balance</Text>
           <View style={styles.balanceValue}>
             <Text style={styles.balanceText}>2,706.23</Text>
           </View>
@@ -25,14 +31,20 @@ const Snap = () => {
       
       <View style={styles.dashboardContainer}>
         <View style={styles.dashboardGrid}>
-          {dashboardItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.dashboardItem}>
+          {dashboardItems.map((item, index) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.dashboardItem,
+                index % 2 === 0 ? styles.itemLeft : styles.itemRight,
+              ]}
+            >
               <View style={styles.itemContent}>
                 <Text style={styles.itemValue}>{item.value}</Text>
                 <Text style={styles.itemTitle}>{item.title}</Text>
               </View>
               <View style={styles.itemIcon}>
-                <Text style={styles.iconText}>{item.icon}</Text>
+                <Ionicons name={item.icon as any} size={20} color="#FFFFFF" />
               </View>
             </TouchableOpacity>
           ))}
@@ -131,16 +143,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   dashboardItem: {
-    width: '50%',
+    width: '48%',
     height: 72,
     backgroundColor: '#626262',
     borderRadius: 4,
     marginBottom: 15,
-    marginRight: 15,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 0,
     overflow: 'hidden',
+  },
+  itemLeft: {
+    marginRight: '4%',
+  },
+  itemRight: {
+    marginRight: 0,
   },
   itemContent: {
     flex: 1,
@@ -215,6 +232,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  snapshotEmoji: {
+    fontSize: 18,
+    marginRight: 8,
   },
 });
 
