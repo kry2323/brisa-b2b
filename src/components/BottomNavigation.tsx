@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView } from 'react-native';
 
-const BottomNavigation = () => {
+interface BottomNavigationProps {
+  isReportsModalOpen: boolean;
+  setIsReportsModalOpen: (isOpen: boolean) => void;
+  onNavigateToReport: (reportData: any) => void;
+}
+
+const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen, setIsReportsModalOpen, onNavigateToReport }) => {
   const [activeTab, setActiveTab] = useState('create-order');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
+
+  const financialReports = [
+    { id: 'brisa-payments', title: 'Brisa Payments', icon: '💳', url: '/b2b/cis/brisa-payments' },
+    { id: 'overdue-report', title: 'Overdue Report', icon: '⏰', url: '/b2b/cis/invoice' },
+    { id: 'account-transactions', title: 'Account Transactions', icon: '📊', url: '/b2b/cis/account-transaction' },
+  ];
+
+  const orderSalesReports = [
+    { id: 'shipments-documents', title: 'Shipments, Documents and Status', icon: '📦', url: '/b2b/proforma/proforma-list' },
+    { id: 'sales-report', title: 'Sales Report', icon: '📈', url: '/b2b/cis/dispatch-report' },
+    { id: 'order-monitoring', title: 'Order Monitoring', icon: '👁️', url: '/b2b/cis/order-monitoring' },
+    { id: 'tyres-on-the-way', title: 'Tyres On The Way', icon: '🚚', url: '/b2b/cis/tyres-on-the-way' },
+    { id: 'pos-material-tracking', title: 'POS Material Tracking', icon: '🏪', url: '/b2b/proforma/branded-product-report' },
+  ];
 
   const navigationItems = [
     {
@@ -55,6 +76,8 @@ const BottomNavigation = () => {
   const handleTabPress = (tabId: string) => {
     if (tabId === 'other') {
       setIsMenuOpen(true);
+    } else if (tabId === 'reports') {
+      setIsReportsModalOpen(true);
     } else {
       setActiveTab(tabId);
     }
@@ -66,33 +89,66 @@ const BottomNavigation = () => {
     console.log('Menu item pressed:', itemId);
   };
 
+  const handleReportTypePress = (reportType: string) => {
+    setSelectedReportType(reportType);
+  };
+
+  const handleReportItemPress = (report: any) => {
+    console.log('Report item pressed:', report);
+    onNavigateToReport(report);
+  };
+
+  const getReportItems = () => {
+    switch (selectedReportType) {
+      case 'financial':
+        return financialReports;
+      case 'order-sales':
+        return orderSalesReports;
+      default:
+        return [];
+    }
+  };
+
+  const getModalTitle = () => {
+    switch (selectedReportType) {
+      case 'financial':
+        return 'Financial Reports';
+      case 'order-sales':
+        return 'Order & Sales Reports';
+      default:
+        return 'Reports';
+    }
+  };
+
   return (
     <>
-      <View style={styles.container}>
-        {navigationItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.tabButton,
-              activeTab === item.id && styles.activeTab,
-            ]}
-            onPress={() => handleTabPress(item.id)}
-          >
-            <Text style={[
-              styles.tabIcon,
-              activeTab === item.id && styles.activeTabIcon,
-            ]}>
-              {item.icon}
-            </Text>
-            <Text style={[
-              styles.tabText,
-              activeTab === item.id && styles.activeTabText,
-            ]}>
-              {item.shortTitle}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {!isReportsModalOpen && (
+        <View style={styles.container}>
+          {navigationItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.tabButton,
+                activeTab === item.id && styles.activeTab,
+              ]}
+              onPress={() => handleTabPress(item.id)}
+            >
+              <Text style={[
+                styles.tabIcon,
+                activeTab === item.id && styles.activeTabIcon,
+              ]}>
+                {item.icon}
+              </Text>
+              <Text style={[
+                styles.tabText,
+                activeTab === item.id && styles.activeTabText,
+              ]}>
+                {item.shortTitle}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <Modal
         animationType="slide"
@@ -128,6 +184,76 @@ const BottomNavigation = () => {
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isReportsModalOpen}
+        onRequestClose={() => setIsReportsModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsReportsModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>
+                {selectedReportType ? getModalTitle() : 'Raporlar'}
+              </Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => {
+                  if (selectedReportType) {
+                    setSelectedReportType(null);
+                  } else {
+                    setIsReportsModalOpen(false);
+                  }
+                }}
+              >
+                <Text style={styles.closeButtonText}>
+                  {selectedReportType ? '←' : '✕'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
+              {!selectedReportType ? (
+                // Show report categories
+                <>
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => handleReportTypePress('financial')}
+                  >
+                    <Text style={styles.menuItemIcon}>📊</Text>
+                    <Text style={styles.menuItemText}>Mali Raporlar</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => handleReportTypePress('order-sales')}
+                  >
+                    <Text style={styles.menuItemIcon}>📈</Text>
+                    <Text style={styles.menuItemText}>Sipariş ve Satış Raporları</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                // Show specific reports
+                getReportItems().map((report) => (
+                  <TouchableOpacity
+                    key={report.id}
+                    style={styles.menuItem}
+                    onPress={() => handleReportItemPress(report)}
+                  >
+                    <Text style={styles.menuItemIcon}>{report.icon}</Text>
+                    <Text style={styles.menuItemText}>{report.title}</Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -184,19 +310,36 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#000000',
+    zIndex: 99999,
+    height: '100%',
+    elevation: 99999,
   },
   modalBackground: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   menuContainer: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: 20,
-    maxHeight: '70%',
+    height: '100%',
+    paddingBottom: 50,
+    zIndex: 100000,
+    elevation: 100000,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   menuHeader: {
     flexDirection: 'row',
@@ -249,4 +392,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BottomNavigation; 
+export default BottomNavigation;
