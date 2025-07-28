@@ -16,23 +16,29 @@ import Footer from './src/components/Footer';
 import BottomNavigation from './src/components/BottomNavigation';
 import BrisaPaymentsScreen from './src/screens/BrisaPaymentsScreen';
 import OverdueReportScreen from './src/screens/OverdueReportScreen';
+import AccountTransactionsScreen from './src/screens/AccountTransactionsScreen';
+import ShipmentsDocumentsScreen from './src/screens/ShipmentsDocumentsScreen';
+import SalesReportScreen from './src/screens/SalesReportScreen';
+import OrderMonitoringScreen from './src/screens/OrderMonitoringScreen';
+import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
+import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
+import ProductListingScreen from './src/screens/ProductListingScreen';
 
 const Stack = createNativeStackNavigator();
 
-// Ana sayfa bileşeni
-function HomeScreen({ navigation }: any) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+// Login ekranı bileşeni
+function LoginScreen({ navigation }: any) {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
+      <StatusBar style="light" backgroundColor="#383838" />
+      <Login onLogin={() => navigation.navigate('Dashboard')} />
+    </SafeAreaView>
+  );
+}
 
-  // Kullanıcı henüz giriş yapmadıysa login ekranını göster
-  if (!isLoggedIn) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
-        <StatusBar style="light" backgroundColor="#383838" />
-        <Login onLogin={() => setIsLoggedIn(true)} />
-      </SafeAreaView>
-    );
-  }
+// Ana sayfa bileşeni (Dashboard)
+function DashboardScreen({ navigation }: any) {
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
 
   // Handle navigation to report screens
   const handleNavigateToReport = (reportData: any) => {
@@ -94,10 +100,11 @@ function HomeScreen({ navigation }: any) {
 
 // Linking konfigürasyonu
 const linking = {
-  prefixes: ['http://localhost:8081', 'https://localhost:8081'],
+  prefixes: ['http://localhost:8081', 'https://localhost:8081', 'http://localhost:8082', 'http://localhost:8083'],
   config: {
     screens: {
       Home: '/',
+      ProductListing: '/products',
       BrisaPayments: {
         path: '/reports/brisa-payments',
         parse: {
@@ -132,6 +139,108 @@ const linking = {
           },
         },
       },
+      AccountTransactions: {
+        path: '/reports/account-transactions',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      ShipmentsDocuments: {
+        path: '/reports/shipments-documents',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      SalesReport: {
+        path: '/reports/sales-report',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      OrderMonitoring: {
+        path: '/reports/order-monitoring',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      TyresOnTheWay: {
+        path: '/reports/tyres-on-the-way',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      POSMaterialTracking: {
+        path: '/reports/pos-material-tracking',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
     },
   },
 };
@@ -141,12 +250,19 @@ export default function App() {
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator 
-        initialRouteName="Home"
+        initialRouteName="Login"
         screenOptions={{
           headerShown: false, // Header'ları gizle çünkü kendi Header bileşenimiz var
         }}
       >
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Home" component={DashboardScreen} />
+        <Stack.Screen 
+          name="ProductListing" 
+          component={ProductListingScreen} 
+          options={{ title: 'Product Listing' }}
+        />
         <Stack.Screen 
           name="BrisaPayments" 
           component={BrisaPaymentsScreen} 
@@ -156,6 +272,36 @@ export default function App() {
           name="OverdueReport" 
           component={OverdueReportScreen} 
           options={{ title: 'Overdue Report' }}
+        />
+        <Stack.Screen 
+          name="AccountTransactions" 
+          component={AccountTransactionsScreen} 
+          options={{ title: 'Account Transactions' }}
+        />
+        <Stack.Screen 
+          name="ShipmentsDocuments" 
+          component={ShipmentsDocumentsScreen} 
+          options={{ title: 'Shipments, Documents and Status' }}
+        />
+        <Stack.Screen 
+          name="SalesReport" 
+          component={SalesReportScreen} 
+          options={{ title: 'Sales Report' }}
+        />
+        <Stack.Screen 
+          name="OrderMonitoring" 
+          component={OrderMonitoringScreen} 
+          options={{ title: 'Order Monitoring' }}
+        />
+        <Stack.Screen 
+          name="TyresOnTheWay" 
+          component={TyresOnTheWayScreen} 
+          options={{ title: 'Tyres On The Way' }}
+        />
+        <Stack.Screen 
+          name="POSMaterialTracking" 
+          component={POSMaterialTrackingScreen} 
+          options={{ title: 'POS Material Tracking' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

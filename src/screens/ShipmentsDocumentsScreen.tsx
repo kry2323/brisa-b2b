@@ -4,28 +4,26 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 
-const BrisaPaymentsScreen = ({ route, navigation }: any) => {
+const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   
-  // Form state variables
-  const [startDate, setStartDate] = useState('01/01/2023');
-  const [endDate, setEndDate] = useState('31/12/2023');
-  const [paymentNumber, setPaymentNumber] = useState('');
-  const [paymentStatus, setPaymentStatus] = useState('');
+  // Form state
+  const [startDate, setStartDate] = useState('30/12/2018');
+  const [endDate, setEndDate] = useState('28/07/2025');
+  const [planNo, setPlanNo] = useState('');
+  const [invoiceNo, setInvoiceNo] = useState('');
   
-  // Mock table data
-  const tableData = [
-    { id: 1, date: '15/03/2023', paymentNumber: 'PAY001', amount: '1,250.00', status: 'Completed' },
-    { id: 2, date: '22/04/2023', paymentNumber: 'PAY002', amount: '2,500.00', status: 'Pending' },
-    { id: 3, date: '10/05/2023', paymentNumber: 'PAY003', amount: '500.00', status: 'Completed' },
-    { id: 4, date: '18/06/2023', paymentNumber: 'PAY004', amount: '3,750.00', status: 'Processing' },
-  ];
-  
-  // Handle list button press
+  // Table data state
+  const [tableData, setTableData] = useState([
+    { planNo: '3500057880', invoiceNo: '9280033872', invoiceQty: '1,062' },
+    { planNo: '3500058173', invoiceNo: '9280034066', invoiceQty: '1,264' },
+  ]);
+
   const handleList = () => {
-    console.log('Filtering with:', { startDate, endDate, paymentNumber, paymentStatus });
-    // Here you would typically fetch data from an API with these filters
+    // In a real app, this would fetch data based on the form inputs
+    console.log('Listing with filters:', { startDate, endDate, planNo, invoiceNo });
+    // For now we'll just use the mock data already set
   };
 
   const handleNavigateToReport = (reportData: any) => {
@@ -67,85 +65,81 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
       <Header />
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Brisa Payments</Text>
+          <Text style={styles.title}>Shipments, Documents and Status</Text>
           
-          {/* Filter Form */}
+          {/* Form Section */}
           <View style={styles.formContainer}>
+            {/* Plan Date Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Start Date:</Text>
-                <View style={styles.dateContainer}>
-                  <View style={styles.dateInputContainer}>
+                <Text style={styles.formLabel}>Plan Date *</Text>
+                <View style={styles.datePickerContainer}>
+                  <View style={styles.datePicker}>
                     <TextInput
                       style={styles.dateInput}
                       value={startDate}
                       onChangeText={setStartDate}
-                      placeholder="DD/MM/YYYY"
                     />
+                    <Text style={styles.dateIcon}>📅</Text>
                   </View>
-                </View>
-              </View>
-              
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>End Date:</Text>
-                <View style={styles.dateContainer}>
-                  <View style={styles.dateInputContainer}>
+                  <View style={styles.datePicker}>
                     <TextInput
                       style={styles.dateInput}
                       value={endDate}
                       onChangeText={setEndDate}
-                      placeholder="DD/MM/YYYY"
                     />
+                    <Text style={styles.dateIcon}>📅</Text>
                   </View>
                 </View>
               </View>
             </View>
             
+            {/* Plan No and Invoice No Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Payment Number:</Text>
+                <Text style={styles.formLabel}>Plan No</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={paymentNumber}
-                  onChangeText={setPaymentNumber}
-                  placeholder="Enter payment number"
+                  value={planNo}
+                  onChangeText={setPlanNo}
+                  placeholder="Enter Plan No"
                 />
               </View>
               
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Payment Status:</Text>
+                <Text style={styles.formLabel}>Invoice No</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={paymentStatus}
-                  onChangeText={setPaymentStatus}
-                  placeholder="Enter status"
+                  value={invoiceNo}
+                  onChangeText={setInvoiceNo}
+                  placeholder="Enter Invoice No"
                 />
               </View>
             </View>
             
-            <TouchableOpacity style={styles.listButton} onPress={handleList}>
-              <Text style={styles.listButtonText}>List</Text>
-            </TouchableOpacity>
+            {/* List Button Row */}
+            <View style={styles.formRow}>
+              <TouchableOpacity style={styles.listButton} onPress={handleList}>
+                <Text style={styles.listButtonText}>List</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           
-          {/* Table */}
+          {/* Table Section */}
           <View style={styles.tableContainer}>
+            {/* Table Header */}
             <View style={styles.tableHeader}>
-              <Text style={styles.tableHeaderCell}>Date</Text>
-              <Text style={styles.tableHeaderCell}>Payment No</Text>
-              <Text style={styles.tableHeaderCell}>Amount</Text>
-              <Text style={styles.tableHeaderCell}>Status</Text>
+              <Text style={styles.tableHeaderCell}>Plan No</Text>
+              <Text style={styles.tableHeaderCell}>Invoice No</Text>
+              <Text style={styles.tableHeaderCell}>Invoice Qty</Text>
             </View>
             
+            {/* Table Rows */}
             {tableData.map((item, index) => (
-              <View 
-                key={item.id} 
-                style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-              >
-                <Text style={styles.tableCell}>{item.date}</Text>
-                <Text style={styles.tableCell}>{item.paymentNumber}</Text>
-                <Text style={styles.tableCell}>{item.amount}</Text>
-                <Text style={styles.tableCell}>{item.status}</Text>
+              <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
+                <Text style={styles.tableCell}>{item.planNo}</Text>
+                <Text style={styles.tableCell}>{item.invoiceNo}</Text>
+                <Text style={styles.tableCell}>{item.invoiceQty}</Text>
               </View>
             ))}
           </View>
@@ -181,119 +175,125 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
   },
+  
+  // Form Styles
   formContainer: {
+    width: '100%',
     backgroundColor: '#FFFFFF',
+    borderRadius: 8,
     padding: 20,
-    borderRadius: 10,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 20,
-    width: '100%',
+    elevation: 2,
   },
   formRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 15,
     flexWrap: 'wrap',
   },
   formGroup: {
-    width: '48%',
+    flex: 1,
+    minWidth: 250,
+    marginRight: 15,
     marginBottom: 10,
   },
   formLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#555',
+    marginBottom: 8,
+    color: '#333',
   },
-  dateContainer: {
+  datePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  datePicker: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  dateInputContainer: {
-    flex: 1,
-    height: 40,
-    borderColor: '#DDD',
     borderWidth: 1,
-    borderRadius: 5,
+    borderColor: '#DDD',
+    borderRadius: 4,
+    height: 40,
     paddingHorizontal: 10,
-    justifyContent: 'center',
+    marginRight: 10,
   },
   dateInput: {
-    fontSize: 14,
-    color: '#333',
+    flex: 1,
+    height: 40,
+  },
+  dateIcon: {
+    fontSize: 18,
   },
   textInput: {
-    height: 40,
-    borderColor: '#DDD',
     borderWidth: 1,
-    borderRadius: 5,
+    borderColor: '#DDD',
+    borderRadius: 4,
+    height: 40,
     paddingHorizontal: 10,
-    fontSize: 14,
-    color: '#333',
   },
   listButton: {
     backgroundColor: '#666',
+    borderRadius: 4,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 5,
-    alignSelf: 'flex-end',
-    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 150,
   },
   listButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
+  
+  // Table Styles
   tableContainer: {
+    width: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
-    width: '100%',
-    marginBottom: 20,
-    overflow: 'hidden',
+    elevation: 2,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#F2F2F2',
-    borderBottomWidth: 1,
-    borderBottomColor: '#DDD',
-    paddingVertical: 12,
+    backgroundColor: '#666',
+    padding: 12,
   },
   tableHeaderCell: {
     flex: 1,
-    fontSize: 14,
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    color: '#555',
-    textAlign: 'center',
+    fontSize: 14,
+    textAlign: 'left',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#EEE',
-    paddingVertical: 10,
+    padding: 12,
   },
   tableRowEven: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F9F9F9',
   },
   tableRowOdd: {
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#FFFFFF',
   },
   tableCell: {
     flex: 1,
     fontSize: 14,
     color: '#333',
-    textAlign: 'center',
   },
 });
 
-export default BrisaPaymentsScreen;
+export default ShipmentsDocumentsScreen;

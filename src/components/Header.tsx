@@ -1,19 +1,24 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Constants from 'expo-constants';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import LassaLogo from '../../assets/lassa-logo.svg';
 
 const Header = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const isHomeScreen = route.name === 'Home';
+
   return (
     <View style={styles.header}>
-   
 
       {/* Logo - SVG Logo */}
-      <View style={styles.logoContainer}>
-        <LassaLogo  height={40} />
-      </View>
-
-   
+      <TouchableOpacity 
+        style={styles.logoContainer} 
+        onPress={() => navigation.navigate('Dashboard')}
+      >
+        <LassaLogo height={40} />
+      </TouchableOpacity>
 
       {/* Cart */}
       <TouchableOpacity style={styles.cartButton}>
@@ -85,4 +90,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header; 
+export default Header;

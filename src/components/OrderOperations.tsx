@@ -1,7 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const OrderOperations = () => {
+  const navigation = useNavigation();
+  
+  const handleCreateOrder = () => {
+    navigation.navigate('ProductListing');
+  };
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -12,7 +19,7 @@ const OrderOperations = () => {
       </View>
       
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
           <View style={styles.buttonContent}>
             <Text style={styles.buttonIcon}>⊕</Text>
             <Text style={styles.buttonText}>Create Order</Text>
@@ -108,4 +115,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderOperations; 
+export default OrderOperations;
