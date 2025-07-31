@@ -757,6 +757,7 @@ const styles = StyleSheet.create({
     padding: 20,
     margin: 20,
     maxWidth: '90%',
+    width: '90%',
     maxHeight: '85%',
   },
   modalHeader: {
@@ -784,7 +785,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalImage: {
-    width: 334,
+    width: '100%',
     height: 509,
   },
 });
