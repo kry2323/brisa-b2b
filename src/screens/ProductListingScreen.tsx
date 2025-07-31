@@ -9,7 +9,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('Name (Ascending)');
   const [viewType, setViewType] = useState('list'); // 'list' or 'grid'
-  const [quantities, setQuantities] = useState({});
+  const [quantities, setQuantities] = useState<{[key: string]: number}>({});
   
   // Örnek ürün verileri
   const [products, setProducts] = useState([
@@ -17,36 +17,60 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       id: '280035', 
       name: '10.00-20 16 PR EARTH GRIPPER EXC', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
     { 
       id: '270219', 
       name: '11.2-24 8PR TR70', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
     { 
       id: '280036', 
       name: '12.5/80-18 14PR IND POWER', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
     { 
       id: '280037', 
       name: '16.9-28 12PR TR110', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
     { 
       id: '280038', 
       name: '18.4-30 14PR TR130', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
     { 
       id: '280039', 
       name: '20.8-38 16PR TR140', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_2.jpg'
+      ],
       status: 'Ready for ordering. Price TBD'
     },
   ]);
@@ -122,10 +146,6 @@ const ProductListingScreen = ({ route, navigation }: any) => {
           
           <View style={styles.paginationTag}>
             <View style={styles.sorting}>
-              <View style={styles.sortingResult}>
-                <Text style={styles.sortingResultText}>{products.length} products found</Text>
-              </View>
-              
               <View style={styles.sortingRight}>
                 <TouchableOpacity style={styles.refineButton}>
                   <Text style={styles.refineButtonText}>Refine</Text>
@@ -156,13 +176,20 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 </View>
               </View>
             </View>
+            
+            <View style={styles.sortingResult}>
+              <Text style={styles.sortingResultText}>{products.length} products found</Text>
+            </View>
           </View>
           
           <View style={styles.productGrid}>
             <View style={viewType === 'grid' ? styles.productRow : styles.productList}>
               {products.map((product) => (
                 <View key={product.id} style={viewType === 'grid' ? styles.productCard : styles.productListItem}>
-                  <TouchableOpacity style={viewType === 'grid' ? styles.productLink : styles.productLinkList}>
+                  <TouchableOpacity 
+                    style={viewType === 'grid' ? styles.productLink : styles.productLinkList}
+                    onPress={() => navigation.navigate('ProductDetail', { product })}
+                  >
                     <View style={viewType === 'grid' ? styles.productImageWrap : styles.productImageWrapList}>
                       <Image 
                         source={{ uri: product.image }} 
@@ -384,7 +411,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: '100%',
     marginTop: 10,
-    overflow: 'auto',
+    overflow: 'scroll',
     backgroundColor: '#fafafa',
   },
   productList: {
@@ -481,9 +508,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
     width: '100%',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
   },
   productNameGrid: {
     fontSize: 11,
@@ -491,17 +515,11 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
     width: '100%',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
   },
   productId: {
     fontSize: 11,
     color: '#666',
     marginBottom: 8,
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
     width: '100%',
   },
   productNameWrapper: {
@@ -521,9 +539,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 4,
     textAlign: 'left',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
     width: '100%',
   },
   productInfoIcons: {
@@ -665,7 +680,6 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: 'bold',
     fontWeight: '600',
   },
 });

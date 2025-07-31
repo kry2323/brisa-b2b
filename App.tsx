@@ -23,6 +23,7 @@ import OrderMonitoringScreen from './src/screens/OrderMonitoringScreen';
 import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
 import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
+import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -241,6 +242,23 @@ const linking = {
           },
         },
       },
+      ProductDetail: {
+        path: '/product/:productId',
+        parse: {
+          product: (product: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(product));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          product: (product: any) => {
+            return encodeURIComponent(JSON.stringify(product));
+          },
+        },
+      },
     },
   },
 };
@@ -302,6 +320,11 @@ export default function App() {
           name="POSMaterialTracking" 
           component={POSMaterialTrackingScreen} 
           options={{ title: 'POS Material Tracking' }}
+        />
+        <Stack.Screen 
+          name="ProductDetail" 
+          component={ProductDetailScreen} 
+          options={{ title: 'Product Detail' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
