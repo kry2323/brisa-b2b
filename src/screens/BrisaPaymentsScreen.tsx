@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
+import RowDetailModal from '../components/RowDetailModal';
+import ShowDropdown from '../components/ShowDropdown';
+import Pagination from '../components/Pagination';
+import DatePicker from '../components/DatePicker';
+import { getBrisaPaymentsData, TableDataItem } from '../utils/mockData';
 
 const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -14,18 +20,153 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   const [paymentNumber, setPaymentNumber] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
   
-  // Mock table data
-  const tableData = [
-    { id: 1, date: '15/03/2023', paymentNumber: 'PAY001', amount: '1,250.00', status: 'Completed' },
-    { id: 2, date: '22/04/2023', paymentNumber: 'PAY002', amount: '2,500.00', status: 'Pending' },
-    { id: 3, date: '10/05/2023', paymentNumber: 'PAY003', amount: '500.00', status: 'Completed' },
-    { id: 4, date: '18/06/2023', paymentNumber: 'PAY004', amount: '3,750.00', status: 'Processing' },
-  ];
+  // Column visibility state
+  const [columns, setColumns] = useState([
+    { key: 'customer', label: 'Customer', visible: false },
+    { key: 'customerName', label: 'Customer Name', visible: false },
+    { key: 'shipToParty', label: 'Ship-to Party', visible: true },
+    { key: 'shipToPartyName', label: 'Ship-To Party Name', visible: true },
+    { key: 'customerOrder', label: 'Customer Order', visible: true },
+    { key: 'orderDate', label: 'Order Date', visible: true },
+    { key: 'plannedOrder', label: 'Planned Order', visible: false },
+    { key: 'invoice', label: 'Invoice', visible: false },
+    { key: 'invoiceDate', label: 'Invoice Date', visible: false },
+    { key: 'productCode', label: 'Product Code', visible: false },
+    { key: 'definition', label: 'Definition', visible: false },
+    { key: 'group', label: 'Group', visible: false },
+    { key: 'size', label: 'Size', visible: false },
+    { key: 'season', label: 'Season', visible: false },
+    { key: 'totalQuantity', label: 'Total Quantity', visible: false },
+    { key: 'netValue', label: 'Net Value', visible: false },
+    { key: 'currency', label: 'Currency', visible: false },
+    { key: 'incoterm', label: 'Incoterm', visible: false },
+    { key: 'color', label: 'color', visible: false },
+  ]);
   
+  // Modal states
+  const [isColumnVisibilityModalOpen, setIsColumnVisibilityModalOpen] = useState(false);
+  const [isRowDetailModalOpen, setIsRowDetailModalOpen] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [showValue, setShowValue] = useState(100);
+  
+  // Data state
+  const [tableData, setTableData] = useState<TableDataItem[]>([]);
+  const [filteredTableData, setFilteredTableData] = useState<TableDataItem[]>([]);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Load initial data
+  useEffect(() => {
+    const loadData = () => {
+      const data = getBrisaPaymentsData({
+        startDate,
+        endDate,
+        paymentNumber,
+        paymentStatus,
+      });
+      setTableData(data);
+      setFilteredTableData(data);
+    };
+    
+    loadData();
+  }, []);
+
+  // Date parsing helper function
+  const parseDate = (dateStr: string): Date => {
+    const [day, month, year] = dateStr.split('/');
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  };
+
+  // Filter data based on date range and other filters
+  const updateFilteredData = () => {
+    const data = getBrisaPaymentsData({
+      startDate,
+      endDate,
+      paymentNumber,
+      paymentStatus,
+    });
+    setFilteredTableData(data);
+  };
+
   // Handle list button press
   const handleList = () => {
     console.log('Filtering with:', { startDate, endDate, paymentNumber, paymentStatus });
-    // Here you would typically fetch data from an API with these filters
+    updateFilteredData();
+    console.log('Filtered results:', filteredTableData.length, 'items');
+  };
+
+  // Handle column visibility toggle
+  const handleColumnToggle = (key: string) => {
+    setColumns(prevColumns => 
+      prevColumns.map(col => 
+        col.key === key ? { ...col, visible: !col.visible } : col
+      )
+    );
+  };
+
+  // Handle row click for detail popup
+  const handleRowClick = (rowData: any) => {
+    setSelectedRowData(rowData);
+    setIsRowDetailModalOpen(true);
+  };
+
+  // Handle column header click for sorting
+  const handleColumnSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New column, set to ascending
+      setSortColumn(columnKey);
+      setSortDirection('asc');
+    }
+  };
+
+  // Sort filtered table data
+  const sortedTableData = [...filteredTableData].sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+    
+    // Handle numeric values
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    
+    // Handle string values
+    const aStr = String(aValue || '');
+    const bStr = String(bValue || '');
+    
+    if (sortDirection === 'asc') {
+      return aStr.localeCompare(bStr);
+    } else {
+      return bStr.localeCompare(aStr);
+    }
+  });
+
+  // Pagination calculations
+  const totalItems = sortedTableData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = sortedTableData.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Handle items per page change
+  const handleItemsPerPageChange = (value: number) => {
+    setItemsPerPage(value);
+    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
   const handleNavigateToReport = (reportData: any) => {
@@ -74,30 +215,20 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Start Date:</Text>
-                <View style={styles.dateContainer}>
-                  <View style={styles.dateInputContainer}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={startDate}
-                      onChangeText={setStartDate}
-                      placeholder="DD/MM/YYYY"
-                    />
-                  </View>
-                </View>
+                <DatePicker
+                  value={startDate}
+                  onChange={setStartDate}
+                  placeholder="DD/MM/YYYY"
+                />
               </View>
               
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>End Date:</Text>
-                <View style={styles.dateContainer}>
-                  <View style={styles.dateInputContainer}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={endDate}
-                      onChangeText={setEndDate}
-                      placeholder="DD/MM/YYYY"
-                    />
-                  </View>
-                </View>
+                <DatePicker
+                  value={endDate}
+                  onChange={setEndDate}
+                  placeholder="DD/MM/YYYY"
+                />
               </View>
             </View>
             
@@ -128,27 +259,82 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
             </TouchableOpacity>
           </View>
           
+          {/* Column Visibility Header - Full Width */}
+          <TouchableOpacity 
+            style={styles.columnVisibilityHeader}
+            onPress={() => setIsColumnVisibilityModalOpen(true)}
+          >
+            <Text style={styles.columnVisibilityHeaderText}>Column Visibility</Text>
+          </TouchableOpacity>
+          
+          {/* Show Dropdown */}
+          <View style={styles.showDropdownContainer}>
+            <ShowDropdown 
+              value={itemsPerPage}
+              onValueChange={handleItemsPerPageChange}
+            />
+          </View>
+          
           {/* Table */}
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
-              <Text style={styles.tableHeaderCell}>Date</Text>
-              <Text style={styles.tableHeaderCell}>Payment No</Text>
-              <Text style={styles.tableHeaderCell}>Amount</Text>
-              <Text style={styles.tableHeaderCell}>Status</Text>
+              {columns.filter(col => col.visible).map((column) => (
+                <TouchableOpacity
+                  key={column.key}
+                  style={styles.tableHeaderCellContainer}
+                  onPress={() => handleColumnSort(column.key)}
+                >
+                  <Text style={styles.tableHeaderCell}>
+                    {column.label}
+                  </Text>
+                  {sortColumn === column.key && (
+                    <Text style={styles.sortIcon}>
+                      {sortDirection === 'asc' ? '▲' : '▼'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))}
             </View>
             
-            {tableData.map((item, index) => (
-              <View 
-                key={item.id} 
-                style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-              >
-                <Text style={styles.tableCell}>{item.date}</Text>
-                <Text style={styles.tableCell}>{item.paymentNumber}</Text>
-                <Text style={styles.tableCell}>{item.amount}</Text>
-                <Text style={styles.tableCell}>{item.status}</Text>
-              </View>
-            ))}
+            {/* Scrollable Table Body */}
+            <ScrollView 
+              style={styles.tableBodyScroll} 
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true}
+              scrollEventThrottle={16}
+            >
+              {paginatedData.length > 0 ? (
+                paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={item.customerOrder || index}
+                    style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd, styles.clickableRow]}
+                    onPress={() => handleRowClick(item)}
+                  >
+                    {columns.filter(col => col.visible).map((column) => (
+                      <Text key={column.key} style={styles.tableCell}>
+                        {item[column.key]}
+                      </Text>
+                    ))}
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>No Data</Text>
+                </View>
+              )}
+            </ScrollView>
           </View>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
+          )}
         </View>
         <Footer />
       </ScrollView>
@@ -157,6 +343,24 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
         setIsReportsModalOpen={setIsReportsModalOpen}
         onNavigateToReport={handleNavigateToReport}
       />
+      
+      {/* Column Visibility Modal */}
+      <ColumnVisibilityModal
+        visible={isColumnVisibilityModalOpen}
+        onClose={() => setIsColumnVisibilityModalOpen(false)}
+        columns={columns}
+        onColumnToggle={handleColumnToggle}
+        showValue={showValue}
+        onShowValueChange={setShowValue}
+      />
+      
+      {/* Row Detail Modal */}
+      <RowDetailModal
+        visible={isRowDetailModalOpen}
+        onClose={() => setIsRowDetailModalOpen(false)}
+        rowData={selectedRowData}
+        columns={columns}
+      />
     </SafeAreaView>
   );
 };
@@ -164,135 +368,188 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F5F5F5',
   },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 20,
-    width: '100%',
-    maxWidth: 1200,
-    alignSelf: 'center',
-    minHeight: 500,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 18,
+    fontWeight: '600',
     marginBottom: 20,
-    alignSelf: 'center',
+    color: '#333',
+    textAlign: 'left',
+    fontFamily: 'MuseoSans-Medium',
   },
   formContainer: {
     backgroundColor: '#FFFFFF',
     padding: 20,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
     marginBottom: 20,
-    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   formRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 15,
-    flexWrap: 'wrap',
   },
   formGroup: {
-    width: '48%',
-    marginBottom: 10,
+    flex: 1,
+    marginRight: 10,
   },
   formLabel: {
     fontSize: 14,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#555',
+    color: '#333',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#FFF',
+    fontFamily: 'MuseoSans-Regular',
   },
   dateContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
   },
   dateInputContainer: {
     flex: 1,
-    height: 40,
-    borderColor: '#DDD',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
   },
   dateInput: {
-    fontSize: 14,
-    color: '#333',
-  },
-  textInput: {
-    height: 40,
-    borderColor: '#DDD',
     borderWidth: 1,
+    borderColor: '#DDD',
     borderRadius: 5,
-    paddingHorizontal: 10,
-    fontSize: 14,
-    color: '#333',
+    padding: 10,
+    fontSize: 16,
+    backgroundColor: '#FFF',
   },
   listButton: {
-    backgroundColor: '#666',
+    backgroundColor: '#8D8D8D',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 5,
-    alignSelf: 'flex-end',
+    alignSelf: 'stretch',
     marginTop: 10,
+    alignItems: 'center',
   },
   listButtonText: {
     color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  columnVisibilityHeader: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DDD',
+  },
+  columnVisibilityHeaderText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  showDropdownContainer: {
+    marginBottom: 10,
   },
   tableContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    width: '100%',
-    marginBottom: 20,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom: 10,
+  },
+  tableBodyScroll: {
+    maxHeight: 400,
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: '#8D8D8D',
     borderBottomWidth: 1,
-    borderBottomColor: '#DDD',
+    borderBottomColor: '#E9ECEF',
+  },
+  tableHeaderCellContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 12,
   },
   tableHeaderCell: {
-    flex: 1,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
-    color: '#555',
+    color: '#FFFFFF',
     textAlign: 'center',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  sortIcon: {
+    fontSize: 12,
+    color: '#007AFF',
+    marginLeft: 5,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
-    paddingVertical: 10,
+    borderBottomColor: '#E9ECEF',
   },
   tableRowEven: {
     backgroundColor: '#FFFFFF',
   },
   tableRowOdd: {
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#F8F9FA',
+  },
+  clickableRow: {
+    borderLeftWidth: 3,
+    borderLeftColor: 'transparent',
   },
   tableCell: {
     flex: 1,
-    fontSize: 14,
-    color: '#333',
+    padding: 12,
+    fontSize: 12,
+    color: '#495057',
     textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
+  },
+  noDataContainer: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#DA3C42',
+    borderStyle: 'dashed',
+    margin: 20,
+    borderRadius: 8,
+  },
+  noDataText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#DA3C42',
+    fontFamily: 'MuseoSans-Bold',
   },
 });
 

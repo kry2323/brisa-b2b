@@ -74,12 +74,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
   cisSubtext: {
     color: '#FFFFFF',
     fontSize: 8,
     opacity: 0.8,
     lineHeight: 10,
+    fontFamily: 'MuseoSans-Regular',
   },
   cartButton: {
     padding: 4,

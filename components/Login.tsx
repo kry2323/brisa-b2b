@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 32,
     color: '#383838',
+    fontFamily: 'MuseoSans-Bold',
   },
   input: {
     width: '100%',
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 16,
     backgroundColor: '#FFF',
+    fontFamily: 'MuseoSans-Regular',
   },
   button: {
     width: '100%',
@@ -84,6 +86,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
 });
 

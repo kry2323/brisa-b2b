@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2B2B2B',
+    fontFamily: 'MuseoSans-Bold',
   },
   balanceContainer: {
     alignItems: 'flex-end',
@@ -120,6 +121,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#383838',
     marginBottom: 4,
+    fontFamily: 'MuseoSans-Regular',
   },
   balanceValue: {
     backgroundColor: '#8D8D8D',
@@ -131,6 +133,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
   dashboardContainer: {
     backgroundColor: '#8D8D8D',
@@ -168,11 +171,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginBottom: 4,
+    fontFamily: 'MuseoSans-Bold',
   },
   itemTitle: {
     fontSize: 11,
     color: '#FFFFFF',
     lineHeight: 13,
+    fontFamily: 'MuseoSans-Regular',
   },
   itemIcon: {
     width: 40,
@@ -197,6 +202,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     marginBottom: 15,
+    fontFamily: 'MuseoSans-Bold',
   },
   shipmentItem: {
     marginBottom: 15,
@@ -221,6 +227,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
   shipmentPercentage: {
     width: 75,
@@ -232,6 +239,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
   headerLeft: {
     flexDirection: 'row',
