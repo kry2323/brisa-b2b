@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2B2B2B',
+    fontFamily: 'MuseoSans-Bold',
   },
   buttonContainer: {
     backgroundColor: '#D53439',
@@ -112,6 +113,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#383838',
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
 });
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Font from 'expo-font';
 
 import Snap from './src/components/Snap';
 
@@ -263,8 +264,27 @@ const linking = {
   },
 };
 
+// Font yükleme fonksiyonu
+const loadFonts = async () => {
+  await Font.loadAsync({
+    'MuseoSans-Regular': require('./assets/fonts/MuseoSans-Regular.ttf'),
+    'MuseoSans-Medium': require('./assets/fonts/MuseoSans-Medium.ttf'),
+    'MuseoSans-Bold': require('./assets/fonts/MuseoSans-Bold.ttf'),
+  });
+};
+
 // Ana App bileşeni
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadFonts().then(() => setFontsLoaded(true));
+  }, []);
+
+  if (!fontsLoaded) {
+    return null; // Fontlar yüklenene kadar loading göster
+  }
+
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator 

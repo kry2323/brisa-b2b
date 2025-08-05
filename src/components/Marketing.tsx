@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2B2B2B',
+    fontFamily: 'MuseoSans-Bold',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#333',
+    fontFamily: 'MuseoSans-Regular',
   },
   searchButton: {
     padding: 5,
@@ -138,6 +140,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
 });
 

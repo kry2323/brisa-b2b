@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     flex: 1,
+    fontFamily: 'MuseoSans-Bold',
   },
   cardFooter: {
     backgroundColor: '#FFFFFF',
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#383838',
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
 });
 

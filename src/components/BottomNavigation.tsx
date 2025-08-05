@@ -304,10 +304,12 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
   activeTabText: {
     color: '#D53439',
     fontWeight: '600',
+    fontFamily: 'MuseoSans-Medium',
   },
   modalOverlay: {
     position: 'absolute',
@@ -353,6 +355,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+    fontFamily: 'MuseoSans-Bold',
   },
   closeButton: {
     width: 30,
@@ -366,6 +369,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
   menuItems: {
     paddingHorizontal: 20,
@@ -389,6 +393,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     fontWeight: '500',
+    fontFamily: 'MuseoSans-Medium',
   },
 });
 

@@ -80,12 +80,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     lineHeight: 22,
+    fontFamily: 'MuseoSans-Bold',
   },
   bannerSubtitle: {
     fontSize: 14,
     color: '#FFFFFF',
     fontStyle: 'italic',
     marginTop: 2,
+    fontFamily: 'MuseoSans-Regular',
   },
   bannerDate: {
     fontSize: 16,
@@ -93,12 +95,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginTop: 8,
     marginBottom: 8,
+    fontFamily: 'MuseoSans-Bold',
   },
   bannerNote: {
     fontSize: 10,
     color: '#FFFFFF',
     opacity: 0.8,
     lineHeight: 12,
+    fontFamily: 'MuseoSans-Regular',
   },
   documentSection: {
     justifyContent: 'center',
@@ -127,12 +131,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: 'MuseoSans-Bold',
   },
   bannerText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
+    fontFamily: 'MuseoSans-Bold',
   },
   indicator: {
     position: 'absolute',
