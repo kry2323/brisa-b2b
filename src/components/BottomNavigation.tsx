@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 interface BottomNavigationProps {
   isReportsModalOpen: boolean;
@@ -8,8 +9,12 @@ interface BottomNavigationProps {
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen, setIsReportsModalOpen, onNavigateToReport }) => {
-  const [activeTab, setActiveTab] = useState('create-order');
+  const navigation = useNavigation();
+  const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false);
+  const [isUploadOrderModalOpen, setIsUploadOrderModalOpen] = useState(false);
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
 
   const financialReports = [
@@ -25,13 +30,33 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     { id: 'tyres-on-the-way', title: 'Tyres On The Way', icon: '🚚', url: '/b2b/cis/tyres-on-the-way' },
     { id: 'pos-material-tracking', title: 'POS Material Tracking', icon: '🏪', url: '/b2b/proforma/branded-product-report' },
   ];
+  
+  const marketingItems = [
+    { id: 'product-photos', title: 'Ürün Fotoğrafları', icon: '📸', url: '/marketing/product-photos' },
+    { id: 'campaign-materials', title: 'Kampanya Materyalleri', icon: '🎯', url: '/marketing/campaign-materials' },
+    { id: 'social-media', title: 'Sosyal Medya Veritabanı', icon: '📱', url: '/marketing/social-media' },
+    { id: 'brochures', title: 'Broşürler', icon: '📑', url: '/marketing/brochures' },
+    { id: 'videos', title: 'Videolar', icon: '🎬', url: '/marketing/videos' },
+  ];
 
   const navigationItems = [
+    {
+      id: 'home',
+      title: 'Ana Sayfa',
+      icon: '🏠',
+      shortTitle: 'Ana Sayfa',
+    },
     {
       id: 'create-order',
       title: 'Sipariş Oluştur',
       icon: '📋',
       shortTitle: 'Sipariş',
+    },
+    {
+      id: 'upload-order',
+      title: 'Sipariş Yükle',
+      icon: '⬆️',
+      shortTitle: 'Yükle',
     },
     {
       id: 'cart',
@@ -46,16 +71,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       shortTitle: 'Raporlar',
     },
     {
-      id: 'finance',
-      title: 'Finans Rapor',
-      icon: '💰',
-      shortTitle: 'Finans',
-    },
-    {
       id: 'marketing',
       title: 'Marketing',
       icon: '📈',
       shortTitle: 'Marketing',
+    },
+    {
+      id: 'help',
+      title: 'Yardım',
+      icon: '❓',
+      shortTitle: 'Yardım',
     },
     {
       id: 'other',
@@ -78,6 +103,28 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       setIsMenuOpen(true);
     } else if (tabId === 'reports') {
       setIsReportsModalOpen(true);
+    } else if (tabId === 'create-order') {
+      setActiveTab(tabId);
+      // Navigate to product listing for creating order
+      // @ts-ignore
+      navigation.navigate('ProductListing');
+    } else if (tabId === 'upload-order') {
+      setActiveTab(tabId);
+      // Open upload order modal
+      setIsUploadOrderModalOpen(true);
+    } else if (tabId === 'marketing') {
+      setActiveTab(tabId);
+      // Open marketing modal
+      setIsMarketingModalOpen(true);
+    } else if (tabId === 'help') {
+      setActiveTab(tabId);
+      // Open help modal
+      setIsHelpModalOpen(true);
+    } else if (tabId === 'home') {
+      setActiveTab(tabId);
+      // Navigate to home/dashboard
+      // @ts-ignore
+      navigation.navigate('Dashboard');
     } else {
       setActiveTab(tabId);
     }
@@ -96,6 +143,15 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const handleReportItemPress = (report: any) => {
     console.log('Report item pressed:', report);
     onNavigateToReport(report);
+    setIsReportsModalOpen(false);
+  };
+  
+  const handleMarketingItemPress = (item: any) => {
+    console.log(`Marketing item pressed: ${item.id}`);
+    setIsMarketingModalOpen(false);
+    // Navigate to marketing item
+    // @ts-ignore
+    navigation.navigate('Marketing', { item });
   };
 
   const getReportItems = () => {
@@ -107,6 +163,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       default:
         return [];
     }
+  };
+  
+  // Combine all reports for direct access
+  const getAllReports = () => {
+    return [
+      { id: 'financial-header', title: 'Mali Raporlar', icon: '📊', isHeader: true },
+      ...financialReports,
+      { id: 'order-sales-header', title: 'Sipariş ve Satış Raporları', icon: '📈', isHeader: true },
+      ...orderSalesReports
+    ];
   };
 
   const getModalTitle = () => {
@@ -188,6 +254,145 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         </View>
       </Modal>
 
+      {/* Marketing Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isMarketingModalOpen}
+        onRequestClose={() => setIsMarketingModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsMarketingModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>Marketing Library</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setIsMarketingModalOpen(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
+              {marketingItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.menuItem}
+                  onPress={() => handleMarketingItemPress(item)}
+                >
+                  <Text style={styles.menuItemIcon}>{item.icon}</Text>
+                  <Text style={styles.menuItemText}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Upload Order Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isUploadOrderModalOpen}
+        onRequestClose={() => setIsUploadOrderModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsUploadOrderModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>Sipariş Yükle</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setIsUploadOrderModalOpen(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.uploadContainer}>
+              <View style={styles.menuSectionHeader}>
+                <Text style={styles.menuSectionHeaderIcon}>📤</Text>
+                <Text style={styles.menuSectionHeaderText}>Excel ile Sipariş Yükle</Text>
+              </View>
+              <Text style={styles.uploadDescription}>
+                Excel dosyanızı yükleyerek toplu sipariş oluşturabilirsiniz. Lütfen şablona uygun bir dosya kullanın.
+              </Text>
+              <TouchableOpacity style={styles.uploadButton}>
+                <Text style={styles.uploadButtonText}>Dosya Seç</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.downloadTemplateButton}>
+                <Text style={styles.downloadTemplateText}>Şablonu İndir</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Help Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isHelpModalOpen}
+        onRequestClose={() => setIsHelpModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsHelpModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>Yardım</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setIsHelpModalOpen(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
+              <View style={styles.menuSectionHeader}>
+                <Text style={styles.menuSectionHeaderIcon}>📞</Text>
+                <Text style={styles.menuSectionHeaderText}>Bize Ulaşın</Text>
+              </View>
+              <TouchableOpacity style={styles.helpItem}>
+                <Text style={styles.helpItemIcon}>📱</Text>
+                <Text style={styles.helpItemText}>+90 212 123 45 67</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.helpItem}>
+                <Text style={styles.helpItemIcon}>✉️</Text>
+                <Text style={styles.helpItemText}>destek@brisa.com.tr</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.menuSectionHeader}>
+                <Text style={styles.menuSectionHeaderIcon}>📚</Text>
+                <Text style={styles.menuSectionHeaderText}>Sık Sorulan Sorular</Text>
+              </View>
+              <TouchableOpacity style={styles.helpItem}>
+                <Text style={styles.helpItemIcon}>❓</Text>
+                <Text style={styles.helpItemText}>Sipariş nasıl oluşturabilirim?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.helpItem}>
+                <Text style={styles.helpItemIcon}>❓</Text>
+                <Text style={styles.helpItemText}>Ödeme seçenekleri nelerdir?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.helpItem}>
+                <Text style={styles.helpItemIcon}>❓</Text>
+                <Text style={styles.helpItemText}>Siparişimi nasıl takip edebilirim?</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -201,58 +406,34 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
           />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
-              <Text style={styles.menuTitle}>
-                {selectedReportType ? getModalTitle() : 'Raporlar'}
-              </Text>
+              <Text style={styles.menuTitle}>Raporlar</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => {
-                  if (selectedReportType) {
-                    setSelectedReportType(null);
-                  } else {
-                    setIsReportsModalOpen(false);
-                  }
-                }}
+                onPress={() => setIsReportsModalOpen(false)}
               >
-                <Text style={styles.closeButtonText}>
-                  {selectedReportType ? '←' : '✕'}
-                </Text>
+                <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
             </View>
             
             <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
-              {!selectedReportType ? (
-                // Show report categories
-                <>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => handleReportTypePress('financial')}
-                  >
-                    <Text style={styles.menuItemIcon}>📊</Text>
-                    <Text style={styles.menuItemText}>Mali Raporlar</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => handleReportTypePress('order-sales')}
-                  >
-                    <Text style={styles.menuItemIcon}>📈</Text>
-                    <Text style={styles.menuItemText}>Sipariş ve Satış Raporları</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                // Show specific reports
-                getReportItems().map((report) => (
-                  <TouchableOpacity
-                    key={report.id}
-                    style={styles.menuItem}
-                    onPress={() => handleReportItemPress(report)}
-                  >
-                    <Text style={styles.menuItemIcon}>{report.icon}</Text>
-                    <Text style={styles.menuItemText}>{report.title}</Text>
-                  </TouchableOpacity>
-                ))
-              )}
+              {getAllReports().map((report) => (
+                <React.Fragment key={report.id}>
+                  {'isHeader' in report && report.isHeader ? (
+                    <View style={styles.menuSectionHeader}>
+                      <Text style={styles.menuSectionHeaderIcon}>{report.icon}</Text>
+                      <Text style={styles.menuSectionHeaderText}>{report.title}</Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => handleReportItemPress(report)}
+                    >
+                      <Text style={styles.menuItemIcon}>{report.icon}</Text>
+                      <Text style={styles.menuItemText}>{report.title}</Text>
+                    </TouchableOpacity>
+                  )}
+                </React.Fragment>
+              ))}
             </ScrollView>
           </View>
         </View>
@@ -279,6 +460,82 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 8,
+  },
+  menuSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    marginTop: 10,
+    marginBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  menuSectionHeaderIcon: {
+    fontSize: 20,
+    marginRight: 15,
+    width: 25,
+    textAlign: 'center',
+    color: '#D53439',
+  },
+  menuSectionHeaderText: {
+    fontSize: 18,
+    color: '#D53439',
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  uploadContainer: {
+    padding: 20,
+  },
+  uploadDescription: {
+    fontSize: 16,
+    color: '#333',
+    marginVertical: 15,
+    lineHeight: 22,
+  },
+  uploadButton: {
+    backgroundColor: '#D53439',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  uploadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  downloadTemplateButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#D53439',
+  },
+  downloadTemplateText: {
+    color: '#D53439',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  helpItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  helpItemIcon: {
+    fontSize: 20,
+    marginRight: 15,
+    width: 25,
+    textAlign: 'center',
+  },
+  helpItemText: {
+    fontSize: 16,
+    color: '#333',
   },
   tabButton: {
     flex: 1,

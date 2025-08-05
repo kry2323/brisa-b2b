@@ -15,7 +15,7 @@ const Header = () => {
       {/* Logo - SVG Logo */}
       <TouchableOpacity 
         style={styles.logoContainer} 
-        onPress={() => navigation.navigate('Dashboard')}
+        onPress={() => navigation.navigate('Dashboard' as never)}
       >
         <LassaLogo height={40} />
       </TouchableOpacity>
