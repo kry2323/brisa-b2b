@@ -10,8 +10,8 @@ const Footer = () => {
 const styles = StyleSheet.create({
   footer: {
     height: 20,
-    backgroundColor: '#383838',
+    backgroundColor: '#F8F8F8',
   },
 });
 
-export default Footer; 
+export default Footer;

@@ -86,9 +86,6 @@ function DashboardScreen({ navigation }: any) {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <Snap />
         <Banner />
-        <OrderOperations />
-        <Marketing />
-        <Reports />
         <Footer />
       </ScrollView>
       <BottomNavigation 
@@ -358,5 +355,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    backgroundColor: '#F8F8F8',
   },
 });

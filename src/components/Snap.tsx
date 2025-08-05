@@ -51,8 +51,6 @@ const Snap = () => {
         </View>
         
         <View style={styles.shipmentStatus}>
-          <Text style={styles.shipmentTitle}>Monthly Shipment Status</Text>
-          
           <View style={styles.shipmentItem}>
             <View style={styles.shipmentBar}>
               <View style={[styles.shipmentProgress, { backgroundColor: '#D53439' }]}>
@@ -115,12 +113,13 @@ const styles = StyleSheet.create({
     fontFamily: 'MuseoSans-Bold',
   },
   balanceContainer: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   balanceLabel: {
     fontSize: 14,
     color: '#383838',
-    marginBottom: 4,
     fontFamily: 'MuseoSans-Regular',
   },
   balanceValue: {
@@ -251,4 +250,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Snap; 
+export default Snap;
