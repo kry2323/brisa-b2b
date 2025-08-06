@@ -27,6 +27,7 @@ import UnplannedOrdersScreen from './src/screens/UnplannedOrdersScreen';
 import FinancialReportsParentScreen from './src/screens/FinancialReportsParentScreen';
 import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
 import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
+import LassaTeamScreen from './src/screens/LassaTeamScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 
@@ -79,6 +80,9 @@ function DashboardScreen({ navigation }: any) {
         break;
       case 'pos-material-tracking':
         navigation.navigate('POSMaterialTracking', { reportData });
+        break;
+      case 'lassa-team':
+        navigation.navigate('LassaTeam', { reportData });
         break;
       default:
         console.log('Unknown report type');
@@ -232,6 +236,23 @@ const linking = {
       },
       POSMaterialTracking: {
         path: '/reports/pos-material-tracking',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      LassaTeam: {
+        path: '/reports/lassa-team',
         parse: {
           reportData: (reportData: string) => {
             try {
@@ -410,6 +431,11 @@ export default function App() {
           name="POSMaterialTracking" 
           component={POSMaterialTrackingScreen} 
           options={{ title: 'POS Material Tracking' }}
+        />
+        <Stack.Screen 
+          name="LassaTeam" 
+          component={LassaTeamScreen} 
+          options={{ title: 'Your Lassa Team' }}
         />
         <Stack.Screen 
           name="ProductDetail" 
