@@ -44,6 +44,9 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     setIsReportsModalOpen(false);
     
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;

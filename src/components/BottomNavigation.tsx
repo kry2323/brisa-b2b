@@ -18,9 +18,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
 
   const financialReports = [
-    { id: 'brisa-payments', title: 'Brisa Payments', icon: '💳', url: '/b2b/cis/brisa-payments' },
-    { id: 'overdue-report', title: 'Overdue Report', icon: '⏰', url: '/b2b/cis/invoice' },
-    { id: 'account-transactions', title: 'Account Transactions', icon: '📊', url: '/b2b/cis/account-transaction' },
+    { id: 'financial-reports', title: 'Financial Reports', icon: '💰', url: '/b2b/financial-reports' },
   ];
 
   const orderSalesReports = [
