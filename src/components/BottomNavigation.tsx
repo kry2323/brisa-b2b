@@ -91,6 +91,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const menuItems = [
     { id: 'profile', title: 'Profil', icon: '👤' },
     { id: 'settings', title: 'Ayarlar', icon: '⚙️' },
+    { id: 'lassa-team', title: 'Your Lassa Team', icon: '👥' },
     { id: 'help', title: 'Yardım', icon: '❓' },
     { id: 'about', title: 'Hakkında', icon: 'ℹ️' },
     { id: 'logout', title: 'Çıkış', icon: '🚪' },
@@ -132,6 +133,12 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     setIsMenuOpen(false);
     // Menü item'ı için işlemler burada yapılacak
     console.log('Menu item pressed:', itemId);
+    
+    if (itemId === 'lassa-team') {
+      // Navigate to Lassa Team screen
+      // @ts-ignore
+      navigation.navigate('LassaTeam');
+    }
   };
 
   const handleReportTypePress = (reportType: string) => {
@@ -169,7 +176,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       { id: 'financial-header', title: 'Mali Raporlar', icon: '📊', isHeader: true },
       ...financialReports,
       { id: 'order-sales-header', title: 'Sipariş ve Satış Raporları', icon: '📈', isHeader: true },
-      ...orderSalesReports
+      ...orderSalesReports,
     ];
   };
 
