@@ -21,6 +21,10 @@ import AccountTransactionsScreen from './src/screens/AccountTransactionsScreen';
 import ShipmentsDocumentsScreen from './src/screens/ShipmentsDocumentsScreen';
 import SalesReportScreen from './src/screens/SalesReportScreen';
 import OrderMonitoringScreen from './src/screens/OrderMonitoringScreen';
+import OrderMonitoringParentScreen from './src/screens/OrderMonitoringParentScreen';
+import PlannedOrdersScreen from './src/screens/PlannedOrdersScreen';
+import UnplannedOrdersScreen from './src/screens/UnplannedOrdersScreen';
+import FinancialReportsParentScreen from './src/screens/FinancialReportsParentScreen';
 import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
 import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
@@ -49,6 +53,9 @@ function DashboardScreen({ navigation }: any) {
     
     // Navigate based on report ID using React Navigation
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;
@@ -240,6 +247,57 @@ const linking = {
           },
         },
       },
+      FinancialReports: {
+        path: '/reports/financial-reports',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      PlannedOrders: {
+        path: '/reports/planned-orders',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      UnplannedOrders: {
+        path: '/reports/unplanned-orders',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
       ProductDetail: {
         path: '/product/:productId',
         parse: {
@@ -325,8 +383,23 @@ export default function App() {
         />
         <Stack.Screen 
           name="OrderMonitoring" 
-          component={OrderMonitoringScreen} 
+          component={OrderMonitoringParentScreen} 
           options={{ title: 'Order Monitoring' }}
+        />
+        <Stack.Screen 
+          name="PlannedOrders" 
+          component={PlannedOrdersScreen} 
+          options={{ title: 'Planned Orders' }}
+        />
+        <Stack.Screen 
+          name="UnplannedOrders" 
+          component={UnplannedOrdersScreen} 
+          options={{ title: 'Unplanned Orders' }}
+        />
+        <Stack.Screen 
+          name="FinancialReports" 
+          component={FinancialReportsParentScreen} 
+          options={{ title: 'Financial Reports' }}
         />
         <Stack.Screen 
           name="TyresOnTheWay" 

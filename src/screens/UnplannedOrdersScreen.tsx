@@ -4,25 +4,25 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 
-const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
+const UnplannedOrdersScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   
   // Form state
   const [startDate, setStartDate] = useState('30/12/2018');
   const [endDate, setEndDate] = useState('28/07/2025');
-  const [planNo, setPlanNo] = useState('');
-  const [invoiceNo, setInvoiceNo] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [status, setStatus] = useState('');
   
   // Table data state
   const [tableData, setTableData] = useState([
-    { planNo: '3500057880', invoiceNo: '9280033872', invoiceQty: '1,062' },
-    { planNo: '3500058173', invoiceNo: '9280034066', invoiceQty: '1,264' },
+    { orderNumber: 'ORD-2023-003', date: '18/03/2023', status: 'Unplanned', amount: '€12,450' },
+    { orderNumber: 'ORD-2023-004', date: '25/04/2023', status: 'Unplanned', amount: '€7,890' },
   ]);
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
-    console.log('Listing with filters:', { startDate, endDate, planNo, invoiceNo });
+    console.log('Listing unplanned orders with filters:', { startDate, endDate, orderNumber, status });
     // For now we'll just use the mock data already set
   };
 
@@ -68,54 +68,52 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
       <Header />
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Shipments, Documents and Status</Text>
+          <Text style={styles.title}>Unplanned Orders</Text>
           
           {/* Form Section */}
           <View style={styles.formContainer}>
-            {/* Plan Date Row */}
+            {/* Date Range Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Plan Date *</Text>
-                <View style={styles.datePickerContainer}>
-                  <View style={styles.datePicker}>
+                <Text style={styles.formLabel}>Order Date *</Text>
+                <View style={styles.dateContainer}>
+                  <View style={styles.dateInputContainer}>
                     <TextInput
                       style={styles.dateInput}
                       value={startDate}
                       onChangeText={setStartDate}
                     />
-                    <Text style={styles.dateIcon}>📅</Text>
                   </View>
-                  <View style={styles.datePicker}>
+                  <View style={styles.dateInputContainer}>
                     <TextInput
                       style={styles.dateInput}
                       value={endDate}
                       onChangeText={setEndDate}
                     />
-                    <Text style={styles.dateIcon}>📅</Text>
                   </View>
                 </View>
               </View>
             </View>
             
-            {/* Plan No and Invoice No Row */}
+            {/* Order Number and Status Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Plan No</Text>
+                <Text style={styles.formLabel}>Order Number</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={planNo}
-                  onChangeText={setPlanNo}
-                  placeholder="Enter Plan No"
+                  value={orderNumber}
+                  onChangeText={setOrderNumber}
+                  placeholder="Enter order number"
                 />
               </View>
               
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Invoice No</Text>
+                <Text style={styles.formLabel}>Status</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={invoiceNo}
-                  onChangeText={setInvoiceNo}
-                  placeholder="Enter Invoice No"
+                  value={status}
+                  onChangeText={setStatus}
+                  placeholder="Enter status"
                 />
               </View>
             </View>
@@ -132,17 +130,19 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeader}>
-              <Text style={styles.tableHeaderCell}>Plan No</Text>
-              <Text style={styles.tableHeaderCell}>Invoice No</Text>
-              <Text style={styles.tableHeaderCell}>Invoice Qty</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Order Number</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Date</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Amount</Text>
             </View>
             
             {/* Table Rows */}
             {tableData.map((item, index) => (
               <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
-                <Text style={styles.tableCell}>{item.planNo}</Text>
-                <Text style={styles.tableCell}>{item.invoiceNo}</Text>
-                <Text style={styles.tableCell}>{item.invoiceQty}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.orderNumber}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.date}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.amount}</Text>
               </View>
             ))}
           </View>
@@ -169,8 +169,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     width: '100%',
-    maxWidth: 1200,
-    alignSelf: 'center',
     minHeight: 500,
   },
   title: {
@@ -180,123 +178,103 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'flex-start',
   },
-  
-  // Form Styles
   formContainer: {
     width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: 20,
+    padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   formRow: {
     flexDirection: 'row',
-    marginBottom: 15,
-    flexWrap: 'wrap',
+    marginBottom: 16,
+    justifyContent: 'space-between',
   },
   formGroup: {
     flex: 1,
-    minWidth: 250,
-    marginRight: 15,
-    marginBottom: 10,
+    marginHorizontal: 8,
   },
   formLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginBottom: 8,
     color: '#333',
   },
-  datePickerContainer: {
+  dateContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  datePicker: {
+  dateInputContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 4,
-    height: 40,
-    paddingHorizontal: 10,
-    marginRight: 10,
+    marginRight: 8,
   },
   dateInput: {
-    flex: 1,
     height: 40,
-  },
-  dateIcon: {
-    fontSize: 18,
-  },
-  textInput: {
     borderWidth: 1,
     borderColor: '#DDD',
     borderRadius: 4,
-    height: 40,
     paddingHorizontal: 10,
+    backgroundColor: '#FFF',
+  },
+  textInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFF',
   },
   listButton: {
     backgroundColor: '#666',
-    borderRadius: 4,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 150,
+    minWidth: 120,
   },
   listButtonText: {
-    color: '#FFFFFF',
+    color: '#FFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
-  
-  // Table Styles
   tableContainer: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF',
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#666',
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
   },
   tableHeaderCell: {
-    flex: 1,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: '#FFF',
+    fontWeight: '600',
     fontSize: 14,
-    textAlign: 'left',
+    textAlign: 'center',
   },
   tableRow: {
     flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#EEE',
-    padding: 12,
   },
   tableRowEven: {
     backgroundColor: '#F9F9F9',
   },
   tableRowOdd: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF',
   },
   tableCell: {
-    flex: 1,
     fontSize: 14,
     color: '#333',
+    textAlign: 'center',
   },
 });
 
-export default ShipmentsDocumentsScreen;
+export default UnplannedOrdersScreen;
