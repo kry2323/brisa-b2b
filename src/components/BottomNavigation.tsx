@@ -154,9 +154,33 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const handleMarketingItemPress = (item: any) => {
     console.log(`Marketing item pressed: ${item.id}`);
     setIsMarketingModalOpen(false);
-    // Navigate to marketing item
-    // @ts-ignore
-    navigation.navigate('Marketing', { item });
+    // Navigate to marketing item based on ID
+    switch (item.id) {
+      case 'videos':
+        // @ts-ignore
+        navigation.navigate('VideoLibrary');
+        break;
+      case 'product-photos':
+        // @ts-ignore
+        navigation.navigate('ProductListing');
+        break;
+      case 'campaign-materials':
+        // @ts-ignore
+        navigation.navigate('Dashboard');
+        break;
+      case 'social-media':
+        // @ts-ignore
+        navigation.navigate('Dashboard');
+        break;
+      case 'brochures':
+        // @ts-ignore
+        navigation.navigate('Dashboard');
+        break;
+      default:
+        // @ts-ignore
+        navigation.navigate('Dashboard');
+        break;
+    }
   };
 
   const getReportItems = () => {
