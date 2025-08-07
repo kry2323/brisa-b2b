@@ -30,6 +30,9 @@ import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
 import LassaTeamScreen from './src/screens/LassaTeamScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
+import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
+import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
+import VideoDetailScreen from './src/screens/VideoDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -336,6 +339,33 @@ const linking = {
           },
         },
       },
+      VideoLibrary: {
+        path: '/video-library',
+      },
+      VideoPlayer: {
+        path: '/video-player',
+        parse: {
+          videoUrl: (videoUrl: string) => decodeURIComponent(videoUrl),
+          title: (title: string) => decodeURIComponent(title),
+        },
+        stringify: {
+          videoUrl: (videoUrl: string) => encodeURIComponent(videoUrl),
+          title: (title: string) => encodeURIComponent(title),
+        },
+      },
+      VideoDetail: {
+        path: '/video-detail',
+        parse: {
+          videoId: (videoId: string) => decodeURIComponent(videoId),
+          videoUrl: (videoUrl: string) => decodeURIComponent(videoUrl),
+          title: (title: string) => decodeURIComponent(title),
+        },
+        stringify: {
+          videoId: (videoId: string) => encodeURIComponent(videoId),
+          videoUrl: (videoUrl: string) => encodeURIComponent(videoUrl),
+          title: (title: string) => encodeURIComponent(title),
+        },
+      },
     },
   },
 };
@@ -366,12 +396,24 @@ export default function App() {
       <Stack.Navigator 
         initialRouteName="Login"
         screenOptions={{
-          headerShown: false, // Header'ları gizle çünkü kendi Header bileşenimiz var
+          headerShown: true, // Show headers for all screens
         }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Home" component={DashboardScreen} />
+        <Stack.Screen 
+          name="Login" 
+          component={LoginScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Dashboard" 
+          component={DashboardScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Home" 
+          component={DashboardScreen} 
+          options={{ headerShown: false }}
+        />
         <Stack.Screen 
           name="ProductListing" 
           component={ProductListingScreen} 
@@ -441,6 +483,41 @@ export default function App() {
           name="ProductDetail" 
           component={ProductDetailScreen} 
           options={{ title: 'Product Detail' }}
+        />
+        <Stack.Screen 
+          name="VideoLibrary" 
+          component={VideoLibraryScreen} 
+          options={{ 
+            title: 'Video Library',
+            headerStyle: {
+              backgroundColor: '#fff',
+            },
+            headerTintColor: '#383838',
+            headerTitleStyle: {
+              fontFamily: 'MuseoSans-Bold',
+              fontWeight: 'bold',
+            },
+          }}
+        />
+        <Stack.Screen 
+          name="VideoPlayer" 
+          component={VideoPlayerScreen} 
+          options={{ title: 'Video Player' }}
+        />
+        <Stack.Screen 
+          name="VideoDetail" 
+          component={VideoDetailScreen} 
+          options={{ 
+            title: 'Video Detail',
+            headerStyle: {
+              backgroundColor: '#fff',
+            },
+            headerTintColor: '#383838',
+            headerTitleStyle: {
+              fontFamily: 'MuseoSans-Bold',
+              fontWeight: 'bold',
+            },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

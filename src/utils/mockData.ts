@@ -347,3 +347,162 @@ export const getAllMockData = {
   brisaPayments: brisaPaymentsData,
   accountTransactions: accountTransactionsData,
 }; 
+
+// Video Library Data
+export interface VideoItem {
+  id: string;
+  title: string;
+  thumbnail: string;
+  videoUrl: string;
+  tags: string[];
+  type: 'VIDEO' | 'IMAGE';
+  date: string;
+  description?: string;
+}
+
+export const videoLibraryData: VideoItem[] = [
+  {
+    id: '1',
+    title: 'Lassa Tyres Corporate Movie',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/lassa-tyres-corporate-movie',
+    videoUrl: 'https://player.vimeo.com/video/371086907',
+    tags: ['lassa', 'movie 2019'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '2',
+    title: 'Multiways - New All Season Tyre',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/multiways-new-all-season-tyre',
+    videoUrl: 'https://player.vimeo.com/video/1116872846',
+    tags: ['movie', 'multiways', '2018'],
+    type: 'VIDEO',
+    date: 'Sep 19, 2018',
+  },
+  {
+    id: '3',
+    title: 'Competus AT2 Product Movie',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/competus-at2-product-movie',
+    videoUrl: 'https://player.vimeo.com/video/228339213',
+    tags: ['lassa', 'competus', 'movie'],
+    type: 'VIDEO',
+    date: 'Aug 04, 2017',
+  },
+  {
+    id: '4',
+    title: 'Driveways Sport - Challenge the Road',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways-sport---challenge-the-road-',
+    videoUrl: 'https://player.vimeo.com/video/371088421',
+    tags: ['lassa', 'drivewayssport'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '5',
+    title: 'Driveways Sport - Curving',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways-sport---curving-',
+    videoUrl: 'https://player.vimeo.com/video/371088449',
+    tags: ['lassa', 'drivewayssport'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '6',
+    title: 'Driveways Sport - Slalom',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways-sport---slalom-',
+    videoUrl: 'https://player.vimeo.com/video/371088435',
+    tags: ['lassa', 'drivewayssport'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '7',
+    title: 'Driveways Sport - Dry Braking',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways-sport---dry-braking',
+    videoUrl: 'https://player.vimeo.com/video/371088429',
+    tags: ['lassa', 'drivewayssport'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '8',
+    title: 'Driveways Sport - Wet Braking',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways-sport---wet-braking-',
+    videoUrl: 'https://player.vimeo.com/video/371088409',
+    tags: ['lassa', 'drivewayssport'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '9',
+    title: 'Driveways - Enjoy The Drive',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways---enjoy-the-drive',
+    videoUrl: 'https://player.vimeo.com/video/371088361',
+    tags: ['lassa', 'driveways'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '10',
+    title: 'Driveways - Excellent Handling',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/driveways---excellent-handling',
+    videoUrl: 'https://player.vimeo.com/video/371088371',
+    tags: ['lassa', 'driveways'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+  {
+    id: '11',
+    title: 'Competus H/P2 - Superior Wet Braking',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/competus-hp2-superior-wet-braking',
+    videoUrl: 'https://player.vimeo.com/video/448611578',
+    tags: ['lassa', 'competus'],
+    type: 'VIDEO',
+    date: 'Aug 17, 2020',
+  },
+  {
+    id: '12',
+    title: 'Snoways 4 - New Winter Tyre',
+    thumbnail: '/b2b/cis-marketing-library/iconImage/VIDEO/snoways-4---new-winter-tyre-',
+    videoUrl: 'https://player.vimeo.com/video/449277830',
+    tags: ['lassa', 'snoways'],
+    type: 'VIDEO',
+    date: 'Jan 06, 2020',
+  },
+];
+
+export const getVideoLibraryData = (filters?: {
+  type?: 'VIDEO' | 'IMAGE';
+  tags?: string[];
+  search?: string;
+}): VideoItem[] => {
+  let filteredData = [...videoLibraryData];
+
+  if (filters?.type) {
+    filteredData = filteredData.filter(video => video.type === filters.type);
+  }
+
+  if (filters?.tags && filters.tags.length > 0) {
+    filteredData = filteredData.filter(video => 
+      filters.tags!.some(tag => video.tags.includes(tag))
+    );
+  }
+
+  if (filters?.search) {
+    const searchTerm = filters.search.toLowerCase();
+    filteredData = filteredData.filter(video => 
+      video.title.toLowerCase().includes(searchTerm) ||
+      video.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+    );
+  }
+
+  return filteredData;
+};
+
+export const getAllTags = (): string[] => {
+  const allTags = new Set<string>();
+  videoLibraryData.forEach(video => {
+    video.tags.forEach(tag => allTags.add(tag));
+  });
+  return Array.from(allTags).sort();
+}; 
