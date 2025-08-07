@@ -8,6 +8,8 @@ import RowDetailModal from '../components/RowDetailModal';
 import ShowDropdown from '../components/ShowDropdown';
 import Pagination from '../components/Pagination';
 import DatePicker from '../components/DatePicker';
+import ExcelExport from '../components/ExcelExport';
+import EmailSender from '../components/EmailSender';
 import { getAccountTransactionsData, TableDataItem } from '../utils/mockData';
 
 const AccountTransactionsScreen = ({ route, navigation }: any) => {
@@ -46,6 +48,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
   // Modal states
   const [isColumnVisibilityModalOpen, setIsColumnVisibilityModalOpen] = useState(false);
   const [isRowDetailModalOpen, setIsRowDetailModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [showValue, setShowValue] = useState(100);
   
@@ -209,9 +212,11 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Account Transactions</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Account Transactions</Text>
           
           {/* Filter Form */}
           <View style={styles.formContainer}>
@@ -258,6 +263,24 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
             <View style={[styles.formRow, { justifyContent: 'center', marginTop: 10 }]}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
                 <Text style={styles.listButtonText}>List</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Export Buttons Row */}
+            <View style={[styles.formRow, styles.exportButtonsRow]}>
+              <ExcelExport 
+                data={filteredTableData}
+                visibleColumns={columns}
+                fileName={`AccountTransactions_${new Date().toISOString().split('T')[0]}`}
+                buttonText="Excel İndir"
+                buttonStyle={styles.exportButton}
+              />
+              
+              <TouchableOpacity 
+                style={styles.emailButton} 
+                onPress={() => setIsEmailModalOpen(true)}
+              >
+                <Text style={styles.emailButtonText}>Mail Gönder</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -364,6 +387,15 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
         rowData={selectedRowData}
         columns={columns}
       />
+      
+      {/* Email Sender Modal */}
+      <EmailSender
+        visible={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        data={filteredTableData}
+        visibleColumns={columns}
+        reportName="AccountTransactions"
+      />
     </SafeAreaView>
   );
 };
@@ -379,10 +411,18 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
+  titleContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 20,
     color: '#333',
     textAlign: 'left',
     fontFamily: 'MuseoSans-Medium',
@@ -404,10 +444,12 @@ const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     marginBottom: 15,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   formGroup: {
-    flex: 1,
-    marginRight: 10,
+    width: '48%',
+    marginBottom: 10,
   },
   formLabel: {
     fontSize: 14,
@@ -436,13 +478,45 @@ const styles = StyleSheet.create({
   listButton: {
     backgroundColor: '#8D8D8D',
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     alignItems: 'center',
+    width: '100%',
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignSelf: 'stretch',
+    marginTop: 10,
   },
   listButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  exportButtonsRow: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+  },
+  exportButton: {
+    width: '48%',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  emailButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '48%',
+    flexDirection: 'row',
+  },
+  emailButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: 'bold',

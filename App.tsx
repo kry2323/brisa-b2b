@@ -417,107 +417,87 @@ export default function App() {
         <Stack.Screen 
           name="ProductListing" 
           component={ProductListingScreen} 
-          options={{ title: 'Product Listing' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="BrisaPayments" 
           component={BrisaPaymentsScreen} 
-          options={{ title: 'Brisa Payments' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="OverdueReport" 
           component={OverdueReportScreen} 
-          options={{ title: 'Overdue Report' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="AccountTransactions" 
           component={AccountTransactionsScreen} 
-          options={{ title: 'Account Transactions' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="ShipmentsDocuments" 
           component={ShipmentsDocumentsScreen} 
-          options={{ title: 'Shipments, Documents and Status' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="SalesReport" 
           component={SalesReportScreen} 
-          options={{ title: 'Sales Report' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="OrderMonitoring" 
           component={OrderMonitoringParentScreen} 
-          options={{ title: 'Order Monitoring' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="PlannedOrders" 
           component={PlannedOrdersScreen} 
-          options={{ title: 'Planned Orders' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="UnplannedOrders" 
           component={UnplannedOrdersScreen} 
-          options={{ title: 'Unplanned Orders' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="FinancialReports" 
           component={FinancialReportsParentScreen} 
-          options={{ title: 'Financial Reports' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="TyresOnTheWay" 
           component={TyresOnTheWayScreen} 
-          options={{ title: 'Tyres On The Way' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="POSMaterialTracking" 
           component={POSMaterialTrackingScreen} 
-          options={{ title: 'POS Material Tracking' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="LassaTeam" 
           component={LassaTeamScreen} 
-          options={{ title: 'Your Lassa Team' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="ProductDetail" 
           component={ProductDetailScreen} 
-          options={{ title: 'Product Detail' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="VideoLibrary" 
           component={VideoLibraryScreen} 
-          options={{ 
-            title: 'Video Library',
-            headerStyle: {
-              backgroundColor: '#fff',
-            },
-            headerTintColor: '#383838',
-            headerTitleStyle: {
-              fontFamily: 'MuseoSans-Bold',
-              fontWeight: 'bold',
-            },
-          }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="VideoPlayer" 
-          component={VideoPlayerScreen} 
-          options={{ title: 'Video Player' }}
+          component={VideoPlayerScreen as React.ComponentType<any>}
+          options={{ headerShown: false }}
         />
         <Stack.Screen 
           name="VideoDetail" 
-          component={VideoDetailScreen} 
-          options={{ 
-            title: 'Video Detail',
-            headerStyle: {
-              backgroundColor: '#fff',
-            },
-            headerTintColor: '#383838',
-            headerTitleStyle: {
-              fontFamily: 'MuseoSans-Bold',
-              fontWeight: 'bold',
-            },
-          }}
+          component={VideoDetailScreen as React.ComponentType<any>}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

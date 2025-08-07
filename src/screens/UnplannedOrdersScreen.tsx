@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import ExcelExport from '../components/ExcelExport';
+import EmailSender from '../components/EmailSender';
 
 const UnplannedOrdersScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -16,9 +19,20 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
   
   // Table data state
   const [tableData, setTableData] = useState([
-    { orderNumber: 'ORD-2023-003', date: '18/03/2023', status: 'Unplanned', amount: '€12,450' },
-    { orderNumber: 'ORD-2023-004', date: '25/04/2023', status: 'Unplanned', amount: '€7,890' },
+    { orderNumber: 'ORD-2023-003', date: '05/03/2023', status: 'Unplanned', amount: '€12,450' },
+    { orderNumber: 'ORD-2023-004', date: '18/04/2023', status: 'Unplanned', amount: '€7,890' },
   ]);
+  
+  // Column visibility state for Excel export
+  const [columns, setColumns] = useState([
+    { key: 'orderNumber', label: 'Order Number', visible: true },
+    { key: 'date', label: 'Date', visible: true },
+    { key: 'status', label: 'Status', visible: true },
+    { key: 'amount', label: 'Amount', visible: true },
+  ]);
+  
+  // Email modal state
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
@@ -121,7 +135,28 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
             {/* List Button Row */}
             <View style={styles.formRow}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
+                <AntDesign name="bars" size={18} color="#FFFFFF" style={{marginRight: 8}} />
                 <Text style={styles.listButtonText}>List</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Export Buttons Row */}
+            <View style={[styles.formRow, styles.exportButtonsRow]}>
+              <ExcelExport 
+                data={tableData}
+                visibleColumns={columns}
+                fileName={`UnplannedOrders_${new Date().toISOString().split('T')[0]}`}
+                buttonText="Excel İndir"
+                buttonStyle={styles.exportButton}
+                buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
+              />
+              
+              <TouchableOpacity 
+                style={styles.emailButton} 
+                onPress={() => setIsEmailModalOpen(true)}
+              >
+                <MaterialIcons name="email" size={18} color="#FFFFFF" style={{marginRight: 8}} />
+                <Text style={styles.emailButtonText}>Mail Gönder</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -154,6 +189,15 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
         setIsReportsModalOpen={setIsReportsModalOpen}
         onNavigateToReport={handleNavigateToReport}
       />
+      
+      {/* Email Sender Modal */}
+      <EmailSender
+        visible={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        data={tableData}
+        visibleColumns={columns}
+        reportName="UnplannedOrders"
+      />
     </SafeAreaView>
   );
 };
@@ -162,6 +206,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  exportButtonsRow: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+  },
+  exportButton: {
+    backgroundColor: '#4CAF50',
+    width: '48%',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  emailButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '48%',
+    flexDirection: 'row',
+  },
+  emailButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   scrollView: {
     flex: 1,
@@ -187,12 +260,13 @@ const styles = StyleSheet.create({
   },
   formRow: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 15,
     justifyContent: 'space-between',
+    width: '100%',
   },
   formGroup: {
-    flex: 1,
-    marginHorizontal: 8,
+    width: '48%',
+    marginBottom: 10,
   },
   formLabel: {
     fontSize: 16,
@@ -212,26 +286,32 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderColor: '#DDD',
-    borderRadius: 4,
-    paddingHorizontal: 10,
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    fontSize: 16,
     backgroundColor: '#FFF',
   },
   textInput: {
     height: 40,
     borderWidth: 1,
     borderColor: '#DDD',
-    borderRadius: 4,
-    paddingHorizontal: 10,
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    fontSize: 16,
     backgroundColor: '#FFF',
   },
   listButton: {
-    backgroundColor: '#666',
+    backgroundColor: '#8D8D8D',
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 120,
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 10,
   },
   listButtonText: {
     color: '#FFF',

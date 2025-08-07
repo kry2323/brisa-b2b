@@ -187,12 +187,13 @@ const styles = StyleSheet.create({
   },
   formRow: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 15,
     justifyContent: 'space-between',
+    width: '100%',
   },
   formGroup: {
-    flex: 1,
-    marginHorizontal: 8,
+    width: '48%',
+    marginBottom: 10,
   },
   formLabel: {
     fontSize: 16,
@@ -225,13 +226,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   listButton: {
-    backgroundColor: '#666',
+    backgroundColor: '#8D8D8D',
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     alignItems: 'center',
+    width: '100%',
+    flexDirection: 'row',
     justifyContent: 'center',
-    minWidth: 120,
+    marginTop: 10,
   },
   listButtonText: {
     color: '#FFF',
