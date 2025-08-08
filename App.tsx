@@ -396,108 +396,96 @@ export default function App() {
       <Stack.Navigator 
         initialRouteName="Login"
         screenOptions={{
-          headerShown: true, // Show headers for all screens
+          headerShown: false, // Header'ları gizle çünkü kendi Header bileşenimiz var
         }}
       >
-        <Stack.Screen 
-          name="Login" 
-          component={LoginScreen} 
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Dashboard" 
-          component={DashboardScreen} 
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Home" 
-          component={DashboardScreen} 
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
+        <Stack.Screen name="Home" component={DashboardScreen} />
         <Stack.Screen 
           name="ProductListing" 
           component={ProductListingScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Product Listing' }}
         />
         <Stack.Screen 
           name="BrisaPayments" 
           component={BrisaPaymentsScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Brisa Payments' }}
         />
         <Stack.Screen 
           name="OverdueReport" 
           component={OverdueReportScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Overdue Report' }}
         />
         <Stack.Screen 
           name="AccountTransactions" 
           component={AccountTransactionsScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Account Transactions' }}
         />
         <Stack.Screen 
           name="ShipmentsDocuments" 
           component={ShipmentsDocumentsScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Shipments, Documents and Status' }}
         />
         <Stack.Screen 
           name="SalesReport" 
           component={SalesReportScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Sales Report' }}
         />
         <Stack.Screen 
           name="OrderMonitoring" 
           component={OrderMonitoringParentScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Order Monitoring' }}
         />
         <Stack.Screen 
           name="PlannedOrders" 
           component={PlannedOrdersScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Planned Orders' }}
         />
         <Stack.Screen 
           name="UnplannedOrders" 
           component={UnplannedOrdersScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Unplanned Orders' }}
         />
         <Stack.Screen 
           name="FinancialReports" 
           component={FinancialReportsParentScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Financial Reports' }}
         />
         <Stack.Screen 
           name="TyresOnTheWay" 
           component={TyresOnTheWayScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Tyres On The Way' }}
         />
         <Stack.Screen 
           name="POSMaterialTracking" 
           component={POSMaterialTrackingScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'POS Material Tracking' }}
         />
         <Stack.Screen 
           name="LassaTeam" 
           component={LassaTeamScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Your Lassa Team' }}
         />
         <Stack.Screen 
           name="ProductDetail" 
           component={ProductDetailScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Product Detail' }}
         />
         <Stack.Screen 
           name="VideoLibrary" 
           component={VideoLibraryScreen} 
-          options={{ headerShown: false }}
+          options={{ title: 'Video Library' }}
         />
         <Stack.Screen 
           name="VideoPlayer" 
-          component={VideoPlayerScreen as React.ComponentType<any>}
-          options={{ headerShown: false }}
+          component={VideoPlayerScreen} 
+          options={{ title: 'Video Player' }}
         />
         <Stack.Screen 
           name="VideoDetail" 
-          component={VideoDetailScreen as React.ComponentType<any>}
-          options={{ headerShown: false }}
+          component={VideoDetailScreen} 
+          options={{ title: 'Video Detail' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
