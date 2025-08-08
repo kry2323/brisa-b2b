@@ -22,7 +22,13 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   const [isEnergyLabelZoomOpen, setIsEnergyLabelZoomOpen] = useState(false);
   
   // Determine if we're in promotional materials section
-  const isPromotionalMaterials = route.params?.category === 'promotional-materials';
+  const isPromotionalMaterials = (
+    route.params?.category === 'promotional-materials' ||
+    (typeof route.params?.categoryUrl === 'string' && (
+      route.params.categoryUrl.includes('Promotional-Materials-Order') ||
+      route.params.categoryUrl.includes('CIS_PMO')
+    ))
+  );
   
   // Filter categories based on product type
   const filterCategories = [
@@ -384,7 +390,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       const productToNavigate = selectedProduct;
       setIsProductModalOpen(false);
       setSelectedProduct(null);
-      navigation.navigate('ProductDetail', { product: productToNavigate });
+      navigation.navigate('ProductDetail', { product: productToNavigate, isPromotionalMaterials });
     }
   };
 
@@ -413,7 +419,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   };
 
   const navigateToProductDetail = (product: any) => {
-    navigation.navigate('ProductDetail', { product });
+    navigation.navigate('ProductDetail', { product, isPromotionalMaterials });
   };
 
   return (
