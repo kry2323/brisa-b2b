@@ -15,7 +15,9 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false);
   const [isUploadOrderModalOpen, setIsUploadOrderModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
+  const [selectedOrderCategory, setSelectedOrderCategory] = useState<string | null>(null);
 
   const financialReports = [
     { id: 'financial-reports', title: 'Financial Reports', icon: '💰', url: '/b2b/financial-reports' },
@@ -35,6 +37,70 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     { id: 'social-media', title: 'Sosyal Medya Veritabanı', icon: '📱', url: '/marketing/social-media' },
     { id: 'brochures', title: 'Broşürler', icon: '📑', url: '/marketing/brochures' },
     { id: 'videos', title: 'Videolar', icon: '🎬', url: '/marketing/videos' },
+  ];
+
+  const orderCategories = [
+    {
+      id: 'passenger-car',
+      title: 'PASSENGER CAR',
+      icon: '🚗',
+      subCategories: [
+        { id: 'psr-13-14', title: 'PSR 13-14', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-13-14/c/CIS_PC_PSR13' },
+        { id: 'psr-15', title: 'PSR 15', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-15/c/CIS_PC_PSR15' },
+        { id: 'psr-16', title: 'PSR 16', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-16/c/CIS_PC_PSR16' },
+        { id: 'uhp', title: 'UHP', url: '/b2b/All-Categories/PASSENGER-CAR/UHP/c/CIS_PC_UHP' },
+        { id: '4x4', title: '4X4', url: '/b2b/All-Categories/PASSENGER-CAR/4X4/c/CIS_PC_4X4' },
+      ],
+    },
+    {
+      id: 'light-truck',
+      title: 'LIGHT TRUCK',
+      icon: '🚚',
+      subCategories: [
+        { id: 'lt-12', title: 'LT 12', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-12/c/CIS_LT_LT12' },
+        { id: 'lt-13', title: 'LT 13', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-13/c/CIS_LT_LT13' },
+        { id: 'lt-14', title: 'LT 14', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-14/c/CIS_LT_LT14' },
+        { id: 'lt-15', title: 'LT 15', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-15/c/CIS_LT_LT15' },
+        { id: 'lt-16', title: 'LT 16', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-16/c/CIS_LT_LT16' },
+      ],
+    },
+    {
+      id: 'agriculture',
+      title: 'AGRICULTURE',
+      icon: '🚜',
+      subCategories: [
+        { id: 'ags-s', title: 'AGS-S', url: '/b2b/All-Categories/AGRICULTURE/AGS-S/c/CIS_AG_AGSS' },
+        { id: 'ags-l', title: 'AGS-L', url: '/b2b/All-Categories/AGRICULTURE/AGS-L/c/CIS_AG_AGSL' },
+        { id: 'agri', title: 'AGRI', url: '/b2b/All-Categories/AGRICULTURE/AGRI/c/CIS_AG_AGRI' },
+      ],
+    },
+    {
+      id: 'off-the-road',
+      title: 'OFF THE ROAD',
+      icon: '🏔️',
+      subCategories: [
+        { id: 'ors', title: 'ORS', url: '/b2b/All-Categories/OFF-THE-ROAD/ORS/c/CIS_OTR_ORS' },
+      ],
+    },
+    {
+      id: 'tbr',
+      title: 'TBR',
+      icon: '🚛',
+      subCategories: [
+        { id: 'tbr-17-5', title: 'TBR 17.5', url: '/b2b/All-Categories/TBR/TBR-17-5/c/CIS_TBR_TBR17' },
+        { id: 'tbr-22-5', title: 'TBR 22.5', url: '/b2b/All-Categories/TBR/TBR-22-5/c/CIS_TBR_TBR22' },
+      ],
+    },
+    {
+      id: 'promotional-materials',
+      title: 'PROMOTIONAL MATERIALS',
+      icon: '🎁',
+      subCategories: [
+        { id: 'branded-consumer-products', title: 'Branded Consumer Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3ABranded%2BConsumer%2BProducts&text=#' },
+        { id: 'textile-products', title: 'Textile Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3ATextile%2BProducts&text=#' },
+        { id: 'stands-shop-branding-products', title: 'Stands & Shop Branding Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3AStands%2B%2526%2BShop%2BBranding%2BProducts&text=#' },
+      ],
+    },
   ];
 
   const navigationItems = [
@@ -104,9 +170,8 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       setIsReportsModalOpen(true);
     } else if (tabId === 'create-order') {
       setActiveTab(tabId);
-      // Navigate to product listing for creating order
-      // @ts-ignore
-      navigation.navigate('ProductListing');
+      // Open create order modal instead of direct navigation
+      setIsCreateOrderModalOpen(true);
     } else if (tabId === 'upload-order') {
       setActiveTab(tabId);
       // Open upload order modal
@@ -149,6 +214,18 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     console.log('Report item pressed:', report);
     onNavigateToReport(report);
     setIsReportsModalOpen(false);
+  };
+  
+  const handleOrderCategoryPress = (categoryId: string) => {
+    setSelectedOrderCategory(categoryId);
+  };
+  
+  const handleOrderSubCategoryPress = (subCategory: any) => {
+    console.log('Order subcategory pressed:', subCategory);
+    setIsCreateOrderModalOpen(false);
+    // Navigate to the product listing with the selected category
+    // @ts-ignore
+    navigation.navigate('ProductListing', { categoryUrl: subCategory.url });
   };
   
   const handleMarketingItemPress = (item: any) => {
@@ -364,6 +441,63 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         </View>
       </Modal>
 
+      {/* Create Order Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isCreateOrderModalOpen}
+        onRequestClose={() => setIsCreateOrderModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsCreateOrderModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>Sipariş Oluştur</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setIsCreateOrderModalOpen(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
+              {orderCategories.map((category) => (
+                <View key={category.id} style={styles.orderCategoryContainer}>
+                  <TouchableOpacity 
+                    style={styles.orderCategoryHeader}
+                    onPress={() => handleOrderCategoryPress(category.id)}
+                  >
+                    <Text style={styles.orderCategoryIcon}>{category.icon}</Text>
+                    <Text style={styles.orderCategoryTitle}>{category.title}</Text>
+                    <Text style={styles.orderCategoryArrow}>
+                      {selectedOrderCategory === category.id ? '▼' : '▶'}
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  {selectedOrderCategory === category.id && (
+                    <View style={styles.orderSubCategoriesContainer}>
+                      {category.subCategories.map((subCategory) => (
+                        <TouchableOpacity 
+                          key={subCategory.id}
+                          style={styles.orderSubCategoryItem}
+                          onPress={() => handleOrderSubCategoryPress(subCategory)}
+                        >
+                          <Text style={styles.orderSubCategoryText}>{subCategory.title}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       {/* Help Modal */}
       <Modal
         animationType="slide"
@@ -565,6 +699,55 @@ const styles = StyleSheet.create({
   helpItemText: {
     fontSize: 16,
     color: '#333',
+  },
+  // Order Category Styles
+  orderCategoryContainer: {
+    marginBottom: 5,
+  },
+  orderCategoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 8,
+  },
+  orderCategoryIcon: {
+    fontSize: 20,
+    marginRight: 15,
+    width: 25,
+    textAlign: 'center',
+    color: '#D53439',
+  },
+  orderCategoryTitle: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  orderCategoryArrow: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 10,
+  },
+  orderSubCategoriesContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingLeft: 40,
+    borderLeftWidth: 1,
+    borderLeftColor: '#E0E0E0',
+    marginLeft: 20,
+  },
+  orderSubCategoryItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  orderSubCategoryText: {
+    fontSize: 14,
+    color: '#333',
+    fontFamily: 'MuseoSans-Medium',
   },
   tabButton: {
     flex: 1,
