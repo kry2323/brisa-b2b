@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import EnergyLabel from '../components/EnergyLabel';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
@@ -16,6 +17,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   const [quantities, setQuantities] = useState<{[key: string]: number}>({});
   const [appliedFilters, setAppliedFilters] = useState<Record<string, string[]>>({});
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [isEnergyLabelZoomOpen, setIsEnergyLabelZoomOpen] = useState(false);
   
   // Determine if we're in promotional materials section
   const isPromotionalMaterials = route.params?.category === 'promotional-materials';
@@ -365,6 +369,53 @@ const ProductListingScreen = ({ route, navigation }: any) => {
     console.log('Filtered products:', result.length);
   }, [products, appliedFilters]);
 
+  const handleOpenProductModal = (product: any) => {
+    setSelectedProduct(product);
+    setIsProductModalOpen(true);
+  };
+
+  const handleCloseProductModal = () => {
+    setIsProductModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleDetailsFromModal = () => {
+    if (selectedProduct) {
+      const productToNavigate = selectedProduct;
+      setIsProductModalOpen(false);
+      setSelectedProduct(null);
+      navigation.navigate('ProductDetail', { product: productToNavigate });
+    }
+  };
+
+  // Local static energy label will be rendered by EnergyLabel component
+
+  const renderEnergyIcons = (product: any) => {
+    const fuel = product?.fuel ?? '-';
+    const sound = product?.sound ?? '-';
+    const rain = product?.rain ?? '-';
+    return (
+      <>
+        <View style={styles.energyIconBox}>
+          <MaterialCommunityIcons name="gas-station" size={16} color="#666" />
+          <Text style={styles.energyIconValue}>{fuel}</Text>
+        </View>
+        <View style={styles.energyIconBox}>
+          <MaterialCommunityIcons name="volume-high" size={16} color="#666" />
+          <Text style={styles.energyIconValue}>{sound}</Text>
+        </View>
+        <View style={styles.energyIconBox}>
+          <MaterialCommunityIcons name="weather-pouring" size={16} color="#666" />
+          <Text style={styles.energyIconValue}>{rain}</Text>
+        </View>
+      </>
+    );
+  };
+
+  const navigateToProductDetail = (product: any) => {
+    navigation.navigate('ProductDetail', { product });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
@@ -498,7 +549,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
             </ScrollView>
             
             {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
-              <View key={product.id} style={styles.tableRow}>
+              <TouchableOpacity key={product.id} style={styles.tableRow} activeOpacity={0.85} onPress={() => navigateToProductDetail(product)}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.tableRowInner}>
                 <View style={[styles.tableCell, styles.cellImage]}>
@@ -511,12 +562,20 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                       />
                     )}
                   </View>
-                  <View style={styles.productImageWrapTable}>
-                    <Image 
-                      source={{ uri: product.image }} 
-                      style={styles.productImage}
-                      resizeMode="contain"
-                    />
+                  <View style={styles.imageWithButtonList}>
+                    <TouchableOpacity style={styles.productImageWrapTable} onPress={() => handleOpenProductModal(product)}>
+                      <Image 
+                        source={{ uri: product.image }} 
+                        style={styles.productImage}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                    <View style={styles.imageActionsBelow}>
+                      <TouchableOpacity style={styles.searchIconButton} onPress={() => handleOpenProductModal(product)}>
+                        <MaterialCommunityIcons name="magnify" size={16} color="#0066CC" />
+                        <Text style={styles.searchIconText}>İncele</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
                 
@@ -580,7 +639,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 </View>
                 </View>
                 </ScrollView>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         ) : (
@@ -590,7 +649,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 <View key={product.id} style={styles.productCard}>
                   <TouchableOpacity 
                     style={styles.productLink}
-                    onPress={() => navigation.navigate('ProductDetail', { product })}
+                    activeOpacity={0.85}
+                    onPress={() => navigateToProductDetail(product)}
                   >
                     <View style={styles.productInfoGrid}>
                       <View style={styles.gridHeaderRow}>
@@ -608,47 +668,27 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                         <Text style={styles.priceTextGrid}>{product.price || '€'}</Text>
                       </View>
                       <View style={styles.productToolbar}>
-                        {[1,2,3,4,5].map((i) => (
-                          <View key={i} style={styles.toolbarIcon} />
-                        ))}
-                      </View>
-                      <View style={styles.productInfoIconsGrid}>
-                        <View style={styles.infoIconGrid}>
-                          <View style={styles.infoIconLeft}>
-                            <MaterialCommunityIcons name="gas-station" size={16} color="#666" />
-                          </View>
-                          <View style={styles.infoIconRight}>
-                            <Text style={styles.infoIconValueGrid}>{(product as any).fuel ?? '-'}</Text>
-                          </View>
-                        </View>
-                        <View style={styles.infoIconGrid}>
-                          <View style={styles.infoIconLeft}>
-                            <MaterialCommunityIcons name="volume-high" size={16} color="#666" />
-                          </View>
-                          <View style={styles.infoIconRight}>
-                            <Text style={styles.infoIconValueGrid}>{(product as any).sound ?? '-'}</Text>
-                          </View>
-                        </View>
-                        <View style={styles.infoIconGrid}>
-                          <View style={styles.infoIconLeft}>
-                            <MaterialCommunityIcons name="weather-pouring" size={16} color="#666" />
-                          </View>
-                          <View style={styles.infoIconRight}>
-                            <Text style={styles.infoIconValueGrid}>{(product as any).rain ?? '-'}</Text>
-                          </View>
-                        </View>
+                        {renderEnergyIcons(product)}
                       </View>
                       {/* season icon only shown once in header; removed duplicate below */}
                       <View style={styles.productStatusGrid}>
                         <Text style={styles.productStatusTextGrid}>{product.status}</Text>
                       </View>
                     </View>
-                    <View style={styles.productImageWrapRight}>
-                      <Image 
-                        source={{ uri: product.image }} 
-                        style={styles.productImage}
-                        resizeMode="contain"
-                      />
+                    <View style={styles.productRightColumn}>
+                      <TouchableOpacity style={styles.productImageWrapRight} onPress={() => handleOpenProductModal(product)}>
+                        <Image 
+                          source={{ uri: product.image }} 
+                          style={styles.productImage}
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
+                      <View style={styles.imageActionsBelowGrid}>
+                        <TouchableOpacity style={styles.searchIconButton} onPress={() => handleOpenProductModal(product)}>
+                          <MaterialCommunityIcons name="magnify" size={18} color="#0066CC" />
+                          <Text style={styles.searchIconText}>İncele</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </TouchableOpacity>
 
@@ -704,6 +744,91 @@ const ProductListingScreen = ({ route, navigation }: any) => {
         setIsReportsModalOpen={setIsReportsModalOpen}
         onNavigateToReport={handleNavigateToReport}
       />
+      
+      <Modal
+        transparent
+        visible={isProductModalOpen}
+        animationType="fade"
+        onRequestClose={handleCloseProductModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={handleCloseProductModal} style={styles.modalCloseButton}>
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalBody}>
+              {/* Top: Tyre image */}
+              <View style={styles.modalTopImageRow}>
+                {selectedProduct?.image ? (
+                  <Image source={{ uri: selectedProduct.image }} style={styles.modalTopProductImage} resizeMode="contain" />
+                ) : null}
+              </View>
+
+              {/* Middle: Product info */}
+              <View style={styles.modalInfoBlock}>
+                <Text style={styles.modalProductName} numberOfLines={2} ellipsizeMode="tail">{selectedProduct?.name}</Text>
+                {!!selectedProduct?.id && (
+                  <Text style={styles.modalProductId}>{selectedProduct?.id}</Text>
+                )}
+                {/* Energy icons above price */}
+                <View style={styles.modalEnergyIconsRow}>
+                  {selectedProduct ? renderEnergyIcons(selectedProduct) : null}
+                </View>
+                <View style={styles.modalMetaRow}>
+                  {selectedProduct?.season ? (
+                    <Text style={styles.modalSeasonIcon}>
+                      {selectedProduct.season === 'winter' ? '❄️' : selectedProduct.season === 'summer' ? '☀️' : '🔄'}
+                    </Text>
+                  ) : null}
+                  <Text style={styles.modalPrice}>{selectedProduct?.price || '€'}</Text>
+                </View>
+              </View>
+
+              {/* Bottom: Energy label */}
+              <View style={styles.modalBottomLabelRow}>
+                <TouchableOpacity onPress={() => setIsEnergyLabelZoomOpen(true)} activeOpacity={0.85}>
+                  <EnergyLabel width={140} />
+                </TouchableOpacity>
+                <View style={styles.modalBottomLabelActions}>
+                  <TouchableOpacity style={styles.modalExamineButton} onPress={() => setIsEnergyLabelZoomOpen(true)}>
+                    <MaterialCommunityIcons name="magnify" size={16} color="#0066CC" />
+                    <Text style={styles.modalExamineText}>İncele</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.modalDetailsButton} onPress={handleDetailsFromModal}>
+                <Text style={styles.modalDetailsButtonText}>Details</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      
+      {/* Energy Label Zoom Modal */}
+      <Modal
+        transparent
+        visible={isEnergyLabelZoomOpen}
+        animationType="fade"
+        onRequestClose={() => setIsEnergyLabelZoomOpen(false)}
+      >
+        <View style={styles.zoomOverlay}>
+          <View style={styles.zoomContainer}>
+            <View style={styles.zoomHeader}>
+              <Text style={styles.zoomTitle}>Energy Label</Text>
+              <TouchableOpacity onPress={() => setIsEnergyLabelZoomOpen(false)} style={styles.zoomCloseButton}>
+                <Text style={styles.zoomCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.zoomBody}>
+              <EnergyLabel width={320} />
+            </View>
+          </View>
+        </View>
+      </Modal>
       
       <FilterPanel 
         isVisible={isFilterPanelVisible}
@@ -874,6 +999,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 5,
+  },
+  imageWithButtonList: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   productNameTable: {
     fontSize: 14,
@@ -1180,6 +1309,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEEEEE',
   },
+  productRightColumn: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   productName: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -1259,6 +1392,12 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 6,
     marginBottom: 6,
+    backgroundColor: '#F2F2F2',
+    borderWidth: 1,
+    borderColor: '#E6E6E6',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 6,
   },
   toolbarIcon: {
     width: 28,
@@ -1333,6 +1472,22 @@ const styles = StyleSheet.create({
   },
   infoIconValueGrid: {
     fontSize: 9,
+    color: '#666',
+  },
+  energyIconBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E6E6E6',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  energyIconValue: {
+    marginLeft: 6,
+    fontSize: 12,
     color: '#666',
   },
   productStatus: {
@@ -1454,6 +1609,204 @@ const styles = StyleSheet.create({
   },
   incrementButton: {
     backgroundColor: '#ffffff',
+  },
+  imageActionsBelow: {
+    marginTop: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  imageActionsBelowGrid: {
+    marginTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  searchIconButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: '#F2F7FF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#D6E6FF',
+  },
+  searchIconText: {
+    color: '#0066CC',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    width: '95%',
+    maxWidth: 560,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    overflow: 'hidden',
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  modalTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    paddingRight: 10,
+  },
+  modalCloseButton: {
+    padding: 6,
+  },
+  modalCloseText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  modalBody: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  modalTopImageRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  modalTopProductImage: {
+    width: '100%',
+    height: 160,
+  },
+  modalInfoBlock: {
+    marginBottom: 12,
+  },
+  modalProductName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#222',
+  },
+  modalProductId: {
+    marginTop: 2,
+    fontSize: 13,
+    color: '#888',
+  },
+  modalMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 10,
+    marginBottom: 12,
+  },
+  modalSeasonIcon: {
+    fontSize: 18,
+  },
+  modalPrice: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#333',
+  },
+  modalBottomLabelRow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    marginTop: 6,
+  },
+  modalBottomLabelActions: {
+    marginTop: 8,
+    width: '100%',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+  },
+  modalExamineButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#F2F7FF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#D6E6FF',
+  },
+  modalExamineText: {
+    color: '#0066CC',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalFooter: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#EEE',
+  },
+  modalDetailsButton: {
+    backgroundColor: '#0066CC',
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  modalDetailsButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  modalEnergyIconsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginTop: 10,
+  },
+  // Zoom modal styles
+  zoomOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  zoomContainer: {
+    width: '95%',
+    maxWidth: 560,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  zoomHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  zoomTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  zoomCloseButton: {
+    padding: 6,
+  },
+  zoomCloseText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  zoomBody: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    padding: 20,
   },
 });
 
