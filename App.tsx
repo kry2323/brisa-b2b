@@ -10,6 +10,8 @@ import Snap from './src/components/Snap';
 import Login from './components/Login';
 import Header from './src/components/Header';
 import Banner from './src/components/Banner';
+import SearchBox from './src/components/SearchBox';
+import OverdueNotice from './src/components/OverdueNotice';
 import OrderOperations from './src/components/OrderOperations';
 import Marketing from './src/components/Marketing';
 import Reports from './src/components/Reports';
@@ -33,7 +35,7 @@ import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
-
+import { getOverdueReportData } from './src/utils/mockData';
 const Stack = createNativeStackNavigator();
 
 // Login ekranı bileşeni
@@ -49,6 +51,7 @@ function LoginScreen({ navigation }: any) {
 // Ana sayfa bileşeni (Dashboard)
 function DashboardScreen({ navigation }: any) {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+  const [overdueCount, setOverdueCount] = useState<number>(0);
 
   // Handle navigation to report screens
   const handleNavigateToReport = (reportData: any) => {
@@ -92,14 +95,31 @@ function DashboardScreen({ navigation }: any) {
     }
   };
 
+  useEffect(() => {
+    // Load overdue report count once on mount
+    try {
+      const data = getOverdueReportData();
+      setOverdueCount(Array.isArray(data) ? data.length : 0);
+    } catch (e) {
+      setOverdueCount(0);
+    }
+  }, []);
+
   // Ana sayfa render
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor="#383838" />
       <Header />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <Snap />
+        <SearchBox onSubmit={(q) => navigation.navigate('ProductListing', { initialQuery: q })} />
         <Banner />
+        {overdueCount > 0 && (
+          <OverdueNotice
+            count={overdueCount}
+            onPress={() => navigation.navigate('OverdueReport', { reportData: { id: 'overdue-report' } })}
+          />
+        )}
+        <Snap />
         <Footer />
       </ScrollView>
       <BottomNavigation 
@@ -434,25 +454,25 @@ export default function App() {
         />
         <Stack.Screen 
           name="OrderMonitoring" 
-          component={OrderMonitoringParentScreen} 
+          component={OrderMonitoringParentScreen}
           options={{ title: 'Order Monitoring' }}
         />
-        <Stack.Screen 
-          name="PlannedOrders" 
-          component={PlannedOrdersScreen} 
+        <Stack.Screen
+          name="PlannedOrders"
+          component={PlannedOrdersScreen}
           options={{ title: 'Planned Orders' }}
         />
-        <Stack.Screen 
-          name="UnplannedOrders" 
-          component={UnplannedOrdersScreen} 
+        <Stack.Screen
+          name="UnplannedOrders"
+          component={UnplannedOrdersScreen}
           options={{ title: 'Unplanned Orders' }}
         />
-        <Stack.Screen 
-          name="FinancialReports" 
-          component={FinancialReportsParentScreen} 
+        <Stack.Screen
+          name="FinancialReports"
+          component={FinancialReportsParentScreen}
           options={{ title: 'Financial Reports' }}
         />
-        <Stack.Screen 
+        <Stack.Screen
           name="TyresOnTheWay" 
           component={TyresOnTheWayScreen} 
           options={{ title: 'Tyres On The Way' }}
@@ -462,29 +482,29 @@ export default function App() {
           component={POSMaterialTrackingScreen} 
           options={{ title: 'POS Material Tracking' }}
         />
-        <Stack.Screen 
-          name="LassaTeam" 
-          component={LassaTeamScreen} 
+        <Stack.Screen
+          name="LassaTeam"
+          component={LassaTeamScreen}
           options={{ title: 'Your Lassa Team' }}
         />
-        <Stack.Screen 
+        <Stack.Screen
           name="ProductDetail" 
           component={ProductDetailScreen} 
           options={{ title: 'Product Detail' }}
         />
-        <Stack.Screen 
-          name="VideoLibrary" 
-          component={VideoLibraryScreen} 
+        <Stack.Screen
+          name="VideoLibrary"
+          component={VideoLibraryScreen}
           options={{ title: 'Video Library' }}
         />
-        <Stack.Screen 
-          name="VideoPlayer" 
-          component={VideoPlayerScreen} 
+        <Stack.Screen
+          name="VideoPlayer"
+          component={VideoPlayerScreen}
           options={{ title: 'Video Player' }}
         />
-        <Stack.Screen 
-          name="VideoDetail" 
-          component={VideoDetailScreen} 
+        <Stack.Screen
+          name="VideoDetail"
+          component={VideoDetailScreen}
           options={{ title: 'Video Detail' }}
         />
       </Stack.Navigator>

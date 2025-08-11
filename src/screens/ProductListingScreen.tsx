@@ -11,7 +11,7 @@ import { ListViewIcon, GridViewIcon } from '../components/ViewTypeIcons';
 const ProductListingScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(route?.params?.initialQuery || '');
   const [sortOption, setSortOption] = useState('Name (Ascending)');
   const [viewType, setViewType] = useState('list'); // 'list' or 'grid'
   const [quantities, setQuantities] = useState<{[key: string]: number}>({});
@@ -20,7 +20,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isEnergyLabelZoomOpen, setIsEnergyLabelZoomOpen] = useState(false);
-  
+
   // Determine if we're in promotional materials section
   const isPromotionalMaterials = (
     route.params?.category === 'promotional-materials' ||
@@ -29,7 +29,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       route.params.categoryUrl.includes('CIS_PMO')
     ))
   );
-  
+
   // Filter categories based on product type
   const filterCategories = [
     {
@@ -79,8 +79,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   // Örnek ürün verileri
   const [products, setProducts] = useState([
     { 
-      id: '212909', 
-      name: '145/80R13 75T SNOWAYS 3', 
+      id: '212909',
+      name: '145/80R13 75T SNOWAYS 3',
       image: 'https://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/hc5/hfe/8797086384158',
       images: [
         'https://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/hc5/hfe/8797086384158'
@@ -91,9 +91,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       brand: 'Lassa',
       brandLogo: '/medias/lassa-logo-mini.png?context=bWFzdGVyfGltYWdlc3w3MzV8aW1hZ2UvcG5nfGFETmpMMmhtTVM4NE9USXdNVFV6TURrMk1qSXlMMnhoYzNOaExXeHZaMjh0YldsdWFTNXdibWN8Mzg3NDdjMTIxYzQxODQzYWNiMzdlMGVkMDI5NmEwMjYyODI1MGQ5ZDVlYTI1ZWEyYmQzMjNlOGEzNTg1YTA1ZQ'
     },
-    { 
-      id: '270219', 
-      name: '11.2-24 8PR TR70', 
+    {
+      id: '270219',
+      name: '11.2-24 8PR TR70',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -104,9 +104,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       season: 'summer',
       brand: 'Lassa'
     },
-    { 
-      id: '280040', 
-      name: '165/65R14 79T DRIVEWAYS', 
+    {
+      id: '280040',
+      name: '165/65R14 79T DRIVEWAYS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -117,9 +117,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       season: 'summer',
       brand: 'Lassa'
     },
-    { 
-      id: '280042', 
-      name: '225/60R17 99V COMPETUS H/P', 
+    {
+      id: '280042',
+      name: '225/60R17 99V COMPETUS H/P',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -128,8 +128,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       status: 'Ready for ordering. Price TBD'
     },
     { 
-      id: '280041', 
-      name: '155/70R13 75T GREENWAYS', 
+      id: '280041',
+      name: '155/70R13 75T GREENWAYS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -158,8 +158,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       status: 'Ready for ordering. Price TBD'
     },
     { 
-      id: '280043', 
-      name: '215/55R16 93V DRIVEWAYS', 
+      id: '280043',
+      name: '215/55R16 93V DRIVEWAYS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -167,9 +167,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280044', 
-      name: '195/65R15 91H TRANSWAY A/T', 
+    {
+      id: '280044',
+      name: '195/65R15 91H TRANSWAY A/T',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -177,9 +177,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280045', 
-      name: '185/75R16 104/102R LC/R', 
+    {
+      id: '280045',
+      name: '185/75R16 104/102R LC/R',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -187,9 +187,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280046', 
-      name: '205/55R16 91V SUMMER DRIVEWAYS', 
+    {
+      id: '280046',
+      name: '205/55R16 91V SUMMER DRIVEWAYS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -197,9 +197,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280047', 
-      name: '225/45R17 94W SUMMER COMPETUS', 
+    {
+      id: '280047',
+      name: '225/45R17 94W SUMMER COMPETUS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -207,9 +207,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280048', 
-      name: '175/65R14 82T SUMMER GREENWAYS', 
+    {
+      id: '280048',
+      name: '175/65R14 82T SUMMER GREENWAYS',
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
         'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/270x270/N08_1.jpg',
@@ -217,8 +217,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-    { 
-      id: '280038', 
+    {
+      id: '280038',
       name: '18.4-30 14PR TR130', 
       image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/N08_1.jpg',
       images: [
@@ -315,33 +315,33 @@ const ProductListingScreen = ({ route, navigation }: any) => {
     // Filtre kategorilerini ve seçilen değerleri topla
     const activeFilters = Object.entries(appliedFilters)
       .filter(([_, selectedValues]) => selectedValues.length > 0);
-    
+
     // Başlangıçta boş bir sonuç listesi oluştur
     let result: typeof products = [];
-    
+
     // Her bir filtre kategorisi için filtreleme yap ve sonuçları birleştir (OR mantığı)
     activeFilters.forEach(([category, selectedValues]) => {
       // Bu kategori için filtreleme sonuçlarını al
       const filteredByCategory = products.filter(product => {
         const productName = product.name.toLowerCase();
-        
+
         // Kategori bazında filtreleme mantığı
         switch(category) {
           case 'Shop by Section Width':
             return selectedValues.some(value => productName.includes(value.toLowerCase()));
-          
+
           case 'Shop by Aspect Ratio':
             return selectedValues.some(value => productName.includes(`/${value}`) || productName.includes(`-${value}`));
-          
+
           case 'Shop by Rim Diameter':
             return selectedValues.some(value => productName.includes(`r${value}`) || productName.includes(`-${value}`));
-          
+
           case 'Shop by Thread':
             return selectedValues.some(value => productName.includes(value.toLowerCase()));
-          
+
           case 'Shop by Season':
             return selectedValues.some(value => productName.includes(value.toLowerCase()));
-          
+
           case 'Shop by Stock':
             // Stok durumuna göre filtreleme
             if (selectedValues.includes('in-stock')) {
@@ -355,22 +355,22 @@ const ProductListingScreen = ({ route, navigation }: any) => {
               return outOfStockProductIds.includes(product.id);
             }
             return false;
-          
+
           default:
             return false;
         }
       });
-      
+
       // Sonuç listesini güncelle - bu kategoriye uyan ürünleri ekle (OR mantığı)
       // Tekrarlanan ürünleri önlemek için Set kullanıyoruz
       result = Array.from(new Set([...result, ...filteredByCategory]));
     });
-    
+
     // Filtreleme bilgilerini logla
     activeFilters.forEach(([category, selectedValues]) => {
       console.log(`Filtering by ${category} with values:`, selectedValues);
     });
-    
+
     setFilteredProducts(result);
     console.log('Filtered products:', result.length);
   }, [products, appliedFilters]);
@@ -442,7 +442,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
           <View style={styles.paginationTag}>
             <View style={styles.sorting}>
               <View style={styles.sortingRight}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.refineButton}
                   onPress={() => setIsFilterPanelVisible(true)}
                 >
@@ -479,13 +479,13 @@ const ProductListingScreen = ({ route, navigation }: any) => {
               <Text style={styles.sortingResultText}>{filteredProducts.length > 0 ? filteredProducts.length : products.length} products found</Text>
             </View>
         </View>
-        
+
         {/* Applied Filters Section */}
         {Object.entries(appliedFilters).some(([_, values]) => values.length > 0) && (
           <View style={styles.appliedFiltersContainer}>
             <View style={styles.appliedFiltersHeader}>
               <Text style={styles.appliedFiltersTitle}>Applied Filters</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.clearAllFiltersButton}
                 onPress={() => {
                   // Clear all filters
@@ -500,17 +500,17 @@ const ProductListingScreen = ({ route, navigation }: any) => {
               </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.appliedFiltersScroll}>
-              {Object.entries(appliedFilters).map(([category, selectedValues]) => 
+              {Object.entries(appliedFilters).map(([category, selectedValues]) =>
                 selectedValues.map((value, index) => {
                   // Find the label for the selected value
                   const filterCategory = filterCategories.find(cat => cat.title === category);
                   const option = filterCategory?.options.find(opt => opt.id === value);
                   const label = option?.label || value;
-                  
+
                   return selectedValues.length > 0 ? (
                     <View key={`${category}-${value}-${index}`} style={styles.appliedFilterTag}>
                       <Text style={styles.appliedFilterText}>{label}</Text>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.appliedFilterRemoveButton}
                         onPress={() => {
                           // Remove this filter
@@ -528,7 +528,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
             </ScrollView>
           </View>
         )}
-        
+
         {viewType === 'list' ? (
           <View style={styles.tableContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -553,7 +553,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 </View>
               </View>
             </ScrollView>
-            
+
             {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
               <TouchableOpacity key={product.id} style={styles.tableRow} activeOpacity={0.85} onPress={() => navigateToProductDetail(product)}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -561,8 +561,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 <View style={[styles.tableCell, styles.cellImage]}>
                   <View style={styles.brandLogoContainer}>
                     {product.brand === 'Lassa' && (
-                      <Image 
-                        source={require('../../assets/lassa-logo.png')} 
+                      <Image
+                        source={require('../../assets/lassa-logo.png')}
                         style={styles.brandLogo}
                         resizeMode="contain"
                       />
@@ -584,11 +584,11 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                     </View>
                   </View>
                 </View>
-                
+
                 <View style={[styles.tableCell, styles.cellCode]}>
                   <Text style={styles.productIdTable}>{product.id}</Text>
                 </View>
-                
+
                 <View style={[styles.tableCell, styles.tableCellDescription, styles.cellDescription]}>
                   <Text numberOfLines={1} ellipsizeMode="tail" style={styles.productNameTable}>{product.name}</Text>
                   {product.season && (
@@ -597,21 +597,21 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                     </Text>
                   )}
                 </View>
-                
+
                 <View style={[styles.tableCell, styles.cellPrice]}>
                   <Text style={styles.priceText}>{product.price || '€'}</Text>
                 </View>
-                
+
                 <View style={[styles.tableCell, styles.cellQty]}>
                   <View style={styles.quantitySelector}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.quantityButton}
                       onPress={() => handleQuantityChange(product.id, -1)}
                       disabled={quantities[product.id] <= 1}
                     >
                       <Text style={[styles.quantityButtonText, quantities[product.id] <= 1 ? styles.quantityButtonTextDisabled : null]}>-</Text>
                     </TouchableOpacity>
-                    
+
                     <TextInput
                       style={styles.quantityInput}
                       value={String(quantities[product.id] || 1)}
@@ -625,8 +625,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                       }}
                       maxLength={5}
                     />
-                    
-                    <TouchableOpacity 
+
+                    <TouchableOpacity
                       style={[styles.quantityButton, styles.incrementButton]}
                       onPress={() => handleQuantityChange(product.id, 1)}
                     >
@@ -634,9 +634,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-                
+
                 <View style={[styles.tableCell, styles.cellAction]}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.addToCartButton}
                     onPress={() => handleAddToCart(product.id)}
                   >
@@ -653,7 +653,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
             <View style={styles.productRow}>
               {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
                 <View key={product.id} style={styles.productCard}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.productLink}
                     activeOpacity={0.85}
                     onPress={() => navigateToProductDetail(product)}
@@ -683,8 +683,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                     </View>
                     <View style={styles.productRightColumn}>
                       <TouchableOpacity style={styles.productImageWrapRight} onPress={() => handleOpenProductModal(product)}>
-                        <Image 
-                          source={{ uri: product.image }} 
+                        <Image
+                          source={{ uri: product.image }}
                           style={styles.productImage}
                           resizeMode="contain"
                         />
@@ -750,7 +750,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
         setIsReportsModalOpen={setIsReportsModalOpen}
         onNavigateToReport={handleNavigateToReport}
       />
-      
+
       <Modal
         transparent
         visible={isProductModalOpen}
@@ -813,7 +813,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
           </View>
         </View>
       </Modal>
-      
+
       {/* Energy Label Zoom Modal */}
       <Modal
         transparent
@@ -835,8 +835,8 @@ const ProductListingScreen = ({ route, navigation }: any) => {
           </View>
         </View>
       </Modal>
-      
-      <FilterPanel 
+
+      <FilterPanel
         isVisible={isFilterPanelVisible}
         onClose={() => setIsFilterPanelVisible(false)}
         onApplyFilters={handleApplyFilters}
