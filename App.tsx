@@ -23,12 +23,19 @@ import AccountTransactionsScreen from './src/screens/AccountTransactionsScreen';
 import ShipmentsDocumentsScreen from './src/screens/ShipmentsDocumentsScreen';
 import SalesReportScreen from './src/screens/SalesReportScreen';
 import OrderMonitoringScreen from './src/screens/OrderMonitoringScreen';
+import OrderMonitoringParentScreen from './src/screens/OrderMonitoringParentScreen';
+import PlannedOrdersScreen from './src/screens/PlannedOrdersScreen';
+import UnplannedOrdersScreen from './src/screens/UnplannedOrdersScreen';
+import FinancialReportsParentScreen from './src/screens/FinancialReportsParentScreen';
 import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
 import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
+import LassaTeamScreen from './src/screens/LassaTeamScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
+import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
+import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
+import VideoDetailScreen from './src/screens/VideoDetailScreen';
 import { getOverdueReportData } from './src/utils/mockData';
-
 const Stack = createNativeStackNavigator();
 
 // Login ekranı bileşeni
@@ -53,6 +60,9 @@ function DashboardScreen({ navigation }: any) {
     
     // Navigate based on report ID using React Navigation
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;
@@ -76,6 +86,9 @@ function DashboardScreen({ navigation }: any) {
         break;
       case 'pos-material-tracking':
         navigation.navigate('POSMaterialTracking', { reportData });
+        break;
+      case 'lassa-team':
+        navigation.navigate('LassaTeam', { reportData });
         break;
       default:
         console.log('Unknown report type');
@@ -261,6 +274,74 @@ const linking = {
           },
         },
       },
+      LassaTeam: {
+        path: '/reports/lassa-team',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      FinancialReports: {
+        path: '/reports/financial-reports',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      PlannedOrders: {
+        path: '/reports/planned-orders',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
+      UnplannedOrders: {
+        path: '/reports/unplanned-orders',
+        parse: {
+          reportData: (reportData: string) => {
+            try {
+              return JSON.parse(decodeURIComponent(reportData));
+            } catch {
+              return null;
+            }
+          },
+        },
+        stringify: {
+          reportData: (reportData: any) => {
+            return encodeURIComponent(JSON.stringify(reportData));
+          },
+        },
+      },
       ProductDetail: {
         path: '/product/:productId',
         parse: {
@@ -276,6 +357,33 @@ const linking = {
           product: (product: any) => {
             return encodeURIComponent(JSON.stringify(product));
           },
+        },
+      },
+      VideoLibrary: {
+        path: '/video-library',
+      },
+      VideoPlayer: {
+        path: '/video-player',
+        parse: {
+          videoUrl: (videoUrl: string) => decodeURIComponent(videoUrl),
+          title: (title: string) => decodeURIComponent(title),
+        },
+        stringify: {
+          videoUrl: (videoUrl: string) => encodeURIComponent(videoUrl),
+          title: (title: string) => encodeURIComponent(title),
+        },
+      },
+      VideoDetail: {
+        path: '/video-detail',
+        parse: {
+          videoId: (videoId: string) => decodeURIComponent(videoId),
+          videoUrl: (videoUrl: string) => decodeURIComponent(videoUrl),
+          title: (title: string) => decodeURIComponent(title),
+        },
+        stringify: {
+          videoId: (videoId: string) => encodeURIComponent(videoId),
+          videoUrl: (videoUrl: string) => encodeURIComponent(videoUrl),
+          title: (title: string) => encodeURIComponent(title),
         },
       },
     },
@@ -346,10 +454,25 @@ export default function App() {
         />
         <Stack.Screen 
           name="OrderMonitoring" 
-          component={OrderMonitoringScreen} 
+          component={OrderMonitoringParentScreen}
           options={{ title: 'Order Monitoring' }}
         />
-        <Stack.Screen 
+        <Stack.Screen
+          name="PlannedOrders"
+          component={PlannedOrdersScreen}
+          options={{ title: 'Planned Orders' }}
+        />
+        <Stack.Screen
+          name="UnplannedOrders"
+          component={UnplannedOrdersScreen}
+          options={{ title: 'Unplanned Orders' }}
+        />
+        <Stack.Screen
+          name="FinancialReports"
+          component={FinancialReportsParentScreen}
+          options={{ title: 'Financial Reports' }}
+        />
+        <Stack.Screen
           name="TyresOnTheWay" 
           component={TyresOnTheWayScreen} 
           options={{ title: 'Tyres On The Way' }}
@@ -359,10 +482,30 @@ export default function App() {
           component={POSMaterialTrackingScreen} 
           options={{ title: 'POS Material Tracking' }}
         />
-        <Stack.Screen 
+        <Stack.Screen
+          name="LassaTeam"
+          component={LassaTeamScreen}
+          options={{ title: 'Your Lassa Team' }}
+        />
+        <Stack.Screen
           name="ProductDetail" 
           component={ProductDetailScreen} 
           options={{ title: 'Product Detail' }}
+        />
+        <Stack.Screen
+          name="VideoLibrary"
+          component={VideoLibraryScreen}
+          options={{ title: 'Video Library' }}
+        />
+        <Stack.Screen
+          name="VideoPlayer"
+          component={VideoPlayerScreen}
+          options={{ title: 'Video Player' }}
+        />
+        <Stack.Screen
+          name="VideoDetail"
+          component={VideoDetailScreen}
+          options={{ title: 'Video Detail' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

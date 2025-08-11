@@ -69,7 +69,9 @@ const DatePicker = ({ value, onChange, placeholder = "DD/MM/YYYY" }: DatePickerP
         <Text style={[styles.inputText, !value && styles.placeholder]}>
           {value || placeholder}
         </Text>
-        <Text style={styles.calendarIcon}>📅</Text>
+        <View style={styles.calendarIconContainer}>
+          <Text style={styles.calendarIcon}>📅</Text>
+        </View>
       </TouchableOpacity>
 
       <Modal
@@ -181,12 +183,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     borderRadius: 5,
-    padding: 10,
+    paddingLeft: 10,
+    paddingRight: 0,
     fontSize: 16,
     backgroundColor: '#FFF',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    height: 40,
   },
   inputText: {
     fontSize: 16,
@@ -196,9 +200,17 @@ const styles = StyleSheet.create({
   placeholder: {
     color: '#999',
   },
+  calendarIconContainer: {
+    backgroundColor: '#F44336',
+    width: 30,
+    height: 30,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   calendarIcon: {
     fontSize: 16,
-    marginLeft: 10,
+    color: '#FFFFFF',
   },
   modalOverlay: {
     flex: 1,
@@ -307,4 +319,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DatePicker; 
+export default DatePicker;

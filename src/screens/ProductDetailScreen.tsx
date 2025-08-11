@@ -30,6 +30,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   };
 
   const product = route.params?.product || defaultProduct;
+  const isPromotionalMaterials: boolean = Boolean(route.params?.isPromotionalMaterials);
 
   // Ensure product.images exists and is an array
   const productImages = product?.images || [product?.image || defaultProduct.image];
@@ -37,7 +38,9 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   // Ensure selectedImage doesn't exceed the array bounds
   const safeSelectedImage = Math.min(selectedImage, Math.max(0, productImages.length - 1));
 
-  const tabs = ['Product Details', 'Specs', 'Quality Certificates', 'Reviews'];
+  const tabs = isPromotionalMaterials
+    ? ['Product Details']
+    : ['Product Details', 'Specs', 'Quality Certificates', 'Reviews'];
 
   useEffect(() => {
     if (product?.id && product?.name) {
@@ -51,6 +54,9 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     setIsReportsModalOpen(false);
     
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;

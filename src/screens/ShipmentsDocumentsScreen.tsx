@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import ExcelExport from '../components/ExcelExport';
+import EmailSender from '../components/EmailSender';
 
 const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -19,6 +22,16 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
     { planNo: '3500057880', invoiceNo: '9280033872', invoiceQty: '1,062' },
     { planNo: '3500058173', invoiceNo: '9280034066', invoiceQty: '1,264' },
   ]);
+  
+  // Column visibility state for Excel export
+  const [columns, setColumns] = useState([
+    { key: 'planNo', label: 'Plan No', visible: true },
+    { key: 'invoiceNo', label: 'Invoice No', visible: true },
+    { key: 'invoiceQty', label: 'Invoice Qty', visible: true },
+  ]);
+  
+  // Email modal state
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
@@ -31,6 +44,9 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
     
     // Navigate based on report ID using React Navigation
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;
@@ -120,7 +136,28 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
             {/* List Button Row */}
             <View style={styles.formRow}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
+                <AntDesign name="bars" size={18} color="#FFFFFF" style={{marginRight: 8}} />
                 <Text style={styles.listButtonText}>List</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Export Buttons Row */}
+            <View style={[styles.formRow, styles.exportButtonsRow]}>
+              <ExcelExport 
+                data={tableData}
+                visibleColumns={columns}
+                fileName={`ShipmentsDocuments_${new Date().toISOString().split('T')[0]}`}
+                buttonText="Excel İndir"
+                buttonStyle={styles.exportButton}
+                buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
+              />
+              
+              <TouchableOpacity 
+                style={styles.emailButton} 
+                onPress={() => setIsEmailModalOpen(true)}
+              >
+                <MaterialIcons name="email" size={18} color="#FFFFFF" style={{marginRight: 8}} />
+                <Text style={styles.emailButtonText}>Mail Gönder</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -151,6 +188,15 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
         setIsReportsModalOpen={setIsReportsModalOpen}
         onNavigateToReport={handleNavigateToReport}
       />
+      
+      {/* Email Sender Modal */}
+      <EmailSender
+        visible={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        data={tableData}
+        visibleColumns={columns}
+        reportName="ShipmentsDocuments"
+      />
     </SafeAreaView>
   );
 };
@@ -159,6 +205,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
+  },
+  exportButtonsRow: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+  },
+  exportButton: {
+    backgroundColor: '#4CAF50',
+    width: '48%',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  emailButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '48%',
+    flexDirection: 'row',
+  },
+  emailButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   scrollView: {
     flex: 1,
@@ -194,12 +269,12 @@ const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     marginBottom: 15,
+    justifyContent: 'space-between',
+    width: '100%',
     flexWrap: 'wrap',
   },
   formGroup: {
-    flex: 1,
-    minWidth: 250,
-    marginRight: 15,
+    width: '48%',
     marginBottom: 10,
   },
   formLabel: {
@@ -218,14 +293,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DDD',
-    borderRadius: 4,
+    borderRadius: 5,
     height: 40,
-    paddingHorizontal: 10,
-    marginRight: 10,
+    paddingHorizontal: 20,
+    marginRight: 8,
+    backgroundColor: '#FFF',
   },
   dateInput: {
     flex: 1,
     height: 40,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFF',
+    fontSize: 16,
   },
   dateIcon: {
     fontSize: 18,
@@ -233,18 +316,23 @@ const styles = StyleSheet.create({
   textInput: {
     borderWidth: 1,
     borderColor: '#DDD',
-    borderRadius: 4,
+    borderRadius: 5,
     height: 40,
-    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFF',
+    fontSize: 16,
   },
   listButton: {
-    backgroundColor: '#666',
-    borderRadius: 4,
+    backgroundColor: '#8D8D8D',
+    borderRadius: 5,
     paddingVertical: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 150,
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 10,
   },
   listButtonText: {
     color: '#FFFFFF',

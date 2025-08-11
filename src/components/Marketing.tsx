@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const Marketing = () => {
+  const navigation = useNavigation();
   const categories = [
     { id: 1, title: 'Ürün Fotoğrafları,\nSunumlar', icon: '🖼️' },
     { id: 2, title: 'Kampanya\nMateryalleri', icon: '📢' },
@@ -35,7 +37,15 @@ const Marketing = () => {
       
       <View style={styles.categoriesContainer}>
         {categories.map((category) => (
-          <TouchableOpacity key={category.id} style={styles.categoryItem}>
+          <TouchableOpacity 
+            key={category.id} 
+            style={styles.categoryItem}
+            onPress={() => {
+              if (category.id === 7) { // Videos category
+                navigation.navigate('VideoLibrary' as never);
+              }
+            }}
+          >
             <Text style={styles.categoryIcon}>{category.icon}</Text>
             <Text style={styles.categoryTitle}>{category.title}</Text>
           </TouchableOpacity>

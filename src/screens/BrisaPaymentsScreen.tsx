@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
@@ -8,6 +9,8 @@ import RowDetailModal from '../components/RowDetailModal';
 import ShowDropdown from '../components/ShowDropdown';
 import Pagination from '../components/Pagination';
 import DatePicker from '../components/DatePicker';
+import ExcelExport from '../components/ExcelExport';
+import EmailSender from '../components/EmailSender';
 import { getBrisaPaymentsData, TableDataItem } from '../utils/mockData';
 
 const BrisaPaymentsScreen = ({ route, navigation }: any) => {
@@ -46,6 +49,7 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   // Modal states
   const [isColumnVisibilityModalOpen, setIsColumnVisibilityModalOpen] = useState(false);
   const [isRowDetailModalOpen, setIsRowDetailModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [showValue, setShowValue] = useState(100);
   
@@ -174,6 +178,9 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
     
     // Navigate based on report ID using React Navigation
     switch (reportData.id) {
+      case 'financial-reports':
+        navigation.navigate('FinancialReports', { reportData });
+        break;
       case 'brisa-payments':
         navigation.navigate('BrisaPayments', { reportData });
         break;
@@ -206,9 +213,20 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
+      <View style={styles.titleContainer}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{
+            padding: 10,
+            marginRight: 10
+          }}
+        >
+          <Text style={{fontSize: 24, color: '#333'}}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Brisa Payments</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Brisa Payments</Text>
           
           {/* Filter Form */}
           <View style={styles.formContainer}>
@@ -254,9 +272,32 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
               </View>
             </View>
             
-            <TouchableOpacity style={styles.listButton} onPress={handleList}>
-              <Text style={styles.listButtonText}>List</Text>
-            </TouchableOpacity>
+            <View style={styles.formRow}>
+              <TouchableOpacity style={styles.listButton} onPress={handleList}>
+                <AntDesign name="bars" size={18} color="#FFFFFF" style={{marginRight: 8}} />
+                <Text style={styles.listButtonText}>List</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Export Buttons Row */}
+            <View style={[styles.formRow, styles.exportButtonsRow]}>
+              <ExcelExport 
+                data={filteredTableData}
+                visibleColumns={columns}
+                fileName={`BrisaPayments_${new Date().toISOString().split('T')[0]}`}
+                buttonText="Excel İndir"
+                buttonStyle={styles.exportButton}
+                buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
+              />
+              
+              <TouchableOpacity 
+                style={styles.emailButton} 
+                onPress={() => setIsEmailModalOpen(true)}
+              >
+                <MaterialIcons name="email" size={18} color="#FFFFFF" style={{marginRight: 8}} />
+                <Text style={styles.emailButtonText}>Mail Gönder</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           
           {/* Column Visibility Header - Full Width */}
@@ -361,6 +402,15 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
         rowData={selectedRowData}
         columns={columns}
       />
+      
+      {/* Email Sender Modal */}
+      <EmailSender
+        visible={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        data={filteredTableData}
+        visibleColumns={columns}
+        reportName="BrisaPayments"
+      />
     </SafeAreaView>
   );
 };
@@ -370,16 +420,54 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
+  exportButtonsRow: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+  },
+  exportButton: {
+    width: '48%',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  emailButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '48%',
+    flexDirection: 'row',
+  },
+  emailButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
   scrollView: {
     flex: 1,
   },
   content: {
     padding: 20,
   },
+  titleContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 20,
     color: '#333',
     textAlign: 'left',
     fontFamily: 'MuseoSans-Medium',
@@ -401,10 +489,12 @@ const styles = StyleSheet.create({
   formRow: {
     flexDirection: 'row',
     marginBottom: 15,
+    justifyContent: 'space-between',
+    width:"100%",
   },
   formGroup: {
-    flex: 1,
-    marginRight: 10,
+    width: '48%',
+    marginBottom: 10,
   },
   formLabel: {
     fontSize: 14,
@@ -417,22 +507,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     borderRadius: 5,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     fontSize: 16,
     backgroundColor: '#FFF',
     fontFamily: 'MuseoSans-Regular',
   },
   dateContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   dateInputContainer: {
     flex: 1,
+    marginRight: 8,
   },
   dateInput: {
     borderWidth: 1,
     borderColor: '#DDD',
     borderRadius: 5,
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     fontSize: 16,
     backgroundColor: '#FFF',
   },
@@ -441,9 +535,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 5,
-    alignSelf: 'stretch',
-    marginTop: 10,
     alignItems: 'center',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
   },
   listButtonText: {
     color: '#FFFFFF',

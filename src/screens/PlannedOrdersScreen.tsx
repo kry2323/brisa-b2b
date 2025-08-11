@@ -7,28 +7,28 @@ import BottomNavigation from '../components/BottomNavigation';
 import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 
-const TyresOnTheWayScreen = ({ route, navigation }: any) => {
+const PlannedOrdersScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   
   // Form state
   const [startDate, setStartDate] = useState('30/12/2018');
   const [endDate, setEndDate] = useState('28/07/2025');
-  const [shipmentNumber, setShipmentNumber] = useState('');
-  const [productCode, setProductCode] = useState('');
+  const [orderNumber, setOrderNumber] = useState('');
+  const [status, setStatus] = useState('');
   
   // Table data state
   const [tableData, setTableData] = useState([
-    { shipmentNumber: 'SHP-2023-001', productCode: 'P001', quantity: '120', estimatedArrival: '15/08/2023' },
-    { shipmentNumber: 'SHP-2023-002', productCode: 'P002', quantity: '85', estimatedArrival: '22/08/2023' },
+    { orderNumber: 'ORD-2023-001', date: '15/01/2023', status: 'Planned', amount: '€8,750' },
+    { orderNumber: 'ORD-2023-002', date: '22/02/2023', status: 'Planned', amount: '€5,320' },
   ]);
   
   // Column visibility state for Excel export
   const [columns, setColumns] = useState([
-    { key: 'shipmentNumber', label: 'Shipment Number', visible: true },
-    { key: 'productCode', label: 'Product Code', visible: true },
-    { key: 'quantity', label: 'Quantity', visible: true },
-    { key: 'estimatedArrival', label: 'Est. Arrival', visible: true },
+    { key: 'orderNumber', label: 'Order Number', visible: true },
+    { key: 'date', label: 'Date', visible: true },
+    { key: 'status', label: 'Status', visible: true },
+    { key: 'amount', label: 'Amount', visible: true },
   ]);
   
   // Email modal state
@@ -36,7 +36,7 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
-    console.log('Listing with filters:', { startDate, endDate, shipmentNumber, productCode });
+    console.log('Listing planned orders with filters:', { startDate, endDate, orderNumber, status });
     // For now we'll just use the mock data already set
   };
 
@@ -82,14 +82,14 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
       <Header />
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Tyres On The Way</Text>
+          <Text style={styles.title}>Planned Orders</Text>
           
           {/* Form Section */}
           <View style={styles.formContainer}>
             {/* Date Range Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Shipment Date *</Text>
+                <Text style={styles.formLabel}>Order Date *</Text>
                 <View style={styles.dateContainer}>
                   <View style={styles.dateInputContainer}>
                     <TextInput
@@ -109,25 +109,25 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
               </View>
             </View>
             
-            {/* Shipment Number and Product Code Row */}
+            {/* Order Number and Status Row */}
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Shipment Number</Text>
+                <Text style={styles.formLabel}>Order Number</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={shipmentNumber}
-                  onChangeText={setShipmentNumber}
-                  placeholder="Enter shipment number"
+                  value={orderNumber}
+                  onChangeText={setOrderNumber}
+                  placeholder="Enter order number"
                 />
               </View>
               
               <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Product Code</Text>
+                <Text style={styles.formLabel}>Status</Text>
                 <TextInput
                   style={styles.textInput}
-                  value={productCode}
-                  onChangeText={setProductCode}
-                  placeholder="Enter product code"
+                  value={status}
+                  onChangeText={setStatus}
+                  placeholder="Enter status"
                 />
               </View>
             </View>
@@ -145,7 +145,7 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
               <ExcelExport 
                 data={tableData}
                 visibleColumns={columns}
-                fileName={`TyresOnTheWay_${new Date().toISOString().split('T')[0]}`}
+                fileName={`PlannedOrders_${new Date().toISOString().split('T')[0]}`}
                 buttonText="Excel İndir"
                 buttonStyle={styles.exportButton}
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
@@ -165,19 +165,19 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Shipment Number</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Product Code</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Quantity</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Est. Arrival</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Order Number</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Date</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Status</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 1 }]}>Amount</Text>
             </View>
             
             {/* Table Rows */}
             {tableData.map((item, index) => (
               <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
-                <Text style={[styles.tableCell, { flex: 1 }]}>{item.shipmentNumber}</Text>
-                <Text style={[styles.tableCell, { flex: 1 }]}>{item.productCode}</Text>
-                <Text style={[styles.tableCell, { flex: 1 }]}>{item.quantity}</Text>
-                <Text style={[styles.tableCell, { flex: 1 }]}>{item.estimatedArrival}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.orderNumber}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.date}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.status}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item.amount}</Text>
               </View>
             ))}
           </View>
@@ -196,7 +196,7 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
         onClose={() => setIsEmailModalOpen(false)}
         data={tableData}
         visibleColumns={columns}
-        reportName="TyresOnTheWay"
+        reportName="PlannedOrders"
       />
     </SafeAreaView>
   );
@@ -357,4 +357,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TyresOnTheWayScreen;
+export default PlannedOrdersScreen;
