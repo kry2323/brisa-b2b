@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { addRecentlyViewedProduct } from '../utils/storage';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
@@ -37,6 +38,12 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   const safeSelectedImage = Math.min(selectedImage, Math.max(0, productImages.length - 1));
 
   const tabs = ['Product Details', 'Specs', 'Quality Certificates', 'Reviews'];
+
+  useEffect(() => {
+    if (product?.id && product?.name) {
+      addRecentlyViewedProduct({ id: product.id, name: product.name });
+    }
+  }, [product?.id]);
 
   // Rapor sayfalarına yönlendirme işlevi
   const handleNavigateToReport = (reportData: any) => {

@@ -6,7 +6,7 @@ import BottomNavigation from '../components/BottomNavigation';
 
 const ProductListingScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(route?.params?.initialQuery || '');
   const [sortOption, setSortOption] = useState('Name (Ascending)');
   const [viewType, setViewType] = useState('list'); // 'list' or 'grid'
   const [quantities, setQuantities] = useState<{[key: string]: number}>({});

@@ -10,6 +10,8 @@ import Snap from './src/components/Snap';
 import Login from './components/Login';
 import Header from './src/components/Header';
 import Banner from './src/components/Banner';
+import SearchBox from './src/components/SearchBox';
+import OverdueNotice from './src/components/OverdueNotice';
 import OrderOperations from './src/components/OrderOperations';
 import Marketing from './src/components/Marketing';
 import Reports from './src/components/Reports';
@@ -25,6 +27,7 @@ import TyresOnTheWayScreen from './src/screens/TyresOnTheWayScreen';
 import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
+import { getOverdueReportData } from './src/utils/mockData';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,6 +44,7 @@ function LoginScreen({ navigation }: any) {
 // Ana sayfa bileşeni (Dashboard)
 function DashboardScreen({ navigation }: any) {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+  const [overdueCount, setOverdueCount] = useState<number>(0);
 
   // Handle navigation to report screens
   const handleNavigateToReport = (reportData: any) => {
@@ -78,14 +82,31 @@ function DashboardScreen({ navigation }: any) {
     }
   };
 
+  useEffect(() => {
+    // Load overdue report count once on mount
+    try {
+      const data = getOverdueReportData();
+      setOverdueCount(Array.isArray(data) ? data.length : 0);
+    } catch (e) {
+      setOverdueCount(0);
+    }
+  }, []);
+
   // Ana sayfa render
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor="#383838" />
       <Header />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <Snap />
+        <SearchBox onSubmit={(q) => navigation.navigate('ProductListing', { initialQuery: q })} />
         <Banner />
+        {overdueCount > 0 && (
+          <OverdueNotice
+            count={overdueCount}
+            onPress={() => navigation.navigate('OverdueReport', { reportData: { id: 'overdue-report' } })}
+          />
+        )}
+        <Snap />
         <Footer />
       </ScrollView>
       <BottomNavigation 
