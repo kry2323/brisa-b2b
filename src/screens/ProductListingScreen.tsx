@@ -10,7 +10,7 @@ import { ListViewIcon, GridViewIcon } from '../components/ViewTypeIcons';
 
 // Common product type for both tyres and promotional items
 type SizeOption = { value: string; qty: number };
-type Product = {
+ type Product = {
   id: string;
   name: string;
   image: string;
@@ -25,6 +25,7 @@ type Product = {
   fuel?: string;
   sound?: string;
   rain?: string;
+  description?: string; // promotional product description
 };
 
 const ProductListingScreen = ({ route, navigation }: any) => {
@@ -107,6 +108,96 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       price: '€58.19',
       stock: 0,
       status: 'Out of Stock',
+      description: 'Material: Metal\nDesigned for the display and stacking of passenger car tires.'
+    },
+    {
+      id: 'PM500205',
+      name: 'LASSA SMALL TYRE STAND (PLASTIC)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM500205_cis_1-1745218556251.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM500205_cis_1-1745218556251.jpg'
+      ],
+      price: '€8.46',
+      stock: 37,
+      status: 'In Stock',
+      description: 'Material: Plastic\nIntended for displaying a single passenger tire.'
+    },
+    {
+      id: 'PM201709',
+      name: 'LASSA ICE SCRAPER',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201709_cis_1-1745218480538.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201709_cis_1-1745218480538.jpg'
+      ],
+      price: '€1.87',
+      stock: 2267,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM200407',
+      name: 'LASSA KEYCHAIN',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200407_cis_1-1745217614978.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200407_cis_1-1745217614978.jpg'
+      ],
+      price: '€0.69',
+      stock: 1256,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM100131',
+      name: 'LASSA LARGE SUITCASE (50*78*32cm)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100131_cis_1-1745217452812.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100131_cis_1-1745217452812.jpg'
+      ],
+      price: '€22.19',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM201301',
+      name: 'LASSA NOTEBOOK 12 X 17CM  (RED COLOR)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201301_cis_1-1745218215204.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201301_cis_1-1745218215204.jpg'
+      ],
+      price: '€1.69',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM200503',
+      name: 'LASSA PENCIL SET (3 PCS)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200503_cis_1-1745217675587.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200503_cis_1-1745217675587.jpg'
+      ],
+      price: '€0.37',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM200903',
+      name: 'LASSA POLAR SCARF & BARRET SET',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200903_cis_1-1745218130431.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200903_cis_1-1745218130431.jpg'
+      ],
+      price: '€1.58',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM100203',
+      name: 'LASSA PORCELAIN CUP',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100203_cis_1-1745217452812.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100203_cis_1-1745217452812.jpg'
+      ],
+      price: '€8.04',
+      stock: 500,
+      status: 'In Stock',
     },
     {
       id: 'PM201104',
@@ -148,6 +239,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       price: '€114.84',
       stock: 0,
       status: 'Out of Stock',
+      description: 'Material: Metal\n2-storey display unit for stacking passenger car tires.'
     },
     {
       id: 'PM501103',
@@ -159,6 +251,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       price: '€117.02',
       stock: 0,
       status: 'Out of Stock',
+      description: 'Material: Metal\n3-storey display unit for stacking passenger car tires.'
     },
     {
       id: 'PM201507',
@@ -499,7 +592,18 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   // Ürün miktarını artırma/azaltma işlevi
   const handleQuantityChange = (productId: string, change: number) => {
     const currentQuantity = quantities[productId] || 1;
-    const newQuantity = Math.max(1, currentQuantity + change);
+    // Clamp based on stock/size availability when possible
+    const product = products.find(p => p.id === productId) || filteredProducts.find((p: Product) => p.id === productId);
+    let maxQty = 99999;
+    if (product) {
+      if (Array.isArray(product.sizeOptions) && product.sizeOptions.length > 0) {
+        const totalSizesQty = product.sizeOptions.reduce((sum: number, s: SizeOption) => sum + (s?.qty ?? 0), 0);
+        maxQty = Math.max(1, totalSizesQty);
+      } else if (typeof product.stock === 'number') {
+        maxQty = Math.max(1, product.stock);
+      }
+    }
+    const newQuantity = Math.max(1, Math.min(maxQty, currentQuantity + change));
     
     setQuantities({
       ...quantities,
