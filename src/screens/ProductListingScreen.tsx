@@ -8,6 +8,25 @@ import BottomNavigation from '../components/BottomNavigation';
 import FilterPanel from '../components/FilterPanel';
 import { ListViewIcon, GridViewIcon } from '../components/ViewTypeIcons';
 
+// Common product type for both tyres and promotional items
+type SizeOption = { value: string; qty: number };
+type Product = {
+  id: string;
+  name: string;
+  image: string;
+  images: string[];
+  status: string;
+  price?: string;
+  stock?: number; // for non-size items
+  sizeOptions?: SizeOption[]; // for textile products
+  season?: string; // tyres
+  brand?: string; // tyres
+  brandLogo?: string; // tyres
+  fuel?: string;
+  sound?: string;
+  rain?: string;
+};
+
 const ProductListingScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
@@ -76,8 +95,203 @@ const ProductListingScreen = ({ route, navigation }: any) => {
     },
   ];
 
-  // Örnek ürün verileri
-  const [products, setProducts] = useState([
+  // Promotional products (from provided HTML)
+  const promotionalProducts: Product[] = [
+    {
+      id: 'PM500207',
+      name: 'LASSA  PASSENGER TYRE DISPLAY UNIT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM500207_cis_1-1745218556251.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM500207_cis_1-1745218556251.jpg'
+      ],
+      price: '€58.19',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM201104',
+      name: 'LASSA  TYRES POLO T-SHIRT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201104_cis_1-1745218176042.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201104_cis_1-1745218176042.jpg'
+      ],
+      price: '€4.56',
+      sizeOptions: [
+        { value: 'XS', qty: 13 },
+        { value: 'S', qty: 44 },
+        { value: 'M', qty: 254 },
+        { value: 'L', qty: 634 },
+        { value: 'XL', qty: 312 },
+        { value: 'XXL', qty: 222 },
+        { value: '3XL', qty: 152 },
+      ],
+      status: 'In Stock',
+    },
+    {
+      id: 'PM200209',
+      name: 'LASSA 13x21CM NOTEBOOK(ENG.)-Softcover',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200209_cis_1-1745217528257.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200209_cis_1-1745217528257.jpg'
+      ],
+      price: '€1.10',
+      stock: 584,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM501102',
+      name: 'LASSA 2 STOREY PASSENGER UNIT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM501102_cis_1-1745218623794.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM501102_cis_1-1745218623794.jpg'
+      ],
+      price: '€114.84',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM501103',
+      name: 'LASSA 3 STOREY PASSENGER UNIT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM501103_cis_1-1745218711664.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM501103_cis_1-1745218711664.jpg'
+      ],
+      price: '€117.02',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM201507',
+      name: 'LASSA BACKPACK-grey colour-',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201507_cis_1-1745218215204.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201507_cis_1-1745218215204.jpg'
+      ],
+      price: '€6.43',
+      stock: 1,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM200501',
+      name: 'LASSA BALL-POINT PEN',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200501_cis_1-1745217675587.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200501_cis_1-1745217675587.jpg'
+      ],
+      price: '€0.27',
+      stock: 2556,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM200502',
+      name: 'LASSA BALLPOİNT PEN (PARKER JOTTER)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200502_cis_1-1745217675587.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200502_cis_1-1745217675587.jpg'
+      ],
+      price: '€3.07',
+      stock: 454,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM201103',
+      name: 'LASSA BASIC T-SHIRT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201103_cis_1-1745218176042.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201103_cis_1-1745218176042.jpg'
+      ],
+      price: '€2.86',
+      sizeOptions: [
+        { value: 'S', qty: 1 },
+        { value: 'M', qty: 1 },
+        { value: 'L', qty: 185 },
+        { value: 'XL', qty: 2 },
+        { value: 'XXL', qty: 84 },
+        { value: '3XL', qty: 72 },
+        { value: '4XL', qty: 0 },
+      ],
+      status: 'In Stock',
+    },
+    {
+      id: 'PM100129',
+      name: 'LASSA CABIN SIZE SUITCASE (41*57*23cm)',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100129_cis_1-1745217452812.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM100129_cis_1-1745217452812.jpg'
+      ],
+      price: '€17.96',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+    {
+      id: 'PM200208',
+      name: 'LASSA CALENDAR',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200208_cis_1-1745217528257.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM200208_cis_1-1745217528257.jpg'
+      ],
+      price: '€0.68',
+      stock: 12,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM201000',
+      name: 'LASSA CAP',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201000_cis_1-1745218176042.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201000_cis_1-1745218176042.jpg'
+      ],
+      price: '€1.43',
+      stock: 633,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM300659',
+      name: 'LASSA CUP COASTER SET',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM300659_cis_1-1745218556251.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM300659_cis_1-1745218556251.jpg'
+      ],
+      price: '€1.04',
+      stock: 110,
+      status: 'In Stock',
+    },
+    {
+      id: 'PM201102',
+      name: 'LASSA DRY TOUCH POLYESTTER POLO T-SHIRT',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201102_cis_1-1745218176042.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201102_cis_1-1745218176042.jpg'
+      ],
+      price: '€2.82',
+      sizeOptions: [
+        { value: 'XS', qty: 64 },
+        { value: 'S', qty: 0 },
+        { value: 'M', qty: 0 },
+        { value: 'L', qty: 0 },
+        { value: 'XL', qty: 0 },
+        { value: 'XXL', qty: 0 },
+        { value: '3XL', qty: 54 },
+        { value: '4XL', qty: 100 },
+        { value: '5XL', qty: 61 },
+      ],
+      status: 'In Stock',
+    },
+    {
+      id: 'PM201601',
+      name: 'LASSA FLAG 150X100',
+      image: 'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201601_cis_1-1745218268128.jpg',
+      images: [
+        'http://medias89k-ete3a4c6hxdufvhh.a03.azurefd.net/sys-master-hybris-image-prod/images/390x390/PM201601_cis_1-1745218268128.jpg'
+      ],
+      price: '€3.17',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+  ];
+
+  // Tyre example products (fallback)
+  const tyreProducts: Product[] = [
     { 
       id: '212909',
       name: '145/80R13 75T SNOWAYS 3',
@@ -237,7 +451,11 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       ],
       status: 'Ready for ordering. Price TBD'
     },
-  ]);
+  ];
+
+  // Choose dataset based on category
+  const initialProducts: Product[] = isPromotionalMaterials ? promotionalProducts : tyreProducts;
+  const [products, setProducts] = useState<Product[]>(initialProducts);
 
   // Rapor sayfalarına yönlendirme işlevi
   const handleNavigateToReport = (reportData: any) => {
@@ -317,7 +535,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       .filter(([_, selectedValues]) => selectedValues.length > 0);
 
     // Başlangıçta boş bir sonuç listesi oluştur
-    let result: typeof products = [];
+    let result: Product[] = [];
 
     // Her bir filtre kategorisi için filtreleme yap ve sonuçları birleştir (OR mantığı)
     activeFilters.forEach(([category, selectedValues]) => {
@@ -361,9 +579,11 @@ const ProductListingScreen = ({ route, navigation }: any) => {
         }
       });
 
-      // Sonuç listesini güncelle - bu kategoriye uyan ürünleri ekle (OR mantığı)
-      // Tekrarlanan ürünleri önlemek için Set kullanıyoruz
-      result = Array.from(new Set([...result, ...filteredByCategory]));
+      // Sonuç listesini güncelle - bu kategoriye uyan ürünleri ekle (OR mantığı) ve id'ye göre eşsizleştir
+      const combined: Product[] = [...result, ...filteredByCategory];
+      const uniqueById = new Map<string, Product>();
+      combined.forEach((p) => uniqueById.set(p.id, p));
+      result = Array.from(uniqueById.values());
     });
 
     // Filtreleme bilgilerini logla
@@ -420,6 +640,16 @@ const ProductListingScreen = ({ route, navigation }: any) => {
 
   const navigateToProductDetail = (product: any) => {
     navigation.navigate('ProductDetail', { product, isPromotionalMaterials });
+  };
+
+  const isOutOfStock = (p: Product): boolean => {
+    if (Array.isArray(p.sizeOptions)) {
+      // Out of stock if all sizes are 0 or no sizes
+      if (p.sizeOptions.length === 0) return true;
+      return p.sizeOptions.every((s) => (s?.qty ?? 0) <= 0);
+    }
+    if (typeof p.stock === 'number') return p.stock <= 0;
+    return false;
   };
 
   return (
@@ -554,7 +784,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
               </View>
             </ScrollView>
 
-            {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
+            {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => {
+              const outOfStock = isOutOfStock(product);
+              return (
               <TouchableOpacity key={product.id} style={styles.tableRow} activeOpacity={0.85} onPress={() => navigateToProductDetail(product)}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.tableRowInner}>
@@ -637,8 +869,9 @@ const ProductListingScreen = ({ route, navigation }: any) => {
 
                 <View style={[styles.tableCell, styles.cellAction]}>
                   <TouchableOpacity
-                    style={styles.addToCartButton}
+                    style={[styles.addToCartButton, outOfStock && styles.addToCartButtonDisabled]}
                     onPress={() => handleAddToCart(product.id)}
+                    disabled={outOfStock}
                   >
                     <Text style={styles.addToCartButtonText}>Add to Bag</Text>
                   </TouchableOpacity>
@@ -646,12 +879,14 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                 </View>
                 </ScrollView>
               </TouchableOpacity>
-            ))}
+            );})}
           </View>
         ) : (
           <View style={styles.productGrid}>
             <View style={styles.productRow}>
-              {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
+              {(filteredProducts.length > 0 ? filteredProducts : products).map((product) => {
+                const outOfStock = isOutOfStock(product);
+                return (
                 <View key={product.id} style={styles.productCard}>
                   <TouchableOpacity
                     style={styles.productLink}
@@ -731,14 +966,15 @@ const ProductListingScreen = ({ route, navigation }: any) => {
                     </View>
                     
                     <TouchableOpacity 
-                      style={[styles.addToCartButton, { flex: 1 }]}
+                      style={[styles.addToCartButton, { flex: 1 }, outOfStock && styles.addToCartButtonDisabled]}
                       onPress={() => handleAddToCart(product.id)}
+                      disabled={outOfStock}
                     >
                       <Text style={styles.addToCartButtonText}>Add to Bag</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-              ))}
+              );})}
             </View>
           </View>
         )}
@@ -1016,16 +1252,10 @@ const styles = StyleSheet.create({
     color: '#333',
     marginRight: 8,
     flexShrink: 1,
-    flexWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
   },
   productIdTable: {
     fontSize: 14,
     color: '#666',
-    flexWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
   },
   seasonEmoji: {
     fontSize: 16,
@@ -1196,9 +1426,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: '#fafafa',
   },
-  productList: {
-    flexDirection: 'column',
-  },
+  // productList duplicated above; remove duplicate to satisfy TS
   productCard: {
     width: '100%',
     maxWidth: 800,
@@ -1217,25 +1445,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  productListItem: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 15,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    minHeight: 110,
-    paddingVertical: 8,
-    paddingHorizontal: 5,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 1,
-  },
+  // productListItem duplicate removed (defined earlier)
   productLink: {
     flex: 1,
     display: 'flex',
@@ -1243,13 +1453,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
   },
-  productLinkList: {
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    justifyContent: 'flex-start',
-  },
+  // productLinkList duplicate removed (defined earlier)
   productImageWrap: {
     width: 90,
     height: 90,
@@ -1262,21 +1466,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#EEEEEE',
   },
-  productImageWrapList: {
-    width: 80,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-    padding: 5,
-  },
-  productInfoList: {
-    flex: 1,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    width: '70%',
-    paddingHorizontal: 10,
-  },
+  // productImageWrapList duplicate removed (defined earlier)
+  // productInfoList duplicate removed (defined earlier)
   productInfoGrid: {
     flex: 1,
     justifyContent: 'space-between',
@@ -1326,9 +1517,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     width: '100%',
     flexShrink: 1,
-    flexWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
+    // RN doesn't support whiteSpace/textOverflow; keep it simple
   },
   productNameGrid: {
     fontSize: 16,
@@ -1345,9 +1534,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 8,
     width: '100%',
-    flexWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
+    // simplified for RN compatibility
   },
   productNameWrapper: {
     width: '100%',
@@ -1371,9 +1558,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     textAlign: 'left',
     width: '100%',
-    flexWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-    textOverflow: 'ellipsis',
+    // simplified
   },
   seasonEmojiSmall: {
     fontSize: 14,
@@ -1604,6 +1789,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     maxWidth: undefined,
+  },
+  addToCartButtonDisabled: {
+    backgroundColor: '#BDBDBD',
   },
   addToCartButtonText: {
     color: '#FFFFFF',
