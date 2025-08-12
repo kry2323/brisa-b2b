@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, Linking } from 'react-native';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import { addRecentlyViewedProduct } from '../utils/storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
@@ -41,6 +42,24 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   const tabs = isPromotionalMaterials
     ? ['Product Details']
     : ['Product Details', 'Specs', 'Quality Certificates', 'Reviews'];
+
+  const qualityCertificates = [
+    {
+      id: 'cert-1',
+      name: 'Certificate PDF - 1.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    },
+    {
+      id: 'cert-2',
+      name: 'Certificate PDF - 2.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    },
+    {
+      id: 'cert-3',
+      name: 'Certificate PDF - 3.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    },
+  ];
 
   useEffect(() => {
     if (product?.id && product?.name) {
@@ -164,7 +183,28 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
       case 'Quality Certificates':
         return (
           <View style={styles.tabContent}>
-            <Text style={styles.emptyText}>No certificates available</Text>
+            <ScrollView
+              style={styles.certificateScroll}
+              contentContainerStyle={styles.certificateGrid}
+              horizontal={false}
+              showsVerticalScrollIndicator={true}
+            >
+              {qualityCertificates.map((cert) => (
+                <TouchableOpacity
+                  key={cert.id}
+                  style={styles.certificateCard}
+                  onPress={() => Linking.openURL(cert.url)}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.certificateIconWrap}>
+                    <Ionicons name="document-text-outline" size={36} color="#D53439" />
+                  </View>
+                  <Text style={styles.certificateName} numberOfLines={1}>
+                    {cert.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
         );
       case 'Reviews':
@@ -637,6 +677,43 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     minHeight: 200,
+  },
+  certificateScroll: {
+    width: '100%',
+  },
+  certificateGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  certificateCard: {
+    width: 160,
+    height: 140,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    marginRight: 16,
+    marginBottom: 16,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  certificateIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 12,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#F5C2C7',
+  },
+  certificateName: {
+    fontSize: 12,
+    color: '#333',
+    textAlign: 'center',
   },
   energyLabel: {
     backgroundColor: '#F8F8F8',
