@@ -4,6 +4,7 @@ type ViewedProduct = { id: string; name: string };
 
 const RECENT_SEARCHES_KEY = 'recentSearches';
 const RECENTLY_VIEWED_KEY = 'recentlyViewedProducts';
+const PRODUCT_REVIEWS_PREFIX = 'productReviews:'; // per-product key
 
 const memoryStore: Record<string, any> = {
   [RECENT_SEARCHES_KEY]: [] as string[],
@@ -73,6 +74,48 @@ export const addRecentlyViewedProduct = (product: ViewedProduct) => {
   const deduped = current.filter((p) => p.id !== product.id);
   const next = [product, ...deduped].slice(0, 10);
   writeJSON(RECENTLY_VIEWED_KEY, next);
+};
+
+// --- Product Reviews ---
+export type ProductReview = {
+  id: string;
+  productId: string;
+  rating: number; // 1-5
+  name?: string;
+  headline?: string;
+  description: string;
+  createdAt: string; // ISO
+};
+
+const getReviewsKey = (productId: string): string => `${PRODUCT_REVIEWS_PREFIX}${productId}`;
+
+export const getProductReviews = (productId: string): ProductReview[] => {
+  if (!productId) return [];
+  return readJSON<ProductReview[]>(getReviewsKey(productId), []);
+};
+
+export const addProductReview = (productId: string, review: Omit<ProductReview, 'id' | 'productId' | 'createdAt'>): ProductReview => {
+  if (!productId) throw new Error('productId is required');
+  if (!review || typeof review.rating !== 'number' || review.rating < 1 || review.rating > 5) {
+    throw new Error('rating must be 1-5');
+  }
+  if (!review.description || !review.description.trim()) {
+    throw new Error('description is required');
+  }
+
+  const existing = getProductReviews(productId);
+  const newReview: ProductReview = {
+    id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    productId,
+    rating: Math.max(1, Math.min(5, Math.round(review.rating))),
+    name: review.name?.trim() || undefined,
+    headline: review.headline?.trim() || undefined,
+    description: review.description.trim(),
+    createdAt: new Date().toISOString(),
+  };
+  const next = [newReview, ...existing].slice(0, 200); // cap to avoid unbounded growth
+  writeJSON(getReviewsKey(productId), next);
+  return newReview;
 };
 
 

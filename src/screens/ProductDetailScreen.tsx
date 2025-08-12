@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableO
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
-import { addRecentlyViewedProduct } from '../utils/storage';
+import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview } from '../utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
@@ -18,6 +18,13 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     'Reviews': false
   });
   const [isEnergyLabelModalOpen, setIsEnergyLabelModalOpen] = useState(false);
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [reviewRating, setReviewRating] = useState<number>(0);
+  const [reviewerName, setReviewerName] = useState<string>('');
+  const [reviewHeadline, setReviewHeadline] = useState<string>('');
+  const [reviewDescription, setReviewDescription] = useState<string>('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
+  const [reviewError, setReviewError] = useState<string>('');
   
   const defaultProduct = {
     id: '280035',
@@ -64,6 +71,13 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   useEffect(() => {
     if (product?.id && product?.name) {
       addRecentlyViewedProduct({ id: product.id, name: product.name });
+    }
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (product?.id) {
+      const existing = getProductReviews(product.id);
+      setReviews(existing);
     }
   }, [product?.id]);
 
@@ -214,28 +228,99 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
               <Text style={styles.reviewTitle}>Your Rating</Text>
               <View style={styles.ratingStars}>
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity key={star} style={styles.starButton}>
-                    <Text style={styles.starIcon}>★</Text>
+                  <TouchableOpacity
+                    key={star}
+                    style={styles.starButton}
+                    onPress={() => setReviewRating(star)}
+                    accessibilityLabel={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                  >
+                    <Text style={[styles.starIcon, reviewRating >= star ? styles.starIconActive : styles.starIconInactive]}>★</Text>
                   </TouchableOpacity>
                 ))}
               </View>
               <TextInput
                 style={styles.reviewInput}
                 placeholder="Name (Optional)"
+                value={reviewerName}
+                onChangeText={setReviewerName}
               />
               <TextInput
                 style={styles.reviewInput}
                 placeholder="Comment Headline"
+                value={reviewHeadline}
+                onChangeText={setReviewHeadline}
               />
               <TextInput
                 style={[styles.reviewInput, styles.reviewTextarea]}
                 placeholder="Review Description"
                 multiline
                 numberOfLines={4}
+                value={reviewDescription}
+                onChangeText={setReviewDescription}
               />
-              <TouchableOpacity style={styles.submitReviewButton}>
-                <Text style={styles.submitReviewButtonText}>Submit Review</Text>
+              {reviewError ? <Text style={styles.reviewErrorText}>{reviewError}</Text> : null}
+              <TouchableOpacity
+                style={[styles.submitReviewButton, isSubmittingReview && styles.submitReviewButtonDisabled]}
+                disabled={isSubmittingReview}
+                onPress={async () => {
+                  if (!product?.id) return;
+                  setReviewError('');
+                  if (reviewRating < 1 || reviewRating > 5) {
+                    setReviewError('Please select a rating (1-5).');
+                    return;
+                  }
+                  if (!reviewDescription.trim()) {
+                    setReviewError('Please enter your review description.');
+                    return;
+                  }
+                  try {
+                    setIsSubmittingReview(true);
+                    const created = addProductReview(product.id, {
+                      rating: reviewRating,
+                      name: reviewerName,
+                      headline: reviewHeadline,
+                      description: reviewDescription,
+                    });
+                    setReviews((prev) => [created, ...prev]);
+                    setReviewRating(0);
+                    setReviewerName('');
+                    setReviewHeadline('');
+                    setReviewDescription('');
+                  } catch (err: any) {
+                    setReviewError(err?.message || 'Failed to submit review.');
+                  } finally {
+                    setIsSubmittingReview(false);
+                  }
+                }}
+              >
+                <Text style={styles.submitReviewButtonText}>{isSubmittingReview ? 'Submitting...' : 'Submit Review'}</Text>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.reviewsListSection}>
+              <Text style={styles.reviewsListTitle}>Reviews</Text>
+              {reviews.length === 0 ? (
+                <Text style={styles.emptyText}>No reviews yet. Be the first to review this product.</Text>
+              ) : (
+                reviews.map((r) => (
+                  <View key={r.id} style={styles.reviewItem}>
+                    <View style={styles.reviewItemHeader}>
+                      <View style={styles.reviewItemStars}>
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Text key={i} style={[styles.starIconSmall, r.rating >= i ? styles.starIconActive : styles.starIconInactive]}>★</Text>
+                        ))}
+                      </View>
+                      <Text style={styles.reviewItemMeta}>
+                        {(r.name || 'Anonymous')}
+                        {' • '}
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    {r.headline ? <Text style={styles.reviewItemHeadline}>{r.headline}</Text> : null}
+                    <Text style={styles.reviewItemDescription}>{r.description}</Text>
+                  </View>
+                ))
+              )}
             </View>
           </View>
         );
@@ -794,6 +879,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#FFD700',
   },
+  starIconActive: {
+    color: '#FFD700',
+  },
+  starIconInactive: {
+    color: '#E0E0E0',
+  },
+  starIconSmall: {
+    fontSize: 16,
+  },
   reviewInput: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -812,10 +906,56 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
   },
+  submitReviewButtonDisabled: {
+    opacity: 0.7,
+  },
   submitReviewButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  reviewErrorText: {
+    color: '#D53439',
+    marginBottom: 10,
+  },
+  reviewsListSection: {
+    marginTop: 24,
+  },
+  reviewsListTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  reviewItem: {
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  reviewItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  reviewItemStars: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  reviewItemMeta: {
+    color: '#666',
+    fontSize: 12,
+  },
+  reviewItemHeadline: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  reviewItemDescription: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 20,
   },
   expandButton: {
     backgroundColor: '#4CAF50',
