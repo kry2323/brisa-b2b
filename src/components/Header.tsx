@@ -1,13 +1,15 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LassaLogo from '../../assets/lassa-logo.svg';
+import { Ionicons } from '@expo/vector-icons';
 
 const Header = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const isHomeScreen = route.name === 'Home';
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   return (
     <View style={styles.header}>
@@ -20,10 +22,60 @@ const Header = () => {
         <LassaLogo height={40} />
       </TouchableOpacity>
 
-      {/* Cart */}
-      <TouchableOpacity style={styles.cartButton}>
-        <Text style={styles.cartIcon}>🛒</Text>
-      </TouchableOpacity>
+      {/* Right actions: Wish List + Cart */}
+      <View style={styles.rightActions}>
+        <TouchableOpacity style={styles.iconButton} onPress={() => setIsProfileOpen(true)} accessibilityLabel="Open profile menu">
+          <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} accessibilityLabel="Open cart">
+          <Text style={styles.cartIcon}>🛒</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Profile Modal */}
+      <Modal transparent visible={isProfileOpen} animationType="fade" onRequestClose={() => setIsProfileOpen(false)}>
+        <View style={styles.profileModalOverlay}>
+          <View style={styles.profileModalContainer}>
+            <View style={styles.profileHeaderRow}>
+              <Ionicons name="person-circle" size={28} color="#333" />
+              <Text style={styles.profileHeaderText}>Profile</Text>
+              <TouchableOpacity onPress={() => setIsProfileOpen(false)} style={styles.profileCloseButton}>
+                <Text style={styles.profileCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={styles.profileOptionRow}
+              onPress={() => {
+                setIsProfileOpen(false);
+                (navigation as any).navigate('MyWishList');
+              }}
+            >
+              <Ionicons name="heart-outline" size={20} color="#333" style={styles.profileOptionIcon} />
+              <Text style={styles.profileOptionText}>Favorites</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.profileOptionRow}
+              onPress={() => {
+                setIsProfileOpen(false);
+                Alert.alert('Password', 'Change password coming soon.');
+              }}
+            >
+              <Ionicons name="key-outline" size={20} color="#333" style={styles.profileOptionIcon} />
+              <Text style={styles.profileOptionText}>Password</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.profileOptionRow}
+              onPress={() => {
+                setIsProfileOpen(false);
+                Alert.alert('Profile', 'Profile settings coming soon.');
+              }}
+            >
+              <Ionicons name="settings-outline" size={20} color="#333" style={styles.profileOptionIcon} />
+              <Text style={styles.profileOptionText}>Profile Settings</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -86,9 +138,69 @@ const styles = StyleSheet.create({
   cartButton: {
     padding: 4,
   },
+  iconButton: {
+    padding: 6,
+  },
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   cartIcon: {
     color: '#FFFFFF',
     fontSize: 20,
+  },
+  profileModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  profileModalContainer: {
+    width: '95%',
+    maxWidth: 420,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    paddingVertical: 8,
+  },
+  profileHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  profileHeaderText: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
+  profileCloseButton: {
+    padding: 6,
+  },
+  profileCloseText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  profileOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  profileOptionIcon: {
+    marginRight: 10,
+  },
+  profileOptionText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '600',
   },
 });
 

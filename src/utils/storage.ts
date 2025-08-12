@@ -5,6 +5,8 @@ type ViewedProduct = { id: string; name: string };
 const RECENT_SEARCHES_KEY = 'recentSearches';
 const RECENTLY_VIEWED_KEY = 'recentlyViewedProducts';
 const PRODUCT_REVIEWS_PREFIX = 'productReviews:'; // per-product key
+const FAVORITES_KEY = 'favoriteProducts';
+const CART_ITEMS_KEY = 'cartItems';
 
 const memoryStore: Record<string, any> = {
   [RECENT_SEARCHES_KEY]: [] as string[],
@@ -116,6 +118,77 @@ export const addProductReview = (productId: string, review: Omit<ProductReview, 
   const next = [newReview, ...existing].slice(0, 200); // cap to avoid unbounded growth
   writeJSON(getReviewsKey(productId), next);
   return newReview;
+};
+
+// --- Favorites (Wish List) ---
+export type FavoriteProduct = {
+  id: string;
+  name: string;
+  image?: string;
+  price?: string;
+  status?: string;
+};
+
+export const getFavoriteProducts = (): FavoriteProduct[] => {
+  return readJSON<FavoriteProduct[]>(FAVORITES_KEY, []);
+};
+
+export const isProductFavorite = (productId: string): boolean => {
+  if (!productId) return false;
+  return getFavoriteProducts().some((p) => p.id === productId);
+};
+
+export const addFavoriteProduct = (product: FavoriteProduct) => {
+  if (!product?.id) return;
+  const current = getFavoriteProducts();
+  if (current.some((p) => p.id === product.id)) return;
+  const next = [product, ...current].slice(0, 200);
+  writeJSON(FAVORITES_KEY, next);
+};
+
+export const removeFavoriteProduct = (productId: string) => {
+  const current = getFavoriteProducts();
+  const next = current.filter((p) => p.id !== productId);
+  writeJSON(FAVORITES_KEY, next);
+};
+
+export const toggleFavoriteProduct = (product: FavoriteProduct): boolean => {
+  if (!product?.id) return false;
+  const current = getFavoriteProducts();
+  const exists = current.some((p) => p.id === product.id);
+  if (exists) {
+    writeJSON(FAVORITES_KEY, current.filter((p) => p.id !== product.id));
+    return false;
+  }
+  writeJSON(FAVORITES_KEY, [product, ...current]);
+  return true;
+};
+
+// --- Cart (Bag) ---
+export type CartItem = {
+  productId: string;
+  quantity: number;
+};
+
+export const getCartItems = (): CartItem[] => {
+  return readJSON<CartItem[]>(CART_ITEMS_KEY, []);
+};
+
+export const addToCart = (productId: string, quantity: number = 1) => {
+  if (!productId) return;
+  const qty = Math.max(1, Math.floor(quantity || 1));
+  const current = getCartItems();
+  const existingIndex = current.findIndex((c) => c.productId === productId);
+  if (existingIndex >= 0) {
+    const updated = [...current];
+    updated[existingIndex] = {
+      productId,
+      quantity: Math.min(9999, (updated[existingIndex].quantity || 0) + qty),
+    };
+    writeJSON(CART_ITEMS_KEY, updated);
+  } else {
+    writeJSON(CART_ITEMS_KEY, [{ productId, quantity: qty }, ...current]);
+  }
 };
 
 
