@@ -84,10 +84,10 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   const isOutOfStock = (): boolean => {
     if (hasSizeOptions) {
       const qty = sizeOptions.find((o) => o.value === selectedSize)?.qty ?? 0;
-      return qty <= 0;
+      return qty <= 0 || quantity > qty;
     }
     if (typeof product?.stock === 'number') {
-      return product.stock <= 0;
+      return product.stock <= 0 || quantity > product.stock;
     }
     return false;
   };
@@ -173,10 +173,17 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
 
   const renderTabContent = (tabName: string) => {
     switch (tabName) {
-             case 'Product Details':
+      case 'Product Details':
          return (
              <View style={styles.tabContent}>
-               {hasSizeOptions ? (
+               {isPromotionalMaterials ? (
+                 <>
+                   {/* For promotional materials, show only description here (no stock in tab) */}
+                   {!!product?.description && (
+                     <Text style={styles.detailText}>{product.description}</Text>
+                   )}
+                 </>
+               ) : hasSizeOptions ? (
                  <View style={styles.sizeGuide}>
                    <Text style={styles.sizeGuideTitle}>Size Guide</Text>
                    <Image
@@ -213,11 +220,13 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                    </TouchableOpacity>
                  </View>
                )}
-               <Text style={styles.detailText}>
-                 {hasSizeOptions
-                   ? 'Material: 100% cotton'
-                   : 'The dual tie bars located at the center provides increased pattern stability.'}
-               </Text>
+               {!isPromotionalMaterials && (
+                 <Text style={styles.detailText}>
+                   {hasSizeOptions
+                     ? 'Material: 100% cotton'
+                     : 'The dual tie bars located at the center provides increased pattern stability.'}
+                 </Text>
+               )}
              </View>
          );
       case 'Specs':
@@ -492,6 +501,13 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                    <Text style={styles.priceText}>-</Text>
                  </View>
                  
+                  {isPromotionalMaterials && sizeOptions.length === 0 && typeof product?.stock === 'number' && (
+                    <View style={styles.stockRow}>
+                      <Text style={styles.stockLabel}>Stock Quantity: </Text>
+                      <Text style={styles.stockValue}>{Math.max(0, (product.stock || 0) - quantity)}</Text>
+                    </View>
+                  )}
+
                   <Text style={styles.statusText}>{product.status}</Text>
 
                   {/* Textile size selection (shown only if size options exist) */}
@@ -528,7 +544,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                       </View>
                       <View style={styles.stockRow}>
                         <Text style={styles.stockLabel}>Stock Quantity: </Text>
-                        <Text style={styles.stockValue}>{sizeOptions.find((o) => o.value === selectedSize)?.qty ?? 0}</Text>
+                        <Text style={styles.stockValue}>{Math.max(0, (sizeOptions.find((o) => o.value === selectedSize)?.qty ?? 0) - quantity)}</Text>
                       </View>
                     </View>
                   )}
