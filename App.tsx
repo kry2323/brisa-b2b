@@ -32,6 +32,7 @@ import POSMaterialTrackingScreen from './src/screens/POSMaterialTrackingScreen';
 import LassaTeamScreen from './src/screens/LassaTeamScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
+import MyWishListScreen from './src/screens/MyWishListScreen';
 import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
@@ -137,6 +138,7 @@ const linking = {
   config: {
     screens: {
       Home: '/',
+      MyWishList: '/wishlist',
       ProductListing: '/products',
       BrisaPayments: {
         path: '/reports/brisa-payments',
@@ -493,18 +495,23 @@ export default function App() {
           options={{ title: 'Product Detail' }}
         />
         <Stack.Screen
+          name="MyWishList"
+          component={MyWishListScreen}
+          options={{ title: 'My Wish List' }}
+        />
+        <Stack.Screen
           name="VideoLibrary"
           component={VideoLibraryScreen}
           options={{ title: 'Video Library' }}
         />
         <Stack.Screen
           name="VideoPlayer"
-          component={VideoPlayerScreen}
+          component={VideoPlayerScreen as unknown as React.ComponentType<any>}
           options={{ title: 'Video Player' }}
         />
         <Stack.Screen
           name="VideoDetail"
-          component={VideoDetailScreen}
+          component={VideoDetailScreen as unknown as React.ComponentType<any>}
           options={{ title: 'Video Detail' }}
         />
       </Stack.Navigator>

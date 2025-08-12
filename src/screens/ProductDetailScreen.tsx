@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableO
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
-import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview } from '../utils/storage';
+import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview, isProductFavorite, toggleFavoriteProduct, addToCart } from '../utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
@@ -18,6 +18,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     'Reviews': false
   });
   const [isEnergyLabelModalOpen, setIsEnergyLabelModalOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [reviewRating, setReviewRating] = useState<number>(0);
   const [reviewerName, setReviewerName] = useState<string>('');
@@ -78,6 +79,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     if (product?.id) {
       const existing = getProductReviews(product.id);
       setReviews(existing);
+      setIsFavorite(isProductFavorite(product.id));
     }
   }, [product?.id]);
 
@@ -126,6 +128,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
 
   const handleAddToCart = () => {
     console.log(`Added product ${product.id} to cart with quantity ${quantity}`);
+    if (product?.id) addToCart(product.id, quantity);
   };
 
   const toggleTab = (tabName: string) => {
@@ -398,9 +401,16 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                  </View>
                  
                  <View style={styles.actionButtons}>
-                   <TouchableOpacity style={styles.actionButton}>
-                     <Text style={styles.actionButtonText}>⭐ Add to favorite list</Text>
-                   </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => {
+                        if (!product?.id) return;
+                        const nowFav = toggleFavoriteProduct({ id: product.id, name: product.name, image: product.image, status: product.status, price: product.price });
+                        setIsFavorite(nowFav);
+                      }}
+                    >
+                      <Text style={styles.actionButtonText}>{isFavorite ? '★ Remove from favorite list' : '⭐ Add to favorite list'}</Text>
+                    </TouchableOpacity>
                    
                    <TouchableOpacity style={styles.actionButton}>
                      <Text style={styles.actionButtonText}>↔️ Compare</Text>
