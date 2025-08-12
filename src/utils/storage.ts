@@ -7,6 +7,7 @@ const RECENTLY_VIEWED_KEY = 'recentlyViewedProducts';
 const PRODUCT_REVIEWS_PREFIX = 'productReviews:'; // per-product key
 const FAVORITES_KEY = 'favoriteProducts';
 const CART_ITEMS_KEY = 'cartItems';
+const COMPARE_LIST_KEY = 'compareProducts';
 
 const memoryStore: Record<string, any> = {
   [RECENT_SEARCHES_KEY]: [] as string[],
@@ -189,6 +190,37 @@ export const addToCart = (productId: string, quantity: number = 1) => {
   } else {
     writeJSON(CART_ITEMS_KEY, [{ productId, quantity: qty }, ...current]);
   }
+};
+
+// --- Compare List ---
+export type CompareProduct = {
+  id: string;
+  name: string;
+  image?: string;
+  price?: string;
+  status?: string;
+};
+
+export const getCompareProducts = (): CompareProduct[] => {
+  return readJSON<CompareProduct[]>(COMPARE_LIST_KEY, []);
+};
+
+export const addCompareProduct = (product: CompareProduct) => {
+  if (!product?.id) return;
+  const current = getCompareProducts();
+  // Deduplicate by id and cap at 4 items (typical compare UX)
+  const without = current.filter((p) => p.id !== product.id);
+  const next = [product, ...without].slice(0, 4);
+  writeJSON(COMPARE_LIST_KEY, next);
+};
+
+export const removeCompareProduct = (productId: string) => {
+  const current = getCompareProducts();
+  writeJSON(COMPARE_LIST_KEY, current.filter((p) => p.id !== productId));
+};
+
+export const clearCompareProducts = () => {
+  writeJSON(COMPARE_LIST_KEY, []);
 };
 
 

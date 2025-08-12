@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableO
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
-import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview, isProductFavorite, toggleFavoriteProduct, addToCart } from '../utils/storage';
+import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview, isProductFavorite, toggleFavoriteProduct, addToCart, addCompareProduct } from '../utils/storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
@@ -26,6 +26,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   const [reviewDescription, setReviewDescription] = useState<string>('');
   const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
   const [reviewError, setReviewError] = useState<string>('');
+  const [compareToast, setCompareToast] = useState<string>('');
   
   const defaultProduct = {
     id: '280035',
@@ -412,10 +413,23 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                       <Text style={styles.actionButtonText}>{isFavorite ? '★ Remove from favorite list' : '⭐ Add to favorite list'}</Text>
                     </TouchableOpacity>
                    
-                   <TouchableOpacity style={styles.actionButton}>
-                     <Text style={styles.actionButtonText}>↔️ Compare</Text>
-                   </TouchableOpacity>
+                  {!isPromotionalMaterials && (
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => {
+                        if (!product?.id) return;
+                        addCompareProduct({ id: product.id, name: product.name, image: product.image, status: product.status, price: product.price });
+                        setCompareToast('Product added to the comparison page.');
+                        setTimeout(() => setCompareToast(''), 2000);
+                      }}
+                    >
+                      <Text style={styles.actionButtonText}>↔️ Compare</Text>
+                    </TouchableOpacity>
+                  )}
                  </View>
+                 {!!compareToast && (
+                   <Text style={styles.compareToast}>{compareToast}</Text>
+                 )}
                  
                  <View style={styles.priceContainer}>
                    <Text style={styles.priceText}>-</Text>
@@ -649,6 +663,17 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     color: '#333',
+  },
+  compareToast: {
+    marginTop: 8,
+    color: '#666',
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
   },
   priceContainer: {
     marginBottom: 15,

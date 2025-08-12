@@ -57,6 +57,16 @@ const Header = () => {
               style={styles.profileOptionRow}
               onPress={() => {
                 setIsProfileOpen(false);
+                (navigation as any).navigate('CompareList');
+              }}
+            >
+              <Ionicons name="git-compare-outline" size={20} color="#333" style={styles.profileOptionIcon} />
+              <Text style={styles.profileOptionText}>Compare List</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.profileOptionRow}
+              onPress={() => {
+                setIsProfileOpen(false);
                 Alert.alert('Password', 'Change password coming soon.');
               }}
             >

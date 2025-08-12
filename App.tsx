@@ -33,6 +33,7 @@ import LassaTeamScreen from './src/screens/LassaTeamScreen';
 import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import MyWishListScreen from './src/screens/MyWishListScreen';
+import CompareListScreen from './src/screens/CompareListScreen';
 import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
@@ -139,6 +140,7 @@ const linking = {
     screens: {
       Home: '/',
       MyWishList: '/wishlist',
+      CompareList: '/compare',
       ProductListing: '/products',
       BrisaPayments: {
         path: '/reports/brisa-payments',
@@ -498,6 +500,11 @@ export default function App() {
           name="MyWishList"
           component={MyWishListScreen}
           options={{ title: 'My Wish List' }}
+        />
+        <Stack.Screen
+          name="CompareList"
+          component={CompareListScreen}
+          options={{ title: 'Compare List' }}
         />
         <Stack.Screen
           name="VideoLibrary"
