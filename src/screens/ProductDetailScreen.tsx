@@ -18,6 +18,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     'Reviews': false
   });
   const [isEnergyLabelModalOpen, setIsEnergyLabelModalOpen] = useState(false);
+  const [isSizeGuideModalOpen, setIsSizeGuideModalOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [reviewRating, setReviewRating] = useState<number>(0);
@@ -41,6 +42,13 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
 
   const product = route.params?.product || defaultProduct;
   const isPromotionalMaterials: boolean = Boolean(route.params?.isPromotionalMaterials);
+
+  // Size options support for promotional textile products
+  type SizeOption = { value: string; qty: number };
+  const sizeOptions: SizeOption[] = Array.isArray(product?.sizeOptions)
+    ? (product.sizeOptions as SizeOption[])
+    : [];
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   // Ensure product.images exists and is an array
   const productImages = product?.images || [product?.image || defaultProduct.image];
@@ -70,6 +78,20 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     },
   ];
 
+  const hasSizeOptions = (Array.isArray(sizeOptions) && sizeOptions.length > 0);
+  const defaultSizeGuideUrl = 'https://b2bcis.brisa-online.com/b2b/medias/646152074-lassa-size-liste2.jpg?context=bWFzdGVyfHJvb3R8MTI3NzkyfGltYWdlL2pwZWd8YUdaa0wyZ3dOQzg1TlRBMU1UTTNOemcyT1RFd0x6WTBOakUxTWpBM05DMXNZWE56WVMxemFYcGxMV3hwYzNSbE1pNXFjR2N8OTNkYTIxODc5Y2IyZmU1MWQ1NjU2OWVmOWZhOWE2NGIwZTY0YmE3ZTFjNzU0YTExOTY1ODkwZGRiODc2Y2UzNQ';
+
+  const isOutOfStock = (): boolean => {
+    if (hasSizeOptions) {
+      const qty = sizeOptions.find((o) => o.value === selectedSize)?.qty ?? 0;
+      return qty <= 0;
+    }
+    if (typeof product?.stock === 'number') {
+      return product.stock <= 0;
+    }
+    return false;
+  };
+
   useEffect(() => {
     if (product?.id && product?.name) {
       addRecentlyViewedProduct({ id: product.id, name: product.name });
@@ -81,6 +103,16 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
       const existing = getProductReviews(product.id);
       setReviews(existing);
       setIsFavorite(isProductFavorite(product.id));
+    }
+  }, [product?.id]);
+
+  // Select default available size on load if size options exist
+  useEffect(() => {
+    if (sizeOptions.length > 0) {
+      const firstAvailable = sizeOptions.find((s) => (s?.qty ?? 0) > 0)?.value || sizeOptions[0].value;
+      setSelectedSize(firstAvailable);
+    } else {
+      setSelectedSize(null);
     }
   }, [product?.id]);
 
@@ -143,25 +175,50 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     switch (tabName) {
              case 'Product Details':
          return (
-           <View style={styles.tabContent}>
-             <View style={styles.energyLabel}>
-               <Image 
-                 source={{ uri: 'https://b2bcis.brisa-online.com/b2b/_ui/shared/images/template/png/energy-label.png' }} 
-                 style={styles.energyLabelImage}
-                 resizeMode="contain"
-                 onError={(error) => console.log('Energy label loading error:', error)}
-               />
-               <TouchableOpacity 
-                 style={styles.expandButton}
-                 onPress={() => setIsEnergyLabelModalOpen(true)}
-               >
-                 <Text style={styles.expandButtonText}>Genişlet</Text>
-               </TouchableOpacity>
+             <View style={styles.tabContent}>
+               {hasSizeOptions ? (
+                 <View style={styles.sizeGuide}>
+                   <Text style={styles.sizeGuideTitle}>Size Guide</Text>
+                   <Image
+                     source={{ uri: product?.sizeGuideImage || defaultSizeGuideUrl }}
+                     style={styles.sizeGuideImage}
+                     resizeMode="contain"
+                     onError={(error) => console.log('Size guide loading error:', error)}
+                   />
+                   <TouchableOpacity 
+                     style={styles.expandButton}
+                     onPress={() => setIsSizeGuideModalOpen(true)}
+                   >
+                     <Text style={styles.expandButtonText}>Genişlet</Text>
+                   </TouchableOpacity>
+                   {!!sizeOptions?.length && (
+                     <Text style={styles.sizeGuideInfo}>
+                       Sizes: {sizeOptions.map((s: any) => s.value).join(' - ')}
+                     </Text>
+                   )}
+                 </View>
+               ) : (
+                 <View style={styles.energyLabel}>
+                   <Image 
+                     source={{ uri: 'https://b2bcis.brisa-online.com/b2b/_ui/shared/images/template/png/energy-label.png' }} 
+                     style={styles.energyLabelImage}
+                     resizeMode="contain"
+                     onError={(error) => console.log('Energy label loading error:', error)}
+                   />
+                   <TouchableOpacity 
+                     style={styles.expandButton}
+                     onPress={() => setIsEnergyLabelModalOpen(true)}
+                   >
+                     <Text style={styles.expandButtonText}>Genişlet</Text>
+                   </TouchableOpacity>
+                 </View>
+               )}
+               <Text style={styles.detailText}>
+                 {hasSizeOptions
+                   ? 'Material: 100% cotton'
+                   : 'The dual tie bars located at the center provides increased pattern stability.'}
+               </Text>
              </View>
-             <Text style={styles.detailText}>
-               The dual tie bars located at the center provides increased pattern stability.
-             </Text>
-           </View>
          );
       case 'Specs':
         return (
@@ -435,7 +492,46 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                    <Text style={styles.priceText}>-</Text>
                  </View>
                  
-                 <Text style={styles.statusText}>{product.status}</Text>
+                  <Text style={styles.statusText}>{product.status}</Text>
+
+                  {/* Textile size selection (shown only if size options exist) */}
+                  {sizeOptions.length > 0 && (
+                    <View style={styles.sizeSection}>
+                      <Text style={styles.sizeLabel}>Sizes</Text>
+                      <View style={styles.sizeButtonsWrap}>
+                        {sizeOptions.map((opt) => {
+                          const isDisabled = (opt?.qty ?? 0) <= 0;
+                          const isSelected = selectedSize === opt.value;
+                          return (
+                            <TouchableOpacity
+                              key={opt.value}
+                              style={[
+                                styles.sizeButton,
+                                isSelected && styles.sizeButtonSelected,
+                                isDisabled && styles.sizeButtonDisabled,
+                              ]}
+                              disabled={isDisabled}
+                              onPress={() => setSelectedSize(opt.value)}
+                            >
+                              <Text
+                                style={[
+                                  styles.sizeButtonText,
+                                  isSelected && styles.sizeButtonTextSelected,
+                                  isDisabled && styles.sizeButtonTextDisabled,
+                                ]}
+                              >
+                                {opt.value}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                      <View style={styles.stockRow}>
+                        <Text style={styles.stockLabel}>Stock Quantity: </Text>
+                        <Text style={styles.stockValue}>{sizeOptions.find((o) => o.value === selectedSize)?.qty ?? 0}</Text>
+                      </View>
+                    </View>
+                  )}
                  
                  <View style={styles.quantityContainer}>
                    <View style={styles.quantitySelector}>
@@ -464,10 +560,11 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                      </TouchableOpacity>
                    </View>
                    
-                   <TouchableOpacity 
-                     style={styles.addToCartButton}
-                     onPress={handleAddToCart}
-                   >
+                    <TouchableOpacity 
+                      style={[styles.addToCartButton, isOutOfStock() && styles.addToCartButtonDisabled]}
+                      onPress={handleAddToCart}
+                      disabled={isOutOfStock()}
+                    >
                      <Text style={styles.addToCartButtonText}>Add to Bag</Text>
                    </TouchableOpacity>
                  </View>
@@ -528,6 +625,29 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
            </View>
          </View>
        )}
+
+        {/* Size Guide Modal */}
+        {isSizeGuideModalOpen && (
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Size Guide</Text>
+                <TouchableOpacity 
+                  style={styles.closeButton}
+                  onPress={() => setIsSizeGuideModalOpen(false)}
+                >
+                  <Text style={styles.closeButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              <Image 
+                source={{ uri: product?.sizeGuideImage || defaultSizeGuideUrl }} 
+                style={styles.modalImage}
+                resizeMode="contain"
+                onError={(error) => console.log('Modal size guide loading error:', error)}
+              />
+            </View>
+          </View>
+        )}
      </SafeAreaView>
    );
 };
@@ -733,10 +853,95 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
   },
+  addToCartButtonDisabled: {
+    backgroundColor: '#BDBDBD',
+  },
   addToCartButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
+  },
+  // Size guide styles
+  sizeGuide: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  sizeGuideTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  sizeGuideImage: {
+    width: '100%',
+    height: 180,
+    marginBottom: 8,
+  },
+  sizeGuideInfo: {
+    fontSize: 12,
+    color: '#666',
+  },
+  // Size selection styles
+  sizeSection: {
+    marginBottom: 16,
+  },
+  sizeLabel: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 8,
+  },
+  sizeButtonsWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
+  },
+  sizeButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+  },
+  sizeButtonSelected: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#F0FFF3',
+  },
+  sizeButtonDisabled: {
+    backgroundColor: '#F7F7F7',
+    borderColor: '#E6E6E6',
+  },
+  sizeButtonText: {
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '600',
+  },
+  sizeButtonTextSelected: {
+    color: '#2E7D32',
+  },
+  sizeButtonTextDisabled: {
+    color: '#AAAAAA',
+  },
+  stockRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  stockLabel: {
+    fontSize: 13,
+    color: '#555',
+  },
+  stockValue: {
+    fontSize: 13,
+    color: '#333',
+    fontWeight: '700',
   },
   tabsContainer: {
     backgroundColor: '#FFF',
