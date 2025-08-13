@@ -34,6 +34,7 @@ import ProductListingScreen from './src/screens/ProductListingScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import MyWishListScreen from './src/screens/MyWishListScreen';
 import CompareListScreen from './src/screens/CompareListScreen';
+import CartScreen from './src/screens/CartScreen';
 import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
@@ -426,6 +427,11 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="Home" component={DashboardScreen} />
+        <Stack.Screen 
+          name="Cart" 
+          component={CartScreen}
+          options={{ title: 'Cart' }}
+        />
         <Stack.Screen 
           name="ProductListing" 
           component={ProductListingScreen} 

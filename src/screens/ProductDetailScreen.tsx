@@ -160,8 +160,12 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   };
 
   const handleAddToCart = () => {
-    console.log(`Added product ${product.id} to cart with quantity ${quantity}`);
-    if (product?.id) addToCart(product.id, quantity);
+    if (!product?.id) return;
+    const res = addToCart(product.id, quantity) as any;
+    if (res?.ok === false && res?.reason === 'type-mismatch') {
+      alert('You cannot order different types of products together. Please empty your cart to purchase this product.');
+      return;
+    }
   };
 
   const toggleTab = (tabName: string) => {

@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LassaLogo from '../../assets/lassa-logo.svg';
 import { Ionicons } from '@expo/vector-icons';
+import { getCartItems } from '../utils/storage';
+import { subscribeCart } from '../utils/cartEvents';
 
 const Header = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const isHomeScreen = route.name === 'Home';
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [cartCount, setCartCount] = useState<number>(getCartItems().length);
+
+  useEffect(() => {
+    const unsubscribe = subscribeCart(() => {
+      try {
+        const count = getCartItems().length;
+        setCartCount(count);
+      } catch {}
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <View style={styles.header}>
@@ -27,8 +40,19 @@ const Header = () => {
         <TouchableOpacity style={styles.iconButton} onPress={() => setIsProfileOpen(true)} accessibilityLabel="Open profile menu">
           <Ionicons name="person-circle-outline" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} accessibilityLabel="Open cart">
-          <Text style={styles.cartIcon}>🛒</Text>
+        <TouchableOpacity 
+          style={styles.iconButton} 
+          accessibilityLabel="Open cart"
+          onPress={() => navigation.navigate('Cart' as never)}
+        >
+          <View style={{ position: 'relative' }}>
+            <Text style={styles.cartIcon}>🛒</Text>
+            {cartCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cartCount}</Text>
+              </View>
+            )}
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -159,6 +183,23 @@ const styles = StyleSheet.create({
   cartIcon: {
     color: '#FFFFFF',
     fontSize: 20,
+  },
+  badge: {
+    position: 'absolute',
+    right: -8,
+    top: -6,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    borderRadius: 8,
+    backgroundColor: '#FF3B30',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
   },
   profileModalOverlay: {
     flex: 1,

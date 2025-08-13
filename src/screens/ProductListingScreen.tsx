@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import FilterPanel from '../components/FilterPanel';
 import { ListViewIcon, GridViewIcon } from '../components/ViewTypeIcons';
+import { addToCart } from '../utils/storage';
 
 // Common product type for both tyres and promotional items
 type SizeOption = { value: string; qty: number };
@@ -616,7 +617,11 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   // Sepete ekleme işlevi
   const handleAddToCart = (productId: string) => {
     const quantity = quantities[productId] || 1;
-    // Burada sepete ekleme işlemini gerçekleştirebilirsiniz
+    const res: any = addToCart(productId, quantity);
+    if (res?.ok === false && res?.reason === 'type-mismatch') {
+      alert('You cannot order different types of products together. Please empty your cart to purchase this product.');
+      return;
+    }
     console.log(`Added product ${productId} to cart with quantity ${quantity}`);
   };
 

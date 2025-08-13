@@ -123,12 +123,6 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       shortTitle: 'Yükle',
     },
     {
-      id: 'cart',
-      title: 'Sepet',
-      icon: '🛒',
-      shortTitle: 'Sepet',
-    },
-    {
       id: 'reports',
       title: 'Raporlar',
       icon: '📊',
