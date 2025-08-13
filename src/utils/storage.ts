@@ -1,4 +1,5 @@
 // Simple storage helpers with localStorage fallback and in-memory backup
+import { notifyCartChanged } from './cartEvents';
 
 type ViewedProduct = { id: string; name: string };
 
@@ -8,6 +9,7 @@ const PRODUCT_REVIEWS_PREFIX = 'productReviews:'; // per-product key
 const FAVORITES_KEY = 'favoriteProducts';
 const CART_ITEMS_KEY = 'cartItems';
 const COMPARE_LIST_KEY = 'compareProducts';
+const SAVED_CARTS_KEY = 'savedCarts';
 
 const memoryStore: Record<string, any> = {
   [RECENT_SEARCHES_KEY]: [] as string[],
@@ -169,16 +171,30 @@ export const toggleFavoriteProduct = (product: FavoriteProduct): boolean => {
 export type CartItem = {
   productId: string;
   quantity: number;
+  productType?: 'tyre' | 'promotional';
 };
 
 export const getCartItems = (): CartItem[] => {
   return readJSON<CartItem[]>(CART_ITEMS_KEY, []);
 };
 
-export const addToCart = (productId: string, quantity: number = 1) => {
-  if (!productId) return;
+// Lightweight type resolver – treat ids starting with 'PM' as promotional
+const resolveProductType = (productId: string): 'tyre' | 'promotional' => {
+  return productId?.toUpperCase().startsWith('PM') ? 'promotional' : 'tyre';
+};
+
+export const addToCart = (productId: string, quantity: number = 1): { ok: true } | { ok: false; reason: 'type-mismatch' } => {
+  if (!productId) return { ok: true };
   const qty = Math.max(1, Math.floor(quantity || 1));
   const current = getCartItems();
+  const newType = resolveProductType(productId);
+  // If cart has items of different type, block
+  if (current.length > 0) {
+    const existingType = resolveProductType(current[0].productId);
+    if (existingType !== newType) {
+      return { ok: false, reason: 'type-mismatch' };
+    }
+  }
   const existingIndex = current.findIndex((c) => c.productId === productId);
   if (existingIndex >= 0) {
     const updated = [...current];
@@ -188,8 +204,55 @@ export const addToCart = (productId: string, quantity: number = 1) => {
     };
     writeJSON(CART_ITEMS_KEY, updated);
   } else {
-    writeJSON(CART_ITEMS_KEY, [{ productId, quantity: qty }, ...current]);
+    writeJSON(CART_ITEMS_KEY, [{ productId, quantity: qty, productType: newType }, ...current]);
   }
+  notifyCartChanged();
+  return { ok: true };
+};
+
+export const purgeCart = () => {
+  const current = getCartItems();
+  const next = current.filter((c) => (c?.productId && (c.quantity || 0) > 0));
+  if (next.length !== current.length) {
+    writeJSON(CART_ITEMS_KEY, next);
+    notifyCartChanged();
+  }
+  return next;
+};
+
+export const updateCartItem = (productId: string, quantity: number) => {
+  if (!productId) return;
+  const qty = Math.max(0, Math.floor(quantity || 0));
+  const current = getCartItems();
+  const index = current.findIndex((c) => c.productId === productId);
+  if (index < 0) {
+    if (qty > 0) {
+      writeJSON(CART_ITEMS_KEY, [{ productId, quantity: qty }, ...current]);
+      notifyCartChanged();
+    }
+    return;
+  }
+  if (qty === 0) {
+    const next = current.filter((c) => c.productId !== productId);
+    writeJSON(CART_ITEMS_KEY, next);
+    notifyCartChanged();
+  } else {
+    const updated = [...current];
+    updated[index] = { productId, quantity: Math.min(99999, qty) };
+    writeJSON(CART_ITEMS_KEY, updated);
+    notifyCartChanged();
+  }
+};
+
+export const removeFromCart = (productId: string) => {
+  const current = getCartItems();
+  writeJSON(CART_ITEMS_KEY, current.filter((c) => c.productId !== productId));
+  notifyCartChanged();
+};
+
+export const clearCart = () => {
+  writeJSON(CART_ITEMS_KEY, []);
+  notifyCartChanged();
 };
 
 // --- Compare List ---
@@ -223,4 +286,42 @@ export const clearCompareProducts = () => {
   writeJSON(COMPARE_LIST_KEY, []);
 };
 
+
+// --- Saved Carts ---
+export type SavedCartStored = {
+  id: string;
+  name: string;
+  description?: string;
+  date: string; // ISO or formatted
+  items: CartItem[];
+};
+
+export const getSavedCarts = (): SavedCartStored[] => {
+  return readJSON<SavedCartStored[]>(SAVED_CARTS_KEY, []);
+};
+
+export const addSavedCart = (cart: SavedCartStored): SavedCartStored[] => {
+  const current = getSavedCarts();
+  const next = [cart, ...current].slice(0, 50);
+  writeJSON(SAVED_CARTS_KEY, next);
+  return next;
+};
+
+export const updateSavedCart = (cart: SavedCartStored): SavedCartStored[] => {
+  const current = getSavedCarts();
+  const next = [cart, ...current.filter((c) => c.id !== cart.id)];
+  writeJSON(SAVED_CARTS_KEY, next);
+  return next;
+};
+
+export const removeSavedCart = (id: string): SavedCartStored[] => {
+  const current = getSavedCarts();
+  const next = current.filter((c) => c.id !== id);
+  writeJSON(SAVED_CARTS_KEY, next);
+  return next;
+};
+
+export const getSavedCartById = (id: string): SavedCartStored | undefined => {
+  return getSavedCarts().find((c) => c.id === id);
+};
 
