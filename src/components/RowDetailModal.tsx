@@ -16,6 +16,7 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
       visible={visible}
       transparent={true}
       animationType="slide"
+      statusBarTranslucent={true}
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
@@ -57,7 +58,11 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
