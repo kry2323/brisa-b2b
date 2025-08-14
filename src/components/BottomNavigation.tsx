@@ -13,6 +13,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false);
+  const [isFinancialModalOpen, setIsFinancialModalOpen] = useState(false);
   const [isUploadOrderModalOpen, setIsUploadOrderModalOpen] = useState(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isCreateOrderModalOpen, setIsCreateOrderModalOpen] = useState(false);
@@ -20,7 +21,9 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const [selectedOrderCategory, setSelectedOrderCategory] = useState<string | null>(null);
 
   const financialReports = [
-    { id: 'financial-reports', title: 'Financial Reports', icon: '💰', url: '/b2b/financial-reports' },
+    { id: 'account-transactions', title: 'Account Transactions', icon: '🧾', url: '/b2b/account-transactions' },
+    { id: 'brisa-payments', title: 'Brisa Payments', icon: '💳', url: '/b2b/brisa-payments' },
+    { id: 'overdue-report', title: 'Overdue Report', icon: '⏰', url: '/b2b/overdue-report' },
   ];
 
   const orderSalesReports = [
@@ -117,22 +120,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       shortTitle: 'Sipariş',
     },
     {
-      id: 'upload-order',
-      title: 'Sipariş Yükle',
-      icon: '⬆️',
-      shortTitle: 'Yükle',
-    },
-    {
-      id: 'reports',
-      title: 'Raporlar',
+      id: 'order-sales',
+      title: 'Order & Sales Reports',
       icon: '📊',
-      shortTitle: 'Raporlar',
+      shortTitle: 'Order & Sales',
     },
     {
-      id: 'marketing',
-      title: 'Marketing',
-      icon: '📈',
-      shortTitle: 'Marketing',
+      id: 'financial',
+      title: 'Financial Reports',
+      icon: '💰',
+      shortTitle: 'Financial',
     },
     {
       id: 'help',
@@ -152,6 +149,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     { id: 'profile', title: 'Profil', icon: '👤' },
     { id: 'settings', title: 'Ayarlar', icon: '⚙️' },
     { id: 'lassa-team', title: 'Your Lassa Team', icon: '👥' },
+    { id: 'marketing-library', title: 'Marketing Library', icon: '📚' },
     { id: 'help', title: 'Yardım', icon: '❓' },
     { id: 'about', title: 'Hakkında', icon: 'ℹ️' },
     { id: 'logout', title: 'Çıkış', icon: '🚪' },
@@ -160,7 +158,8 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const handleTabPress = (tabId: string) => {
     if (tabId === 'other') {
       setIsMenuOpen(true);
-    } else if (tabId === 'reports') {
+    } else if (tabId === 'order-sales') {
+      setActiveTab(tabId);
       setIsReportsModalOpen(true);
     } else if (tabId === 'create-order') {
       setActiveTab(tabId);
@@ -170,10 +169,10 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       setActiveTab(tabId);
       // Open upload order modal
       setIsUploadOrderModalOpen(true);
-    } else if (tabId === 'marketing') {
+    } else if (tabId === 'financial') {
       setActiveTab(tabId);
-      // Open marketing modal
-      setIsMarketingModalOpen(true);
+      // Open financial reports modal
+      setIsFinancialModalOpen(true);
     } else if (tabId === 'help') {
       setActiveTab(tabId);
       // Open help modal
@@ -197,6 +196,9 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       // Navigate to Lassa Team screen
       // @ts-ignore
       navigation.navigate('LassaTeam');
+    } else if (itemId === 'marketing-library') {
+      // Open Marketing Library modal from Other tab
+      setIsMarketingModalOpen(true);
     }
   };
 
@@ -209,6 +211,35 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     onNavigateToReport(report);
     setIsReportsModalOpen(false);
   };
+
+  const closeAllModals = () => {
+    setIsReportsModalOpen(false);
+    setIsMenuOpen(false);
+    setIsMarketingModalOpen(false);
+    setIsFinancialModalOpen(false);
+    setIsUploadOrderModalOpen(false);
+    setIsHelpModalOpen(false);
+    setIsCreateOrderModalOpen(false);
+  };
+
+  const handleForwardedTabPress = (tabId: string) => {
+    closeAllModals();
+    handleTabPress(tabId);
+  };
+
+  const renderModalBottomTapLayer = () => (
+    <View style={styles.modalTapLayer}>
+      <View style={styles.tapRow}>
+        {navigationItems.map((item) => (
+          <TouchableOpacity
+            key={`tap-${item.id}`}
+            style={styles.tapZone}
+            onPress={() => handleForwardedTabPress(item.id)}
+          />
+        ))}
+      </View>
+    </View>
+  );
   
   const handleOrderCategoryPress = (categoryId: string) => {
     setSelectedOrderCategory(categoryId);
@@ -266,14 +297,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   };
   
   // Combine all reports for direct access
-  const getAllReports = () => {
-    return [
-      { id: 'financial-header', title: 'Mali Raporlar', icon: '📊', isHeader: true },
-      ...financialReports,
-      { id: 'order-sales-header', title: 'Sipariş ve Satış Raporları', icon: '📈', isHeader: true },
-      ...orderSalesReports,
-    ];
-  };
+  // Removed combined report list; reports are split into separate tabs now
 
   const getModalTitle = () => {
     switch (selectedReportType) {
@@ -288,37 +312,36 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
 
   return (
     <>
-      {!isReportsModalOpen && (
-        <View style={styles.container}>
-          {navigationItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.tabButton,
-                activeTab === item.id && styles.activeTab,
-              ]}
-              onPress={() => handleTabPress(item.id)}
-            >
-              <Text style={[
-                styles.tabIcon,
-                activeTab === item.id && styles.activeTabIcon,
-              ]}>
-                {item.icon}
-              </Text>
-              <Text style={[
-                styles.tabText,
-                activeTab === item.id && styles.activeTabText,
-              ]}>
-                {item.shortTitle}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+      <View style={styles.container}>
+        {navigationItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[
+              styles.tabButton,
+              activeTab === item.id && styles.activeTab,
+            ]}
+            onPress={() => handleTabPress(item.id)}
+          >
+            <Text style={[
+              styles.tabIcon,
+              activeTab === item.id && styles.activeTabIcon,
+            ]}>
+              {item.icon}
+            </Text>
+            <Text style={[
+              styles.tabText,
+              activeTab === item.id && styles.activeTabText,
+            ]}>
+              {item.shortTitle}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isMenuOpen}
         onRequestClose={() => setIsMenuOpen(false)}
       >
@@ -352,12 +375,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </View>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
       </Modal>
 
-      {/* Marketing Modal */}
+      {/* Marketing Library Modal (moved under Other tab) */}
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isMarketingModalOpen}
         onRequestClose={() => setIsMarketingModalOpen(false)}
       >
@@ -391,12 +416,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </ScrollView>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
       </Modal>
 
       {/* Upload Order Modal */}
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isUploadOrderModalOpen}
         onRequestClose={() => setIsUploadOrderModalOpen(false)}
       >
@@ -433,12 +460,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </View>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
       </Modal>
 
       {/* Create Order Modal */}
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isCreateOrderModalOpen}
         onRequestClose={() => setIsCreateOrderModalOpen(false)}
       >
@@ -490,12 +519,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </ScrollView>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
       </Modal>
 
       {/* Help Modal */}
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isHelpModalOpen}
         onRequestClose={() => setIsHelpModalOpen(false)}
       >
@@ -548,11 +579,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </ScrollView>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
       </Modal>
 
+      {/* Order & Sales Reports Modal */}
       <Modal
         animationType="slide"
         transparent={true}
+        statusBarTranslucent={true}
         visible={isReportsModalOpen}
         onRequestClose={() => setIsReportsModalOpen(false)}
       >
@@ -563,7 +597,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
           />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
-              <Text style={styles.menuTitle}>Raporlar</Text>
+              <Text style={styles.menuTitle}>Order & Sales Reports</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
                 onPress={() => setIsReportsModalOpen(false)}
@@ -573,27 +607,64 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </View>
             
             <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
-              {getAllReports().map((report) => (
-                <React.Fragment key={report.id}>
-                  {'isHeader' in report && report.isHeader ? (
-                    <View style={styles.menuSectionHeader}>
-                      <Text style={styles.menuSectionHeaderIcon}>{report.icon}</Text>
-                      <Text style={styles.menuSectionHeaderText}>{report.title}</Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.menuItem}
-                      onPress={() => handleReportItemPress(report)}
-                    >
-                      <Text style={styles.menuItemIcon}>{report.icon}</Text>
-                      <Text style={styles.menuItemText}>{report.title}</Text>
-                    </TouchableOpacity>
-                  )}
-                </React.Fragment>
+              {orderSalesReports.map((report) => (
+                <TouchableOpacity
+                  key={report.id}
+                  style={styles.menuItem}
+                  onPress={() => handleReportItemPress(report)}
+                >
+                  <Text style={styles.menuItemIcon}>{report.icon}</Text>
+                  <Text style={styles.menuItemText}>{report.title}</Text>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
         </View>
+        {renderModalBottomTapLayer()}
+      </Modal>
+
+      {/* Financial Reports Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        statusBarTranslucent={true}
+        visible={isFinancialModalOpen}
+        onRequestClose={() => setIsFinancialModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalBackground}
+            onPress={() => setIsFinancialModalOpen(false)}
+          />
+          <View style={styles.menuContainer}>
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuTitle}>Financial Reports</Text>
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setIsFinancialModalOpen(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
+              {financialReports.map((report) => (
+                <TouchableOpacity
+                  key={report.id}
+                  style={styles.menuItem}
+                  onPress={() => {
+                    handleReportItemPress(report);
+                    setIsFinancialModalOpen(false);
+                  }}
+                >
+                  <Text style={styles.menuItemIcon}>{report.icon}</Text>
+                  <Text style={styles.menuItemText}>{report.title}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+        {renderModalBottomTapLayer()}
       </Modal>
     </>
   );
@@ -774,16 +845,32 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'MuseoSans-Medium',
   },
+  modalTapLayer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 80,
+    backgroundColor: 'transparent',
+    zIndex: 1000000,
+    elevation: 1000000,
+  },
+  tapRow: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  tapZone: {
+    flex: 1,
+  },
   modalOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: 80,
     justifyContent: 'flex-end',
-    backgroundColor: '#000000',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     zIndex: 99999,
-    height: '100%',
     elevation: 99999,
   },
   modalBackground: {
@@ -791,20 +878,13 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: 80,
   },
   menuContainer: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: '100%',
-    paddingBottom: 50,
-    zIndex: 100000,
-    elevation: 100000,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    paddingBottom: 0,
   },
   menuHeader: {
     flexDirection: 'row',

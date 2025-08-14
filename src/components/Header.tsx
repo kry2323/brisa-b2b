@@ -57,7 +57,7 @@ const Header = () => {
       </View>
 
       {/* Profile Modal */}
-      <Modal transparent visible={isProfileOpen} animationType="fade" onRequestClose={() => setIsProfileOpen(false)}>
+      <Modal transparent visible={isProfileOpen} animationType="fade" statusBarTranslucent={true} onRequestClose={() => setIsProfileOpen(false)}>
         <View style={styles.profileModalOverlay}>
           <View style={styles.profileModalContainer}>
             <View style={styles.profileHeaderRow}>
@@ -202,7 +202,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   profileModalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',

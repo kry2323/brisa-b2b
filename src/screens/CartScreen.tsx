@@ -952,7 +952,7 @@ const CartScreen = () => {
       </ScrollView>
 
       {/* Month selector */}
-      <Modal transparent visible={isMonthOpen} onRequestClose={() => setIsMonthOpen(false)}>
+      <Modal transparent visible={isMonthOpen} statusBarTranslucent={true} onRequestClose={() => setIsMonthOpen(false)}>
         <TouchableOpacity style={styles.modalOverlay} onPress={() => setIsMonthOpen(false)} />
         <View style={styles.modalPanel}>
           <Text style={styles.modalTitle}>Invoicing Month</Text>
@@ -967,7 +967,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Edit Saved Cart modal */}
-      <Modal transparent animationType="fade" visible={isEditOpen} onRequestClose={() => setIsEditOpen(false)}>
+      <Modal transparent animationType="fade" visible={isEditOpen} statusBarTranslucent={true} onRequestClose={() => setIsEditOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsEditOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 560 }]}> 
@@ -1019,7 +1019,7 @@ const CartScreen = () => {
         </View>
       </Modal>
       {/* Delete Saved Cart modal */}
-      <Modal transparent animationType="fade" visible={isDeleteOpen} onRequestClose={() => setIsDeleteOpen(false)}>
+      <Modal transparent animationType="fade" visible={isDeleteOpen} statusBarTranslucent={true} onRequestClose={() => setIsDeleteOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsDeleteOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 560 }]}> 
@@ -1080,7 +1080,7 @@ const CartScreen = () => {
         </View>
       </Modal>
       {/* Restore Saved Cart modal */}
-      <Modal transparent animationType="fade" visible={isRestoreOpen} onRequestClose={() => setIsRestoreOpen(false)}>
+      <Modal transparent animationType="fade" visible={isRestoreOpen} statusBarTranslucent={true} onRequestClose={() => setIsRestoreOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsRestoreOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 560 }]}> 
@@ -1161,7 +1161,7 @@ const CartScreen = () => {
         </View>
       </Modal>
       {/* Save Cart modal */}
-      <Modal transparent animationType="fade" visible={isSaveCartOpen} onRequestClose={() => setIsSaveCartOpen(false)}>
+      <Modal transparent animationType="fade" visible={isSaveCartOpen} statusBarTranslucent={true} onRequestClose={() => setIsSaveCartOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsSaveCartOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 520 }]}> 
@@ -1211,7 +1211,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Mail Gönder modal */}
-      <Modal transparent animationType="fade" visible={isMailOpen} onRequestClose={() => setIsMailOpen(false)}>
+      <Modal transparent animationType="fade" visible={isMailOpen} statusBarTranslucent={true} onRequestClose={() => setIsMailOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsMailOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 520 }]}> 
@@ -1235,7 +1235,7 @@ const CartScreen = () => {
         </View>
       </Modal>
       {/* Year selector (2025-2026 only) */}
-      <Modal transparent visible={isYearOpen} onRequestClose={() => setIsYearOpen(false)}>
+      <Modal transparent visible={isYearOpen} statusBarTranslucent={true} onRequestClose={() => setIsYearOpen(false)}>
         <TouchableOpacity style={styles.modalOverlay} onPress={() => setIsYearOpen(false)} />
         <View style={styles.modalPanel}>
           <Text style={styles.modalTitle}>Year</Text>
@@ -1248,7 +1248,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Ship-To Party modal (styled like provided HTML) */}
-      <Modal transparent visible={isShipToModalOpen} onRequestClose={() => setIsShipToModalOpen(false)}>
+      <Modal transparent visible={isShipToModalOpen} statusBarTranslucent={true} onRequestClose={() => setIsShipToModalOpen(false)}>
         <View style={styles.shipModalBackdrop}>
           <View style={styles.shipModalContent}>
             <View style={styles.shipModalHeader}>
@@ -1319,7 +1319,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Product selector modal - searchable table with Select buttons */}
-      <Modal transparent visible={isProductModalOpen} onRequestClose={() => setIsProductModalOpen(false)}>
+      <Modal transparent visible={isProductModalOpen} statusBarTranslucent={true} onRequestClose={() => setIsProductModalOpen(false)}>
         <View style={styles.shipModalBackdrop}>
           <View style={[styles.shipModalContent, { maxWidth: 720 }]}> 
             <View style={styles.shipModalHeader}>
@@ -1386,7 +1386,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Preview modal */}
-      <Modal transparent visible={isPreviewOpen} onRequestClose={() => setIsPreviewOpen(false)}>
+      <Modal transparent visible={isPreviewOpen} statusBarTranslucent={true} onRequestClose={() => setIsPreviewOpen(false)}>
         <View style={styles.centerOverlay}>
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsPreviewOpen(false)} />
           <View style={styles.centerPanel}> 
@@ -1414,7 +1414,7 @@ const CartScreen = () => {
       </Modal>
 
       {/* Saved Cart Details (full screen modal) */}
-      <Modal transparent animationType="slide" visible={isSavedDetailsOpen} onRequestClose={() => setIsSavedDetailsOpen(false)}>
+      <Modal transparent animationType="slide" visible={isSavedDetailsOpen} statusBarTranslucent={true} onRequestClose={() => setIsSavedDetailsOpen(false)}>
         <View style={styles.savedDetailsOverlay}>
           <View style={styles.savedDetailsPanel}>
             <View style={styles.savedDetailsHeader}>
@@ -1688,7 +1688,7 @@ const styles = StyleSheet.create({
   savedBtnTextGray: { color: '#374151', fontWeight: '600' },
   savedBtnTextGreen: { color: '#fff', fontWeight: '700' },
   // Ship-To styled modal
-  shipModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  shipModalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
   shipModalContent: { width: '95%', maxWidth: 520, backgroundColor: '#fff', borderRadius: 10, overflow: 'hidden' },
   shipModalHeader: { backgroundColor: '#478B57', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   shipModalTitle: { color: '#fff', fontWeight: '700', fontSize: 16 },
@@ -1728,7 +1728,7 @@ const styles = StyleSheet.create({
   prodTd: { color: '#333' },
   prodTableBodyRow: { borderTopWidth: 1, borderTopColor: '#F3F4F6' },
   // Saved details modal
-  savedDetailsOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  savedDetailsOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   savedDetailsPanel: { width: '96%', maxWidth: 860, backgroundColor: '#fff', borderRadius: 10, overflow: 'hidden', height: '85%' },
   savedDetailsHeader: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#EEE', backgroundColor: '#478B57' },
   backBtn: { paddingVertical: 8, paddingHorizontal: 12, backgroundColor: '#F3F4F6', borderRadius: 6, alignSelf: 'flex-start' },
