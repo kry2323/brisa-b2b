@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
@@ -304,6 +305,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
           {/* Table */}
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
+              <View style={styles.leadIconHeader} />
               {columns.filter(col => col.visible).map((column) => (
                 <TouchableOpacity
                   key={column.key}
@@ -336,6 +338,9 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                     style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd, styles.clickableRow]}
                     onPress={() => handleRowClick(item)}
                   >
+                    <View style={styles.leadIcon}>
+                      <Ionicons name="search" size={18} color="#D53439" />
+                    </View>
                     {columns.filter(col => col.visible).map((column) => (
                       <Text key={column.key} style={[styles.tableCell, { flex: 1 }]}>
                         {item[column.key]}
@@ -564,6 +569,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
+  leadIconHeader: {
+    width: 34,
+  },
   tableHeaderCellContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -587,6 +595,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
+  },
+  leadIcon: {
+    width: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
   },
   tableRowEven: {
     backgroundColor: '#FFFFFF',
