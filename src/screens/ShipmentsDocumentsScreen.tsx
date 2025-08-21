@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import DatePicker from '../components/DatePicker';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -87,24 +88,14 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
           <View style={styles.formContainer}>
             {/* Plan Date Row */}
             <View style={styles.formRow}>
-              <View style={styles.formGroup}>
+              <View style={[styles.formGroup, styles.formGroupFull]}>
                 <Text style={styles.formLabel}>Plan Date *</Text>
                 <View style={styles.datePickerContainer}>
-                  <View style={styles.datePicker}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={startDate}
-                      onChangeText={setStartDate}
-                    />
-                    <Text style={styles.dateIcon}>📅</Text>
+                  <View style={[styles.datePickerItem, styles.datePickerItemSpacing]}>
+                    <DatePicker value={startDate} onChange={setStartDate} />
                   </View>
-                  <View style={styles.datePicker}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={endDate}
-                      onChangeText={setEndDate}
-                    />
-                    <Text style={styles.dateIcon}>📅</Text>
+                  <View style={styles.datePickerItem}>
+                    <DatePicker value={endDate} onChange={setEndDate} />
                   </View>
                 </View>
               </View>
@@ -277,6 +268,9 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 10,
   },
+  formGroupFull: {
+    width: '100%',
+  },
   formLabel: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -287,31 +281,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  datePicker: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 5,
-    height: 40,
-    paddingHorizontal: 20,
-    marginRight: 8,
-    backgroundColor: '#FFF',
+  datePickerItem: {
+    flex: 1
   },
-  dateInput: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFF',
-    fontSize: 16,
-  },
-  dateIcon: {
-    fontSize: 18,
+  datePickerItemSpacing: {
+    marginRight: 10
   },
   textInput: {
     borderWidth: 1,

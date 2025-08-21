@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import DatePicker from '../components/DatePicker';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -88,22 +89,14 @@ const PlannedOrdersScreen = ({ route, navigation }: any) => {
           <View style={styles.formContainer}>
             {/* Date Range Row */}
             <View style={styles.formRow}>
-              <View style={styles.formGroup}>
+              <View style={[styles.formGroup, styles.formGroupFull]}>
                 <Text style={styles.formLabel}>Order Date *</Text>
-                <View style={styles.dateContainer}>
-                  <View style={styles.dateInputContainer}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={startDate}
-                      onChangeText={setStartDate}
-                    />
+                <View style={styles.datePickerContainer}>
+                  <View style={[styles.datePickerItem, styles.datePickerItemSpacing]}>
+                    <DatePicker value={startDate} onChange={setStartDate} />
                   </View>
-                  <View style={styles.dateInputContainer}>
-                    <TextInput
-                      style={styles.dateInput}
-                      value={endDate}
-                      onChangeText={setEndDate}
-                    />
+                  <View style={styles.datePickerItem}>
+                    <DatePicker value={endDate} onChange={setEndDate} />
                   </View>
                 </View>
               </View>
@@ -268,29 +261,24 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 10,
   },
+  formGroupFull: {
+    width: '100%'
+  },
   formLabel: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
     color: '#333',
   },
-  dateContainer: {
+  datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  dateInputContainer: {
+  datePickerItem: {
     flex: 1,
-    marginRight: 8,
   },
-  dateInput: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    backgroundColor: '#FFF',
+  datePickerItemSpacing: {
+    marginRight: 10,
   },
   textInput: {
     height: 40,

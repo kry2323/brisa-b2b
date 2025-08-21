@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView, Linking } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 interface BottomNavigationProps {
   isReportsModalOpen: boolean;
@@ -10,6 +10,7 @@ interface BottomNavigationProps {
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen, setIsReportsModalOpen, onNavigateToReport }) => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMarketingModalOpen, setIsMarketingModalOpen] = useState(false);
@@ -35,11 +36,15 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   ];
   
   const marketingItems = [
-    { id: 'product-photos', title: 'Ürün Fotoğrafları', icon: '📸', url: '/marketing/product-photos' },
-    { id: 'campaign-materials', title: 'Kampanya Materyalleri', icon: '🎯', url: '/marketing/campaign-materials' },
-    { id: 'social-media', title: 'Sosyal Medya Veritabanı', icon: '📱', url: '/marketing/social-media' },
-    { id: 'brochures', title: 'Broşürler', icon: '📑', url: '/marketing/brochures' },
-    { id: 'videos', title: 'Videolar', icon: '🎬', url: '/marketing/videos' },
+    { id: 'PRODUCT_PHOTO', title: 'Product Photos, Presentations', icon: '📸', url: '/b2b/cis-marketing-library/PRODUCT_PHOTO' },
+    { id: 'CAMPAIGN_MATERIAL', title: 'Campaign Materials', icon: '🎯', url: '/b2b/cis-marketing-library/CAMPAIGN_MATERIAL' },
+    { id: 'POS_MATERIAL', title: 'POS Materials', icon: '🏪', url: '/b2b/cis-marketing-library/POS_MATERIAL' },
+    { id: 'SHOP_BRANDING', title: 'Shop Branding', icon: '🏬', url: '/b2b/cis-marketing-library/SHOP_BRANDING' },
+    { id: 'LOGO_GUIDE', title: 'Logo Guidelines', icon: '🅻', url: '/b2b/cis-marketing-library/LOGO_GUIDE' },
+    { id: 'PRODUCT_CATALOG', title: 'Catalogues, Leaflets, Posters', icon: '📚', url: '/b2b/cis-marketing-library/PRODUCT_CATALOG' },
+    { id: 'VIDEO', title: 'Videos', icon: '🎬', url: '/b2b/cis-marketing-library/VIDEO' },
+    { id: 'CAR_BRANDING', title: 'Car Branding', icon: '🚗', url: '/b2b/cis-marketing-library/CAR_BRANDING' },
+    { id: 'SOCIAL_MEDIA_DATABASE', title: 'Social Media Database', icon: '📱', url: '/b2b/cis-marketing-library/SOCIAL_MEDIA_DATABASE' },
   ];
 
   const orderCategories = [
@@ -109,58 +114,54 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const navigationItems = [
     {
       id: 'home',
-      title: 'Ana Sayfa',
+      title: 'Homepage',
       icon: '🏠',
-      shortTitle: 'Ana Sayfa',
+      shortTitle: 'Homepage',
     },
     {
       id: 'create-order',
-      title: 'Sipariş Oluştur',
+      title: 'Create Order',
       icon: '📋',
-      shortTitle: 'Sipariş',
+      shortTitle: 'Create Order',
     },
     {
       id: 'order-sales',
       title: 'Order & Sales Reports',
       icon: '📊',
-      shortTitle: 'Order & Sales',
+      shortTitle: 'Order & Sales Reports',
     },
     {
       id: 'financial',
       title: 'Financial Reports',
       icon: '💰',
-      shortTitle: 'Financial',
+      shortTitle: 'Financial Reports',
     },
     {
-      id: 'help',
-      title: 'Yardım',
-      icon: '❓',
-      shortTitle: 'Yardım',
+      id: 'marketing-library',
+      title: 'Marketing Library',
+      icon: '📚',
+      shortTitle: 'Marketing Library',
     },
     {
       id: 'other',
-      title: 'Diğer',
+      title: 'Other',
       icon: '☰',
-      shortTitle: 'Diğer',
+      shortTitle: 'Other',
     },
   ];
 
-  const menuItems = [
-    { id: 'profile', title: 'Profil', icon: '👤' },
-    { id: 'settings', title: 'Ayarlar', icon: '⚙️' },
-    { id: 'lassa-team', title: 'Your Lassa Team', icon: '👥' },
-    { id: 'marketing-library', title: 'Marketing Library', icon: '📚' },
-    { id: 'help', title: 'Yardım', icon: '❓' },
-    { id: 'about', title: 'Hakkında', icon: 'ℹ️' },
-    { id: 'logout', title: 'Çıkış', icon: '🚪' },
-  ];
+  // Other menu now shows only Company, E Warranty and Links sections
 
   const handleTabPress = (tabId: string) => {
     if (tabId === 'other') {
+      setActiveTab(tabId);
       setIsMenuOpen(true);
     } else if (tabId === 'order-sales') {
       setActiveTab(tabId);
       setIsReportsModalOpen(true);
+    } else if (tabId === 'marketing-library') {
+      setActiveTab(tabId);
+      setIsMarketingModalOpen(true);
     } else if (tabId === 'create-order') {
       setActiveTab(tabId);
       // Open create order modal instead of direct navigation
@@ -196,6 +197,16 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
       // Navigate to Lassa Team screen
       // @ts-ignore
       navigation.navigate('LassaTeam');
+    } else if (itemId === 'company-news') {
+      Linking.openURL('/b2b/cis-marketing-library/COMPANY_NEWS').catch(() => {});
+    } else if (itemId === 'e-warranty') {
+      Linking.openURL('https://egaranti.brisa-online.com/Authentication/Login').catch(() => {});
+    } else if (itemId === 'new-dimension-request') {
+      Linking.openURL('/b2b/cis-new-dimension/get').catch(() => {});
+    } else if (itemId === 'brisa-academy') {
+      Linking.openURL('https://portal.brisaakademi.com.tr/').catch(() => {});
+    } else if (itemId === 'european-label-regulation') {
+      Linking.openURL('/b2b/cis/european-label-regulation').catch(() => {});
     } else if (itemId === 'marketing-library') {
       // Open Marketing Library modal from Other tab
       setIsMarketingModalOpen(true);
@@ -258,23 +269,30 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     setIsMarketingModalOpen(false);
     // Navigate to marketing item based on ID
     switch (item.id) {
-      case 'videos':
+      case 'VIDEO':
         // @ts-ignore
         navigation.navigate('VideoLibrary');
         break;
-      case 'product-photos':
+      case 'PRODUCT_PHOTO':
         // @ts-ignore
         navigation.navigate('ProductListing');
         break;
-      case 'campaign-materials':
+      case 'CAMPAIGN_MATERIAL':
         // @ts-ignore
         navigation.navigate('Dashboard');
         break;
-      case 'social-media':
+      case 'SOCIAL_MEDIA_DATABASE':
         // @ts-ignore
         navigation.navigate('Dashboard');
         break;
-      case 'brochures':
+      case 'PRODUCT_CATALOG':
+        // @ts-ignore
+        navigation.navigate('Dashboard');
+        break;
+      case 'POS_MATERIAL':
+      case 'SHOP_BRANDING':
+      case 'LOGO_GUIDE':
+      case 'CAR_BRANDING':
         // @ts-ignore
         navigation.navigate('Dashboard');
         break;
@@ -284,6 +302,45 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         break;
     }
   };
+
+  // Sync active tab with current route
+  useEffect(() => {
+    const routeName = (route as any)?.name;
+    const params = (route as any)?.params || {};
+
+    const routeToTab: Record<string, string> = {
+      Dashboard: 'home',
+      Home: 'home',
+      ShipmentsDocuments: 'order-sales',
+      SalesReport: 'order-sales',
+      OrderMonitoring: 'order-sales',
+      PlannedOrders: 'order-sales',
+      UnplannedOrders: 'order-sales',
+      TyresOnTheWay: 'order-sales',
+      POSMaterialTracking: 'order-sales',
+      BrisaPayments: 'financial',
+      OverdueReport: 'financial',
+      AccountTransactions: 'financial',
+      FinancialReports: 'financial',
+      VideoLibrary: 'marketing-library',
+      VideoDetail: 'marketing-library',
+      VideoPlayer: 'marketing-library',
+      LassaTeam: 'other',
+    };
+
+    let nextActive: string | undefined = routeToTab[routeName];
+
+    // Special case: ProductListing can come from Create Order
+    if (routeName === 'ProductListing') {
+      if (params && (params as any).categoryUrl) {
+        nextActive = 'create-order';
+      }
+    }
+
+    if (nextActive && nextActive !== activeTab) {
+      setActiveTab(nextActive);
+    }
+  }, [route]);
 
   const getReportItems = () => {
     switch (selectedReportType) {
@@ -322,18 +379,26 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             ]}
             onPress={() => handleTabPress(item.id)}
           >
-            <Text style={[
-              styles.tabIcon,
-              activeTab === item.id && styles.activeTabIcon,
-            ]}>
-              {item.icon}
-            </Text>
-            <Text style={[
-              styles.tabText,
-              activeTab === item.id && styles.activeTabText,
-            ]}>
-              {item.shortTitle}
-            </Text>
+            <View style={styles.tabIconWrapper}>
+              <Text style={[
+                styles.tabIcon,
+                activeTab === item.id && styles.activeTabIcon,
+              ]}>
+                {item.icon}
+              </Text>
+            </View>
+            <View style={styles.tabLabelWrapper}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === item.id && styles.activeTabText,
+                ]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                {item.shortTitle}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>
@@ -362,16 +427,61 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
             </View>
             
             <View style={styles.menuItems}>
-              {menuItems.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.menuItem}
-                  onPress={() => handleMenuItemPress(item.id)}
-                >
-                  <Text style={styles.menuItemIcon}>{item.icon}</Text>
-                  <Text style={styles.menuItemText}>{item.title}</Text>
-                </TouchableOpacity>
-              ))}
+              {/* Company Section */}
+              <View style={styles.menuSectionHeader}>
+                <Text style={styles.menuSectionHeaderIcon}>🏢</Text>
+                <Text style={styles.menuSectionHeaderText}>Company</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('company-news')}
+              >
+                <Text style={styles.menuItemIcon}>📰</Text>
+                <Text style={styles.menuItemText}>Company News</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('lassa-team')}
+              >
+                <Text style={styles.menuItemIcon}>👥</Text>
+                <Text style={styles.menuItemText}>Your Lassa Team</Text>
+              </TouchableOpacity>
+
+              {/* E Warranty direct link */}
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('e-warranty')}
+              >
+                <Text style={styles.menuItemIcon}>🧾</Text>
+                <Text style={styles.menuItemText}>E Warranty</Text>
+              </TouchableOpacity>
+
+              {/* Links Section */}
+              <View style={styles.menuSectionHeader}>
+                <Text style={styles.menuSectionHeaderIcon}>🔗</Text>
+                <Text style={styles.menuSectionHeaderText}>Links</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('new-dimension-request')}
+              >
+                <Text style={styles.menuItemIcon}>📝</Text>
+                <Text style={styles.menuItemText}>New Dimension Request Form</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('brisa-academy')}
+              >
+                <Text style={styles.menuItemIcon}>🎓</Text>
+                <Text style={styles.menuItemText}>Brisa Academy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleMenuItemPress('european-label-regulation')}
+              >
+                <Text style={styles.menuItemIcon}>🇪🇺</Text>
+                <Text style={styles.menuItemText}>European Label Regulation</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -672,7 +782,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
 
 const styles = StyleSheet.create({
   container: {
-    height: 80,
+    height: 90,
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -822,6 +932,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderRadius: 8,
   },
+  tabIconWrapper: {
+    height: 26,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   activeTab: {
     backgroundColor: '#FFF5F5',
   },
@@ -832,6 +947,12 @@ const styles = StyleSheet.create({
   },
   activeTabIcon: {
     color: '#D53439',
+  },
+  tabLabelWrapper: {
+    height: 28,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingHorizontal: 2,
   },
   tabText: {
     fontSize: 10,
