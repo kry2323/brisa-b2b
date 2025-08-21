@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Image, Linking, Alert } from 'react-native';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import { addRecentlyViewedProduct, getProductReviews, addProductReview, type ProductReview, isProductFavorite, toggleFavoriteProduct, addToCart, addCompareProduct } from '../utils/storage';
+import { downloadEnergyLabelPDF } from '../utils/pdfGenerator';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProductDetailScreen = ({ route, navigation }: any) => {
@@ -28,6 +29,7 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
   const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
   const [reviewError, setReviewError] = useState<string>('');
   const [compareToast, setCompareToast] = useState<string>('');
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState<boolean>(false);
   
   const defaultProduct = {
     id: '280035',
@@ -168,6 +170,32 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handleDownloadEnergyLabelPDF = async () => {
+    if (!product?.id || !product?.name) {
+      Alert.alert('Error', 'Product information is missing');
+      return;
+    }
+
+    try {
+      setIsDownloadingPDF(true);
+      
+      const savedUri = await downloadEnergyLabelPDF({
+        productName: product.name,
+        productCode: product.id,
+        labelImageUrl: 'https://b2bcis.brisa-online.com/b2b/_ui/shared/images/template/png/energy-label.png',
+        fileName: `energy-label-${product.id}.pdf`,
+        labelType: 'energy'
+      });
+      
+      Alert.alert('Başarılı', `PDF kaydedildi:\n${savedUri}`);
+    } catch (error) {
+      console.error('PDF download error:', error);
+      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
+
   const toggleTab = (tabName: string) => {
     setExpandedTabs(prev => ({
       ...prev,
@@ -196,12 +224,48 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                      resizeMode="contain"
                      onError={(error) => console.log('Size guide loading error:', error)}
                    />
-                   <TouchableOpacity 
-                     style={styles.expandButton}
-                     onPress={() => setIsSizeGuideModalOpen(true)}
-                   >
-                     <Text style={styles.expandButtonText}>Genişlet</Text>
-                   </TouchableOpacity>
+                   <View style={styles.energyLabelButtons}>
+                     <TouchableOpacity 
+                       style={styles.expandButton}
+                       onPress={() => setIsSizeGuideModalOpen(true)}
+                     >
+                       <Text style={styles.expandButtonText}>Genişlet</Text>
+                     </TouchableOpacity>
+                     <TouchableOpacity 
+                       style={[styles.downloadButton, isDownloadingPDF && styles.downloadButtonDisabled]}
+                       onPress={async () => {
+                         if (!product?.id || !product?.name) {
+                           Alert.alert('Error', 'Product information is missing');
+                           return;
+                         }
+
+                         try {
+                           setIsDownloadingPDF(true);
+                           
+                           const savedUri = await downloadEnergyLabelPDF({
+                             productName: product.name,
+                             productCode: product.id,
+                             labelImageUrl: product?.sizeGuideImage || defaultSizeGuideUrl,
+                             fileName: `size-guide-${product.id}.pdf`,
+                             labelType: 'size-guide'
+                           });
+                           
+                           Alert.alert('Success', 'Size guide PDF has been generated and is ready for download');
+                         } catch (error) {
+                           console.error('PDF download error:', error);
+                           Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+                         } finally {
+                           setIsDownloadingPDF(false);
+                         }
+                       }}
+                       disabled={isDownloadingPDF}
+                     >
+                       <Ionicons name="download-outline" size={16} color="#FFFFFF" style={styles.downloadIcon} />
+                       <Text style={styles.downloadButtonText}>
+                         {isDownloadingPDF ? 'İndiriliyor...' : 'PDF İndir'}
+                       </Text>
+                     </TouchableOpacity>
+                   </View>
                    {!!sizeOptions?.length && (
                      <Text style={styles.sizeGuideInfo}>
                        Sizes: {sizeOptions.map((s: any) => s.value).join(' - ')}
@@ -216,12 +280,24 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                      resizeMode="contain"
                      onError={(error) => console.log('Energy label loading error:', error)}
                    />
-                   <TouchableOpacity 
-                     style={styles.expandButton}
-                     onPress={() => setIsEnergyLabelModalOpen(true)}
-                   >
-                     <Text style={styles.expandButtonText}>Genişlet</Text>
-                   </TouchableOpacity>
+                   <View style={styles.energyLabelButtons}>
+                     <TouchableOpacity 
+                       style={styles.expandButton}
+                       onPress={() => setIsEnergyLabelModalOpen(true)}
+                     >
+                       <Text style={styles.expandButtonText}>Genişlet</Text>
+                     </TouchableOpacity>
+                     <TouchableOpacity 
+                       style={[styles.downloadButton, isDownloadingPDF && styles.downloadButtonDisabled]}
+                       onPress={handleDownloadEnergyLabelPDF}
+                       disabled={isDownloadingPDF}
+                     >
+                       <Ionicons name="download-outline" size={16} color="#FFFFFF" style={styles.downloadIcon} />
+                       <Text style={styles.downloadButtonText}>
+                         {isDownloadingPDF ? 'İndiriliyor...' : 'PDF İndir'}
+                       </Text>
+                     </TouchableOpacity>
+                   </View>
                  </View>
                )}
                {!isPromotionalMaterials && (
@@ -642,6 +718,18 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                resizeMode="contain"
                onError={(error) => console.log('Modal energy label loading error:', error)}
              />
+             <View style={styles.modalFooter}>
+               <TouchableOpacity 
+                 style={[styles.modalDownloadButton, isDownloadingPDF && styles.downloadButtonDisabled]}
+                 onPress={handleDownloadEnergyLabelPDF}
+                 disabled={isDownloadingPDF}
+               >
+                 <Ionicons name="download-outline" size={18} color="#FFFFFF" style={styles.downloadIcon} />
+                 <Text style={styles.modalDownloadButtonText}>
+                   {isDownloadingPDF ? 'İndiriliyor...' : 'PDF Olarak İndir'}
+                 </Text>
+               </TouchableOpacity>
+             </View>
            </View>
          </View>
        )}
@@ -665,6 +753,42 @@ const ProductDetailScreen = ({ route, navigation }: any) => {
                 resizeMode="contain"
                 onError={(error) => console.log('Modal size guide loading error:', error)}
               />
+              <View style={styles.modalFooter}>
+                <TouchableOpacity 
+                  style={[styles.modalDownloadButton, isDownloadingPDF && styles.downloadButtonDisabled]}
+                  onPress={async () => {
+                    if (!product?.id || !product?.name) {
+                      Alert.alert('Error', 'Product information is missing');
+                      return;
+                    }
+
+                    try {
+                      setIsDownloadingPDF(true);
+                      
+                      const savedUri = await downloadEnergyLabelPDF({
+                        productName: product.name,
+                        productCode: product.id,
+                        labelImageUrl: product?.sizeGuideImage || defaultSizeGuideUrl,
+                        fileName: `size-guide-${product.id}.pdf`,
+                        labelType: 'size-guide'
+                      });
+                      
+                      Alert.alert('Başarılı', `PDF kaydedildi:\n${savedUri}`);
+                    } catch (error) {
+                      console.error('PDF download error:', error);
+                      Alert.alert('Error', 'Failed to generate PDF. Please try again.');
+                    } finally {
+                      setIsDownloadingPDF(false);
+                    }
+                  }}
+                  disabled={isDownloadingPDF}
+                >
+                  <Ionicons name="download-outline" size={18} color="#FFFFFF" style={styles.downloadIcon} />
+                  <Text style={styles.modalDownloadButtonText}>
+                    {isDownloadingPDF ? 'İndiriliyor...' : 'PDF Olarak İndir'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}
@@ -1071,6 +1195,34 @@ const styles = StyleSheet.create({
     width: 200,
     height: 100,
   },
+  energyLabelButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 10,
+  },
+  downloadButton: {
+    backgroundColor: '#D53439',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 40, // Sabit yükseklik - expandButton ile aynı
+    justifyContent: 'center',
+  },
+  downloadButtonDisabled: {
+    backgroundColor: '#BDBDBD',
+  },
+  downloadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  downloadIcon: {
+    marginRight: 2,
+  },
   energyLabelGrid: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -1222,8 +1374,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 6,
-    marginTop: 10,
+    // marginTop removed to align with PDF button on the same baseline
     alignItems: 'center',
+    height: 40, // Sabit yükseklik
+    justifyContent: 'center',
   },
   expandButtonText: {
     color: '#FFFFFF',
@@ -1277,6 +1431,24 @@ const styles = StyleSheet.create({
   modalImage: {
     width: '100%',
     height: 509,
+  },
+  modalFooter: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  modalDownloadButton: {
+    backgroundColor: '#D53439',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modalDownloadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
