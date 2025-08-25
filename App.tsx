@@ -467,6 +467,11 @@ export default function App() {
           component={OrderMonitoringParentScreen}
           options={{ title: 'Order Monitoring' }}
         />
+        <Stack.Screen 
+          name="OrderMonitoringReport" 
+          component={OrderMonitoringScreen}
+          options={{ title: 'Order Monitoring Report' }}
+        />
         <Stack.Screen
           name="PlannedOrders"
           component={PlannedOrdersScreen}
