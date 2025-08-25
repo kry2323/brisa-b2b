@@ -12,6 +12,7 @@ import DatePicker from '../components/DatePicker';
 import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { getSalesReportData, TableDataItem } from '../utils/mockData';
+import { downloadBundledPdf } from '../utils/pdfAssets';
 
 const SalesReportScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -117,6 +118,31 @@ const SalesReportScreen = ({ route, navigation }: any) => {
   const handleRowClick = (rowData: any) => {
     setSelectedRowData(rowData);
     setIsRowDetailModalOpen(true);
+  };
+
+  const handleInvoiceDownload = async () => {
+    try {
+      await downloadBundledPdf(require('../../INVOICE 2.pdf'), 'INVOICE_2.pdf');
+    } catch (e) {
+      console.error('Failed to download invoice PDF', e);
+    }
+  };
+
+  const handlePlannedOrderDraftDownload = async (plannedOrderValue: string) => {
+    const val = String(plannedOrderValue || '');
+    const digits = val.replace(/\D+/g, '');
+    if (!(digits.startsWith('35') || digits.endsWith('35') || digits.endsWith('53'))) return;
+    try {
+      await downloadBundledPdf(require('../../INVOICE DRAFT.pdf'), `INVOICE_DRAFT_${val}.pdf`);
+    } catch (e) {
+      console.error('Failed to download draft PDF', e);
+    }
+  };
+
+  const isPlannedOrderEligible = (plannedOrderValue: string): boolean => {
+    const val = String(plannedOrderValue || '');
+    const digits = val.replace(/\D+/g, '');
+    return !!(digits.startsWith('35') || digits.endsWith('35') || digits.endsWith('53'));
   };
 
   // Handle column header click for sorting
@@ -340,20 +366,35 @@ const SalesReportScreen = ({ route, navigation }: any) => {
             >
               {paginatedData.length > 0 ? (
                 paginatedData.map((item, index) => (
-                  <TouchableOpacity
+                  <View
                     key={index} 
                     style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd, styles.clickableRow]}
-                    onPress={() => handleRowClick(item)}
                   >
-                    <View style={styles.leadIcon}>
+                    <TouchableOpacity style={styles.leadIcon} onPress={() => handleRowClick(item)}>
                       <Ionicons name="search" size={18} color="#D53439" />
-                    </View>
+                    </TouchableOpacity>
                     {columns.filter(col => col.visible).map((column) => (
-                      <Text key={column.key} style={[styles.tableCell, { flex: 1 }]}>
-                        {item[column.key]}
-                      </Text>
+                      column.key === 'invoice' ? (
+                        <TouchableOpacity key={column.key} style={{ flex: 1 }} onPress={handleInvoiceDownload}>
+                          <Text style={[styles.tableCell, styles.linkText]}>{item[column.key]}</Text>
+                        </TouchableOpacity>
+                      ) : column.key === 'plannedOrder' ? (
+                        isPlannedOrderEligible(item[column.key]) ? (
+                          <TouchableOpacity key={column.key} style={{ flex: 1 }} onPress={() => handlePlannedOrderDraftDownload(item[column.key])}>
+                            <Text style={[styles.tableCell, styles.linkText]}>{item[column.key]}</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <Text key={column.key} style={[styles.tableCell, { flex: 1 }]}>
+                            {item[column.key]}
+                          </Text>
+                        )
+                      ) : (
+                        <Text key={column.key} style={[styles.tableCell, { flex: 1 }]}>
+                          {item[column.key]}
+                        </Text>
+                      )
                     ))}
-                  </TouchableOpacity>
+                  </View>
                 ))
               ) : (
                 <View style={styles.noDataContainer}>
@@ -631,6 +672,11 @@ const styles = StyleSheet.create({
     color: '#495057',
     textAlign: 'center',
     fontFamily: 'MuseoSans-Regular',
+  },
+  linkText: {
+    color: '#1976D2',
+    textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   noDataContainer: {
     padding: 40,

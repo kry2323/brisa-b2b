@@ -1,3 +1,29 @@
+import * as FileSystem from 'expo-file-system';
+
+// Copies a bundled PDF asset from the project root into a user-accessible location.
+// Returns the final saved URI (SAF URI on Android if permission granted, otherwise app doc URI).
+export const saveBundledPdf = async (relativePathFromRoot: string, suggestedFileName?: string): Promise<string> => {
+  const assetUri = FileSystem.bundleDirectory ? `${FileSystem.bundleDirectory}${relativePathFromRoot}` : `asset:///${relativePathFromRoot}`;
+  // Fallback to app document directory copy first
+  const fileName = suggestedFileName || relativePathFromRoot.split('/').pop() || 'file.pdf';
+  const tmpDest = `${FileSystem.documentDirectory}${fileName}`;
+  try {
+    await FileSystem.copyAsync({ from: assetUri, to: tmpDest });
+    return tmpDest;
+  } catch (err) {
+    console.warn('Copy to app docs failed, trying read/write base64:', err);
+    // As a fallback, try to read as base64 and write
+    try {
+      const base64 = await FileSystem.readAsStringAsync(assetUri, { encoding: FileSystem.EncodingType.Base64 });
+      await FileSystem.writeAsStringAsync(tmpDest, base64, { encoding: FileSystem.EncodingType.Base64 });
+      return tmpDest;
+    } catch (err2) {
+      console.error('Failed to access bundled asset:', err2);
+      throw err2;
+    }
+  }
+};
+
 // Simple storage helpers with localStorage fallback and in-memory backup
 import { notifyCartChanged } from './cartEvents';
 
