@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
+import { downloadBundledPdf } from '../utils/pdfAssets';
 
 const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -38,6 +39,23 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
     // In a real app, this would fetch data based on the form inputs
     console.log('Listing with filters:', { startDate, endDate, planNo, invoiceNo });
     // For now we'll just use the mock data already set
+  };
+
+  const handlePlanDraftDownload = async (plan: string) => {
+    if (!(plan?.startsWith('35') || plan?.endsWith('35'))) return;
+    try {
+      await downloadBundledPdf(require('../../INVOICE DRAFT.pdf'), `INVOICE_DRAFT_${plan}.pdf`);
+    } catch (e) {
+      console.error('Failed to download draft PDF', e);
+    }
+  };
+
+  const handleInvoiceDownload = async () => {
+    try {
+      await downloadBundledPdf(require('../../INVOICE 2.pdf'), 'INVOICE_2.pdf');
+    } catch (e) {
+      console.error('Failed to download invoice PDF', e);
+    }
   };
 
   const handleNavigateToReport = (reportData: any) => {
@@ -165,8 +183,16 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
             {/* Table Rows */}
             {tableData.map((item, index) => (
               <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
-                <Text style={styles.tableCell}>{item.planNo}</Text>
-                <Text style={styles.tableCell}>{item.invoiceNo}</Text>
+                {(item.planNo?.startsWith('35') || item.planNo?.endsWith('35')) ? (
+                  <TouchableOpacity style={{ flex: 1 }} onPress={() => handlePlanDraftDownload(item.planNo)}>
+                    <Text style={[styles.tableCell, styles.linkText]}>{item.planNo}</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Text style={styles.tableCell}>{item.planNo}</Text>
+                )}
+                <TouchableOpacity style={{ flex: 1 }} onPress={handleInvoiceDownload}>
+                  <Text style={[styles.tableCell, styles.linkText]}>{item.invoiceNo}</Text>
+                </TouchableOpacity>
                 <Text style={styles.tableCell}>{item.invoiceQty}</Text>
               </View>
             ))}
@@ -355,6 +381,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#333',
+  },
+  linkText: {
+    color: '#1976D2',
+    textDecorationLine: 'underline',
   },
 });
 
