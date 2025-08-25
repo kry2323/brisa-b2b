@@ -15,6 +15,7 @@ interface ColumnVisibilityModalProps {
   onColumnToggle: (key: string) => void;
   showValue?: number;
   onShowValueChange?: (value: number) => void;
+  maxVisibleColumns?: number | null; // null => unlimited
 }
 
 const ColumnVisibilityModal = ({ 
@@ -23,7 +24,8 @@ const ColumnVisibilityModal = ({
   columns, 
   onColumnToggle, 
   showValue = 100, 
-  onShowValueChange 
+  onShowValueChange,
+  maxVisibleColumns = 4,
 }: ColumnVisibilityModalProps) => {
   
   // Count visible columns
@@ -34,10 +36,14 @@ const ColumnVisibilityModal = ({
     const column = columns.find(col => col.key === key);
     if (!column) return;
     
-    if (!column.visible && visibleColumnsCount >= 4) {
+    if (
+      maxVisibleColumns !== null &&
+      !column.visible &&
+      visibleColumnsCount >= maxVisibleColumns
+    ) {
       Alert.alert(
         'Maksimum Sütun Limiti',
-        'En fazla 4 sütun seçebilirsiniz. Detaylı bilgi için tablo satırlarına tıklayabilirsiniz.',
+        `En fazla ${maxVisibleColumns} sütun seçebilirsiniz.`,
         [{ text: 'Tamam', style: 'default' }]
       );
       return;
@@ -71,12 +77,18 @@ const ColumnVisibilityModal = ({
           
           {/* Info message */}
           <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>
-              En fazla 4 sütun seçebilirsiniz. Detaylı bilgi için tablo satırlarına tıklayın.
-            </Text>
-            <Text style={styles.selectionCount}>
-              Seçili: {visibleColumnsCount}/4
-            </Text>
+            {maxVisibleColumns === null ? (
+              <Text style={styles.infoText}>İstediğiniz kadar sütun seçebilirsiniz.</Text>
+            ) : (
+              <>
+                <Text style={styles.infoText}>
+                  En fazla {maxVisibleColumns} sütun seçebilirsiniz. Detaylı bilgi için tablo satırlarına tıklayın.
+                </Text>
+                <Text style={styles.selectionCount}>
+                  Seçili: {visibleColumnsCount}/{maxVisibleColumns}
+                </Text>
+              </>
+            )}
           </View>
           
           <ScrollView style={styles.columnList}>

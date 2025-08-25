@@ -28,7 +28,7 @@ const OrderMonitoringParentScreen = ({ route, navigation }: any) => {
       title: 'Order Monitoring',
       description: 'General order monitoring and tracking',
       icon: '👁️',
-      screen: 'OrderMonitoring'
+      screen: 'OrderMonitoringReport'
     }
   ];
 
