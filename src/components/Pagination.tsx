@@ -57,25 +57,27 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
 
   return (
     <View style={styles.container}>
-             <View style={styles.infoContainer}>
-         <Text 
-           style={styles.infoText}
-           numberOfLines={1}
-           ellipsizeMode="tail"
-         >
-           Showing {startItem} to {endItem} of {totalItems} entries
-         </Text>
-       </View>
+      {/* Info text in separate row */}
+      <View style={styles.infoContainer}>
+        <Text 
+          style={styles.infoText}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          Showing {startItem} to {endItem} of {totalItems} entries
+        </Text>
+      </View>
       
+      {/* Pagination controls in separate row */}
       <View style={styles.paginationContainer}>
         {/* Previous button */}
         <TouchableOpacity
-          style={[styles.pageButton, currentPage === 1 && styles.disabledButton]}
+          style={[styles.pageButton, styles.navButton, currentPage === 1 && styles.disabledButton]}
           onPress={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
           <Text style={[styles.pageButtonText, currentPage === 1 && styles.disabledButtonText]}>
-            Previous
+            Prev
           </Text>
         </TouchableOpacity>
 
@@ -103,7 +105,7 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
 
         {/* Next button */}
         <TouchableOpacity
-          style={[styles.pageButton, currentPage === totalPages && styles.disabledButton]}
+          style={[styles.pageButton, styles.navButton, currentPage === totalPages && styles.disabledButton]}
           onPress={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
@@ -118,9 +120,7 @@ const Pagination = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageC
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
     paddingVertical: 15,
     paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#E9ECEF',
   },
   infoContainer: {
-    flex: 1,
-    marginRight: 10,
+    marginBottom: 10,
+    alignItems: 'flex-start',
   },
   infoText: {
     fontSize: 14,
@@ -138,21 +138,23 @@ const styles = StyleSheet.create({
   paginationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexShrink: 0,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
   },
   pageButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginHorizontal: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    marginHorizontal: 1,
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#DEE2E6',
     backgroundColor: '#FFFFFF',
-    minWidth: 40,
+    minWidth: 28,
     alignItems: 'center',
   },
   pageButtonText: {
-    fontSize: 14,
+    fontSize: 11,
     color: '#495057',
     fontWeight: '500',
   },
@@ -177,6 +179,10 @@ const styles = StyleSheet.create({
   },
   ellipsisText: {
     color: '#6C757D',
+  },
+  navButton: {
+    minWidth: 40,
+    paddingHorizontal: 8,
   },
 });
 

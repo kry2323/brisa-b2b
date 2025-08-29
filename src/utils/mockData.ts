@@ -135,9 +135,151 @@ const generateRandomData = (count: number): TableDataItem[] => {
 };
 
 // Generate 100 items for each report type
-export const overdueReportData: TableDataItem[] = generateRandomData(100);
+// Generate Overdue Report specific data
+const generateOverdueReportData = (count: number): TableDataItem[] => {
+  const tyres = [
+    '205/55R16 91V',
+    '225/45R17 91W',
+    '215/60R16 95H',
+    '245/40R18 97Y',
+    '265/70R16 112T',
+    '195/75R16C 107/105R',
+    '245/35R19 93Y',
+    '225/65R17 102H',
+    '315/80R22.5 154/150L',
+    '6.50-10 6PR'
+  ];
+  const amounts = [1250.50, 890.25, 2100.00, 450.75, 1750.30, 3200.45, 980.60, 1500.20, 2750.80, 650.90];
+  const currencies = ['EUR', 'USD', 'GBP', 'TRY'];
+  const paymentTerms = ['30 Days', '45 Days', '60 Days', '90 Days', 'Net 30', 'Net 45'];
+  const partialPayments = [0, 500.00, 750.25, 1000.50, 1250.00, 1500.75];
+
+  const data: TableDataItem[] = [];
+
+  for (let i = 1; i <= count; i++) {
+    const tyre = tyres[Math.floor(Math.random() * tyres.length)];
+    const amount = amounts[Math.floor(Math.random() * amounts.length)];
+    const currency = currencies[Math.floor(Math.random() * currencies.length)];
+    const paymentTerm = paymentTerms[Math.floor(Math.random() * paymentTerms.length)];
+    const partialPayment = partialPayments[Math.floor(Math.random() * partialPayments.length)];
+    const remainAmount = amount - partialPayment;
+
+    // Generate random dates in 2023
+    const startDate = new Date(2023, 0, 1);
+    const endDate = new Date(2023, 11, 31);
+    const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+    const invoiceDate = randomDate.toLocaleDateString('en-GB');
+    
+    // Due date is based on payment term
+    const daysToAdd = parseInt(paymentTerm.match(/\d+/)?.[0] || '30');
+    const dueDate = new Date(randomDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+    const dueDateStr = dueDate.toLocaleDateString('en-GB');
+    
+    // Calculate overdue days
+    const today = new Date();
+    const overdueDays = Math.max(0, Math.floor((today.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000)));
+
+    data.push({
+      invoiceDate: invoiceDate,
+      tyres: tyre,
+      invoiceAmount: amount.toFixed(2),
+      curr: currency,
+      paymentTerm: paymentTerm,
+      customer: `CUST${String(i).padStart(3, '0')}`,
+      customerName: `Customer ${i}`,
+      plannedOrders: `PL${String(i).padStart(8, '0')}`,
+      invoice: `INV${String(i).padStart(8, '0')}`,
+      partialPayment: partialPayment.toFixed(2),
+      remainAmount: remainAmount.toFixed(2),
+      incoterm: ['FOB', 'CIF', 'EXW', 'DDP'][i % 4],
+      dueDate: dueDateStr,
+      overdueDays: overdueDays.toString(),
+      // Keep other fields for compatibility
+      shipToParty: `93000${String(i).padStart(3, '0')}`,
+      shipToPartyName: `Ship-to Party ${i}`,
+      customerOrder: `ORD${String(i).padStart(6, '0')}`,
+      orderDate: invoiceDate,
+      plannedOrder: `PL${String(i).padStart(8, '0')}`,
+      productCode: `P${String(i).padStart(3, '0')}`,
+      definition: `Product Definition ${i}`,
+      group: `Group ${String.fromCharCode(65 + (i % 26))}`,
+      size: `${200 + (i % 50)}/${55 + (i % 20)}R${16 + (i % 4)}`,
+      season: ['Summer', 'Winter', 'All Season'][i % 3],
+      totalQuantity: String(Math.floor(Math.random() * 1000) + 1),
+      netValue: (amount * (Math.random() * 0.5 + 0.8)).toFixed(2),
+      currency: currency,
+      color: ['Black', 'White', 'Gray', 'Red', 'Blue'][i % 5],
+    });
+  }
+
+  return data;
+};
+
+export const overdueReportData: TableDataItem[] = generateOverdueReportData(100);
 export const salesReportData: TableDataItem[] = generateRandomData(100);
-export const brisaPaymentsData: TableDataItem[] = generateRandomData(100);
+// Generate Brisa Payments specific data
+const generateBrisaPaymentsData = (count: number): TableDataItem[] => {
+  const paymentTypes = ['Invoice Payment', 'Credit Note', 'Debit Note', 'Advance Payment', 'Refund'];
+  const descriptions = [
+    'Tire Supply Payment',
+    'Freight Charges',
+    'Customs Duties',
+    'Insurance Premium',
+    'Storage Fees',
+    'Handling Charges',
+    'Documentation Fees',
+    'Quality Inspection',
+    'Testing Services',
+    'Warranty Claims'
+  ];
+  const amounts = [1250.50, 890.25, 2100.00, 450.75, 1750.30, 3200.45, 980.60, 1500.20, 2750.80, 650.90];
+  const currencies = ['EUR', 'USD', 'GBP', 'TRY'];
+
+  const data: TableDataItem[] = [];
+
+  for (let i = 1; i <= count; i++) {
+    const paymentType = paymentTypes[Math.floor(Math.random() * paymentTypes.length)];
+    const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+    const amount = amounts[Math.floor(Math.random() * amounts.length)];
+    const currency = currencies[Math.floor(Math.random() * currencies.length)];
+
+    // Generate random dates in 2023
+    const startDate = new Date(2023, 0, 1);
+    const endDate = new Date(2023, 11, 31);
+    const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+    const invoiceDate = randomDate.toLocaleDateString('en-GB');
+
+    data.push({
+      type: paymentType,
+      invoiceDate: invoiceDate,
+      description: description,
+      amount: amount.toFixed(2),
+      curr: currency,
+      customer: `CUST${String(i).padStart(3, '0')}`,
+      customerName: `Customer ${i}`,
+      shipToParty: `93000${String(i).padStart(3, '0')}`,
+      shipToPartyName: `Ship-to Party ${i}`,
+      customerOrder: `ORD${String(i).padStart(6, '0')}`,
+      orderDate: invoiceDate,
+      plannedOrder: `PL${String(i).padStart(8, '0')}`,
+      invoice: `INV${String(i).padStart(8, '0')}`,
+      productCode: `P${String(i).padStart(3, '0')}`,
+      definition: `Product Definition ${i}`,
+      group: `Group ${String.fromCharCode(65 + (i % 26))}`,
+      size: `${200 + (i % 50)}/${55 + (i % 20)}R${16 + (i % 4)}`,
+      season: ['Summer', 'Winter', 'All Season'][i % 3],
+      totalQuantity: String(Math.floor(Math.random() * 1000) + 1),
+      netValue: (amount * (Math.random() * 0.5 + 0.8)).toFixed(2),
+      currency: currency,
+      incoterm: ['FOB', 'CIF', 'EXW', 'DDP'][i % 4],
+      color: ['Black', 'White', 'Gray', 'Red', 'Blue'][i % 5],
+    });
+  }
+
+  return data;
+};
+
+export const brisaPaymentsData: TableDataItem[] = generateBrisaPaymentsData(100);
 export const accountTransactionsData: TableDataItem[] = generateRandomData(100);
 
 // API-like functions to simulate backend calls
