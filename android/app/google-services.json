@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "639953592002",
+    "project_id": "brisa-cis-mobile",
+    "storage_bucket": "brisa-cis-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:639953592002:android:ea1c6fd3f0839e503f655b",
+        "android_client_info": {
+          "package_name": "com.kry23.brisab2b"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFHPKpWxsGWj-vf9rIN6jQQF_MVS9ZokI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
