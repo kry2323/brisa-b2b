@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
@@ -22,48 +22,85 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
   const [orderNumber, setOrderNumber] = useState('');
   const [status, setStatus] = useState('');
   
-  // Columns and mock data
-  type RowType = { orderNo: string; date: string; status: string; amount: string };
+  // Columns state for Unplanned Orders
   const [columns, setColumns] = useState([
-    { key: 'orderNo', label: 'Order No', visible: true },
-    { key: 'date', label: 'Date', visible: true },
-    { key: 'status', label: 'Status', visible: true },
-    { key: 'amount', label: 'Amount', visible: true },
+    { key: 'remainingQty', label: 'Remaining Qty', visible: true },
+    { key: 'orderNo', label: 'Order No', visible: false },
+    { key: 'item', label: 'Item', visible: false },
+    { key: 'material', label: 'Material', visible: false },
+    { key: 'description', label: 'Description', visible: false },
+    { key: 'season', label: 'Season', visible: false },
+    { key: 'purchaseOrder', label: 'Purchase Order', visible: false },
+    { key: 'requestedDeliveryDate', label: 'Requested Delivery Date', visible: false },
+    { key: 'shipTo', label: 'Ship-to', visible: false },
+    { key: 'shipToParty', label: 'Ship-To Party', visible: false },
+    { key: 'customerMaterial', label: 'Customer Material', visible: false },
   ]);
+
+  // Rich mock data for Unplanned Orders
+  type RowType = {
+    remainingQty: number;
+    orderNo: string;
+    item: string;
+    material: string;
+    description: string;
+    season: string;
+    purchaseOrder: string;
+    requestedDeliveryDate: string;
+    shipTo: string;
+    shipToParty: string;
+    customerMaterial: string;
+  };
+
   const [tableData] = useState<RowType[]>(
-    Array.from({ length: 30 }).map((_, i) => ({
-      orderNo: `UNP-2023-${String(i + 1).padStart(3, '0')}`,
-      date: '05/03/2023',
-      status: 'Unplanned',
-      amount: `€${(Math.random() * 10000).toFixed(0)}`,
+    Array.from({ length: 30 }).map((_, i): RowType => ({
+      remainingQty: Math.floor(Math.random() * 500) + 50,
+      orderNo: `UNP-${2024000 + i}`,
+      item: `ITEM-${1000 + i}`,
+      material: `MAT-${5000 + i}`,
+      description: `Unplanned Tire Description ${i + 1}`,
+      season: ['Spring', 'Summer', 'Fall', 'Winter'][i % 4],
+      purchaseOrder: `PO-${2024000 + i}`,
+      requestedDeliveryDate: `${Math.floor(Math.random() * 28) + 1}/${Math.floor(Math.random() * 12) + 1}/2024`,
+      shipTo: `SHIP-${1000 + i}`,
+      shipToParty: 'SC RADBURG SOFT SRL',
+      customerMaterial: `CUST-MAT-${2000 + i}`,
     }))
   );
-
-  // Sticky scroll sync
-  const headerScrollRef = useRef<any>(null);
-  const bodyScrollRef = useRef<any>(null);
-  const syncHeaderFromBody = (event: any) => {
-    const x = event?.nativeEvent?.contentOffset?.x || 0;
-    headerScrollRef.current?.scrollTo({ x, animated: false });
-  };
 
   // Column visibility
   const [isColumnVisibilityModalOpen, setIsColumnVisibilityModalOpen] = useState(false);
   const handleColumnToggle = (key: string) => {
     setColumns(prev => prev.map(c => (c.key === key ? { ...c, visible: !c.visible } : c)));
   };
-  const visibleNonStickyColumns = useMemo(
-    () => columns.filter((c, idx) => idx !== 0 && c.visible),
+  const visibleColumns = useMemo(
+    () => columns.filter(c => c.visible),
     [columns]
   );
+  
+  // Sticky column logic
+  const stickyColumn = visibleColumns[0]; // First column is sticky
+  const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
+  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  
+  // Scroll sync refs
+  const headerScrollRef = useRef<any>(null);
+  const bodyScrollRef = useRef<any>(null);
+  
+  // Sync header scroll with body scroll
+  const syncHeaderFromBody = (event: any) => {
+    const x = event?.nativeEvent?.contentOffset?.x || 0;
+    headerScrollRef.current?.scrollTo({ x, animated: false });
+  };
 
   // Pagination and Show
-  const [itemsPerPage, setItemsPerPage] = useState<number>(100);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(100); // -1 means "Show All"
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalItems = tableData.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const effectiveItemsPerPage = itemsPerPage === -1 ? totalItems : itemsPerPage;
+  const totalPages = Math.max(1, Math.ceil(totalItems / effectiveItemsPerPage));
+  const startIndex = (currentPage - 1) * effectiveItemsPerPage;
+  const endIndex = itemsPerPage === -1 ? totalItems : startIndex + effectiveItemsPerPage;
   const paginatedData = tableData.slice(startIndex, endIndex);
   const handleItemsPerPageChange = (value: number) => { setItemsPerPage(value); setCurrentPage(1); };
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -122,12 +159,22 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handlePrevious = () => {
+    navigation.navigate('OrderMonitoring', { reportData });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
+      <View style={styles.titleContainer}>
+        <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
+          <AntDesign name="arrowleft" size={20} color="#DA3C42" />
+          <Text style={styles.previousButtonText}>Previous</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Unplanned Orders</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Unplanned Orders</Text>
           
           {/* Form Section */}
           <View style={styles.formContainer}>
@@ -189,35 +236,61 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
             <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} />
           </View>
 
-          {/* Sticky table */}
+          {/* Table */}
           <View style={styles.tableContainer}>
+            {/* Table Header */}
             <View style={styles.tableHeaderRow}>
-              <View style={[styles.tableHeaderSticky, styles.stickyColWidth]}>
-                <Text style={styles.tableHeaderCell}>Order No</Text>
+              <View style={styles.tableHeaderSticky}>
+                <Text style={styles.tableHeaderCell}>{stickyColumn?.label}</Text>
               </View>
-              <ScrollView ref={headerScrollRef} horizontal showsHorizontalScrollIndicator={true} scrollEnabled={false} scrollEventThrottle={16} bounces={false} overScrollMode="never" style={styles.headerScrollable}>
+              <ScrollView 
+                ref={headerScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+                style={styles.headerScrollable}
+              >
                 <View style={styles.headerScrollableRow}>
-                  {visibleNonStickyColumns.map((col) => (
-                    <Text key={col.key} style={[styles.tableHeaderCell, styles.colWidth]}>{col.label}</Text>
+                  {scrollableColumns.map((col) => (
+                    <Text key={col.key} style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}>{col.label}</Text>
                   ))}
                 </View>
               </ScrollView>
             </View>
 
+            {/* Table Body */}
             <View style={styles.tableBody}>
-              <View style={styles.leftColumn}>
+              <View style={styles.stickyColumn}>
                 {paginatedData.map((item, index) => (
-                  <View key={index} style={[styles.leftCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
-                    <Text style={styles.tableCell}>{item.orderNo}</Text>
+                  <View
+                    key={index}
+                    style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                  >
+                    <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                      {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                    </Text>
                   </View>
                 ))}
               </View>
-              <ScrollView ref={bodyScrollRef} horizontal showsHorizontalScrollIndicator={true} onScroll={syncHeaderFromBody} scrollEventThrottle={16} bounces={false} overScrollMode="never" style={styles.bodyScrollable}>
+              <ScrollView 
+                ref={bodyScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={isScrollable} 
+                scrollEnabled={isScrollable}
+                onScroll={syncHeaderFromBody}
+                scrollEventThrottle={16}
+                style={styles.bodyScrollable}
+              >
                 <View>
                   {paginatedData.map((item, index) => (
-                    <View key={index} style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}>
-                      {visibleNonStickyColumns.map((col) => (
-                        <Text key={col.key} style={[styles.tableCell, styles.colWidth]}>{String((item as any)[col.key] ?? '')}</Text>
+                    <View
+                      key={index}
+                      style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    >
+                      {scrollableColumns.map((col) => (
+                        <Text key={col.key} style={[styles.tableCell, styles.scrollableCell]} numberOfLines={1} ellipsizeMode="tail">
+                          {String((item as Record<string, any>)[col.key] ?? '')}
+                        </Text>
                       ))}
                     </View>
                   ))}
@@ -248,7 +321,31 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   scrollView: { flex: 1 },
   content: { padding: 20, width: '100%', minHeight: 500 },
-  title: { fontSize: 18, fontWeight: '600', color: '#333', marginBottom: 20, alignSelf: 'flex-start' },
+  titleContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  previousButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#F8F8F8',
+  },
+  previousButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#DA3C42',
+    marginLeft: 4,
+  },
+  title: { fontSize: 18, fontWeight: '600', color: '#333', flex: 1 },
 
   formContainer: { width: '100%', backgroundColor: '#FFFFFF', borderRadius: 10, padding: 20, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3.84, elevation: 5 },
   formRow: { flexDirection: 'row', marginBottom: 15, justifyContent: 'space-between', width: '100%' },
@@ -269,21 +366,28 @@ const styles = StyleSheet.create({
   showDropdownContainer: { alignSelf: 'flex-end', marginTop: 10, marginBottom: 10 },
 
   tableContainer: { width: '100%', backgroundColor: '#FFFFFF', borderRadius: 10, overflow: 'hidden', marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3.84, elevation: 5 },
-  tableHeaderRow: { flexDirection: 'row', backgroundColor: '#8D8D8D', alignItems: 'center' },
-  tableHeaderSticky: { paddingVertical: 12, paddingHorizontal: 8, backgroundColor: '#8D8D8D', borderRightWidth: 1, borderRightColor: '#555', justifyContent: 'center', alignItems: 'center' },
+  
+  // Header styles
+  tableHeaderRow: { flexDirection: 'row', backgroundColor: '#8D8D8D' },
+  tableHeaderSticky: { width: 120, paddingVertical: 12, paddingHorizontal: 8, backgroundColor: '#8D8D8D', borderRightWidth: 1, borderRightColor: '#555', justifyContent: 'center', alignItems: 'center' },
   tableHeaderCell: { color: '#FFF', fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
   headerScrollable: { flex: 1 },
-  headerScrollableRow: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 0 },
+  headerScrollableRow: { flexDirection: 'row', paddingVertical: 12 },
+  scrollableHeaderCell: { width: 120, paddingHorizontal: 8, minWidth: 120 },
+
+  // Body styles
   tableBody: { flexDirection: 'row' },
-  leftColumn: { width: 110 },
-  leftCell: { paddingVertical: 12, justifyContent: 'center', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E9ECEF' },
-  tableRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E9ECEF' },
+  stickyColumn: { width: 120 },
+  stickyCell: { paddingVertical: 12, paddingHorizontal: 8, justifyContent: 'center', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#E9ECEF', borderRightWidth: 1, borderRightColor: '#E9ECEF' },
+  bodyScrollable: { flex: 1 },
+  scrollableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#E9ECEF' },
+  scrollableCell: { width: 120, paddingHorizontal: 8, minWidth: 120 },
+  
+  // Common styles
   tableRowEven: { backgroundColor: '#FFFFFF' },
   tableRowOdd: { backgroundColor: '#F8F9FA' },
-  tableCell: { fontSize: 12, color: '#495057', textAlign: 'center', padding: 4 },
-  stickyColWidth: { width: 110 },
-  colWidth: { width: 110 },
-  bodyScrollable: { flex: 1 },
+  tableCell: { fontSize: 12, color: '#495057', textAlign: 'center' },
+
 });
 
 export default UnplannedOrdersScreen;

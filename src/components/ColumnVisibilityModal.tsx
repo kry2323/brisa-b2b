@@ -91,7 +91,11 @@ const ColumnVisibilityModal = ({
             )}
           </View>
           
-          <ScrollView style={styles.columnList}>
+          <ScrollView 
+            style={styles.columnList}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={styles.columnListContent}
+          >
             {columns.map((column) => (
               <TouchableOpacity
                 key={column.key}
@@ -135,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '90%',
     maxWidth: 400,
-    maxHeight: '80%',
+    maxHeight: '85%',
   },
   fullWidthHeader: {
     backgroundColor: '#F2F2F2',
@@ -176,7 +180,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   columnList: {
-    padding: 20,
+    maxHeight: 300,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  columnListContent: {
+    paddingBottom: 20,
   },
   columnItem: {
     paddingVertical: 10,

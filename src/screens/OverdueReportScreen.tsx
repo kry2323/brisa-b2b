@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
@@ -24,27 +24,22 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
   const [customerCode, setCustomerCode] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   
-  // Column visibility state
+  // Column visibility state for Overdue Report
   const [columns, setColumns] = useState([
+    { key: 'invoiceDate', label: 'Invoice Date', visible: true },
+    { key: 'tyres', label: 'Tyres', visible: true },
+    { key: 'invoiceAmount', label: 'Invoice Amount', visible: true },
+    { key: 'curr', label: 'Curr.', visible: true },
+    { key: 'paymentTerm', label: 'Payment Term', visible: true },
     { key: 'customer', label: 'Customer', visible: false },
     { key: 'customerName', label: 'Customer Name', visible: false },
-    { key: 'shipToParty', label: 'Ship-to Party', visible: true },
-    { key: 'shipToPartyName', label: 'Ship-To Party Name', visible: true },
-    { key: 'customerOrder', label: 'Customer Order', visible: true },
-    { key: 'orderDate', label: 'Order Date', visible: true },
-    { key: 'plannedOrder', label: 'Planned Order', visible: false },
+    { key: 'plannedOrders', label: 'Planned Orders', visible: false },
     { key: 'invoice', label: 'Invoice', visible: false },
-    { key: 'invoiceDate', label: 'Invoice Date', visible: false },
-    { key: 'productCode', label: 'Product Code', visible: false },
-    { key: 'definition', label: 'Definition', visible: false },
-    { key: 'group', label: 'Group', visible: false },
-    { key: 'size', label: 'Size', visible: false },
-    { key: 'season', label: 'Season', visible: false },
-    { key: 'totalQuantity', label: 'Total Quantity', visible: false },
-    { key: 'netValue', label: 'Net Value', visible: false },
-    { key: 'currency', label: 'Currency', visible: false },
+    { key: 'partialPayment', label: 'Partial Payment', visible: false },
+    { key: 'remainAmount', label: 'Remain Amount', visible: false },
     { key: 'incoterm', label: 'Incoterm', visible: false },
-    { key: 'color', label: 'color', visible: false },
+    { key: 'dueDate', label: 'Due Date', visible: false },
+    { key: 'overdueDays', label: 'Overdue Days', visible: false },
   ]);
   
   // Modal states
@@ -183,10 +178,32 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
 
   // Pagination calculations
   const totalItems = sortedTableData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const effectiveItemsPerPage = itemsPerPage === -1 ? totalItems : itemsPerPage;
+  const totalPages = Math.max(1, Math.ceil(totalItems / effectiveItemsPerPage));
+  const startIndex = (currentPage - 1) * effectiveItemsPerPage;
+  const endIndex = itemsPerPage === -1 ? totalItems : startIndex + effectiveItemsPerPage;
   const paginatedData = sortedTableData.slice(startIndex, endIndex);
+
+  // Column visibility logic
+  const visibleColumns = useMemo(
+    () => columns.filter(c => c.visible),
+    [columns]
+  );
+  
+  // Sticky column logic
+  const stickyColumn = visibleColumns[0]; // First column is sticky
+  const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
+  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  
+  // Scroll sync refs
+  const headerScrollRef = useRef<any>(null);
+  const bodyScrollRef = useRef<any>(null);
+  
+  // Sync header scroll with body scroll
+  const syncHeaderFromBody = (event: any) => {
+    const x = event?.nativeEvent?.contentOffset?.x || 0;
+    headerScrollRef.current?.scrollTo({ x, animated: false });
+  };
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -314,12 +331,12 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
             </View>
           </View>
           
-          {/* Column Visibility Header - Full Width */}
+          {/* Column Visibility Header - Full Width (primary highlight) */}
           <TouchableOpacity 
-            style={styles.columnVisibilityHeader}
+            style={styles.columnVisibilityHeaderPrimary}
             onPress={() => setIsColumnVisibilityModalOpen(true)}
           >
-            <Text style={styles.columnVisibilityHeaderText}>Column Visibility</Text>
+            <Text style={styles.columnVisibilityHeaderPrimaryText}>Column Visibility</Text>
           </TouchableOpacity>
           
           {/* Show Dropdown */}
@@ -330,73 +347,105 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
             />
           </View>
           
-          {/* Table */}
+          {/* Table Section */}
           <View style={styles.tableContainer}>
-            <View style={styles.tableHeader}>
-              <View style={styles.leadIconHeader} />
-              {columns.filter(col => col.visible).map((column) => (
-                <TouchableOpacity
-                  key={column.key}
-                  style={styles.tableHeaderCellContainer}
-                  onPress={() => handleColumnSort(column.key)}
-                >
-                  <Text style={styles.tableHeaderCell}>
-                    {column.label}
-                  </Text>
-                  {sortColumn === column.key && (
-                    <Text style={styles.sortIcon}>
-                      {sortDirection === 'asc' ? '▲' : '▼'}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))}
+            {/* Table Header */}
+            <View style={styles.tableHeaderRow}>
+              <View style={styles.tableHeaderSticky}>
+                <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
+              </View>
+              <ScrollView 
+                ref={headerScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+                style={styles.headerScrollable}
+              >
+                <View style={styles.headerScrollableRow}>
+                  {scrollableColumns.map((col) => (
+                    <TouchableOpacity
+                      key={col.key}
+                      style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}
+                      onPress={() => handleColumnSort(col.key)}
+                    >
+                      <Text style={styles.tableHeaderCellText}>{col.label}</Text>
+                      {sortColumn === col.key && (
+                        <Text style={styles.sortIcon}>
+                          {sortDirection === 'asc' ? '▲' : '▼'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
             
-            {/* Scrollable Table Body */}
-            <ScrollView 
-              style={styles.tableBodyScroll} 
-              showsVerticalScrollIndicator={true}
-              nestedScrollEnabled={true}
-              scrollEventThrottle={16}
-            >
-              {paginatedData.length > 0 ? (
-                paginatedData.map((item, index) => (
-                  <View
-                    key={item.customerOrder || index}
-                    style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd, styles.clickableRow]}
+            {/* Table Body */}
+            <View style={styles.tableBody}>
+              <View style={styles.stickyColumn}>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => handleRowClick(item)}
                   >
-                    <TouchableOpacity style={styles.leadIcon} onPress={() => handleRowClick(item)}>
-                      <Ionicons name="search" size={18} color="#D53439" />
-                    </TouchableOpacity>
-                    {columns.filter(col => col.visible).map((column) => (
-                      column.key === 'invoice' ? (
-                        <TouchableOpacity key={column.key} style={{ flex: 1 }} onPress={handleInvoiceDownload}>
-                          <Text style={[styles.tableCell, styles.linkText]}>{item[column.key]}</Text>
+                    <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                      {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <ScrollView 
+                ref={bodyScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={isScrollable} 
+                scrollEnabled={isScrollable}
+                onScroll={syncHeaderFromBody}
+                scrollEventThrottle={16}
+                style={styles.bodyScrollable}
+              >
+                <View>
+                  {paginatedData.map((item, index) => (
+                    <View
+                      key={index}
+                      style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    >
+                      {scrollableColumns.map((col) => (
+                        <TouchableOpacity 
+                          key={col.key} 
+                          style={styles.scrollableCell}
+                          onPress={() => handleRowClick(item)}
+                        >
+                          {col.key === 'invoice' ? (
+                            <TouchableOpacity onPress={handleInvoiceDownload}>
+                              <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
+                                {String((item as Record<string, any>)[col.key] ?? '')}
+                              </Text>
+                            </TouchableOpacity>
+                          ) : col.key === 'plannedOrders' ? (
+                            isPlannedOrderEligible((item as Record<string, any>)[col.key]) ? (
+                              <TouchableOpacity onPress={() => handlePlannedOrderDraftDownload((item as Record<string, any>)[col.key])}>
+                                <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
+                                  {String((item as Record<string, any>)[col.key] ?? '')}
+                                </Text>
+                              </TouchableOpacity>
+                            ) : (
+                              <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                                {String((item as Record<string, any>)[col.key] ?? '')}
+                              </Text>
+                            )
+                          ) : (
+                            <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                              {String((item as Record<string, any>)[col.key] ?? '')}
+                            </Text>
+                          )}
                         </TouchableOpacity>
-                      ) : column.key === 'plannedOrder' ? (
-                        isPlannedOrderEligible(item[column.key]) ? (
-                          <TouchableOpacity key={column.key} style={{ flex: 1 }} onPress={() => handlePlannedOrderDraftDownload(item[column.key])}>
-                            <Text style={[styles.tableCell, styles.linkText]}>{item[column.key]}</Text>
-                          </TouchableOpacity>
-                        ) : (
-                          <Text key={column.key} style={styles.tableCell}>
-                            {item[column.key]}
-                          </Text>
-                        )
-                      ) : (
-                        <Text key={column.key} style={styles.tableCell}>
-                          {item[column.key]}
-                        </Text>
-                      )
-                    ))}
-                  </View>
-                ))
-              ) : (
-                <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No Data</Text>
+                      ))}
+                    </View>
+                  ))}
                 </View>
-              )}
-            </ScrollView>
+              </ScrollView>
+            </View>
           </View>
           
           {/* Pagination */}
@@ -424,8 +473,7 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
         onClose={() => setIsColumnVisibilityModalOpen(false)}
         columns={columns}
         onColumnToggle={handleColumnToggle}
-        showValue={showValue}
-        onShowValueChange={setShowValue}
+        maxVisibleColumns={null}
       />
       
       {/* Row Detail Modal */}
@@ -592,6 +640,27 @@ const styles = StyleSheet.create({
     color: '#333',
     fontFamily: 'MuseoSans-Bold',
   },
+  columnVisibilityHeaderPrimary: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DA3C42',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3.84,
+    elevation: 3,
+  },
+  columnVisibilityHeaderPrimaryText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#DA3C42',
+    fontFamily: 'MuseoSans-Bold',
+  },
   showDropdownContainer: {
     marginBottom: 10,
   },
@@ -611,6 +680,41 @@ const styles = StyleSheet.create({
   },
   tableBodyScroll: {
     maxHeight: 400,
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#8D8D8D',
+  },
+  tableHeaderSticky: {
+    width: 90,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    backgroundColor: '#8D8D8D',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerScrollable: {
+    flex: 1,
+  },
+  headerScrollableRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+  },
+  scrollableHeaderCell: {
+    width: 90,
+    paddingHorizontal: 8,
+    minWidth: 90,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tableHeaderCellText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Bold',
   },
   tableHeader: {
     flexDirection: 'row',
@@ -639,6 +743,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#007AFF',
     marginLeft: 5,
+  },
+  tableBody: {
+    flexDirection: 'row',
+  },
+  stickyColumn: {
+    width: 90,
+  },
+  stickyCell: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
+  },
+  bodyScrollable: {
+    flex: 1,
+  },
+  scrollableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+  },
+  scrollableCell: {
+    width: 90,
+    paddingHorizontal: 8,
+    minWidth: 90,
   },
   tableRow: {
     flexDirection: 'row',

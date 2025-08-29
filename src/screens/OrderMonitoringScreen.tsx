@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
@@ -22,57 +22,62 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
   const [orderNumber, setOrderNumber] = useState('');
   const [status, setStatus] = useState('');
   
-  // Columns state (dynamic, unlimited visibility)
+  // Columns state for Order Monitoring
   const [columns, setColumns] = useState([
-    { key: 'orderNo', label: 'Order No', visible: true }, // sticky
     { key: 'shipToParty', label: 'Ship-to Party', visible: true },
-    { key: 'orderQty', label: 'Order Qty', visible: true },
+    { key: 'orderNo', label: 'Order No', visible: true },
+    { key: 'orderQty', label: 'Order Qty.', visible: true },
     { key: 'invoicedQty', label: 'Invoiced Qty', visible: true },
     { key: 'notInvoicedQty', label: 'Not Invoiced Qty', visible: true },
     { key: 'orderDate', label: 'Order Date', visible: true },
-    { key: 'status', label: 'Status', visible: true },
-    { key: 'amount', label: 'Amount', visible: true },
-    { key: 'currency', label: 'Currency', visible: true },
-    { key: 'incoterm', label: 'Incoterm', visible: true },
+    { key: 'shipTo', label: 'Ship-To', visible: false },
+    { key: 'item', label: 'Item', visible: false },
+    { key: 'purchaseOrderNo', label: 'Purchase Order No', visible: false },
+    { key: 'material', label: 'Material', visible: false },
+    { key: 'materialDescript', label: 'Material Descript', visible: false },
+    { key: 'invoiceNo', label: 'Invoice No', visible: false },
+    { key: 'season', label: 'Season', visible: false },
+    { key: 'reqDeliveryDate', label: 'Req. Delivery Date', visible: false },
   ]);
 
-  // Rich mock data
+  // Rich mock data for Order Monitoring
   type RowType = {
-    orderNo: string;
     shipToParty: string;
+    orderNo: string;
     orderQty: number;
     invoicedQty: number;
     notInvoicedQty: number;
     orderDate: string;
-    status: string;
-    amount: string;
-    currency: string;
-    incoterm: string;
+    shipTo: string;
+    item: string;
+    purchaseOrderNo: string;
+    material: string;
+    materialDescript: string;
+    invoiceNo: string;
+    season: string;
+    reqDeliveryDate: string;
   };
 
-  const [tableData, setTableData] = useState<RowType[]>(
+  const [tableData] = useState<RowType[]>(
     Array.from({ length: 30 }).map((_, i): RowType => ({
-      orderNo: `20000${61873 + i}`,
       shipToParty: 'SC RADBURG SOFT SRL',
-      orderQty: Math.floor(Math.random() * 50) + 1,
-      invoicedQty: Math.floor(Math.random() * 50),
-      notInvoicedQty: Math.floor(Math.random() * 15),
-      orderDate: '21/09/2023',
-      status: i % 3 === 0 ? 'Processing' : i % 3 === 1 ? 'Shipped' : 'Pending',
-      amount: `€${(Math.random() * 10000).toFixed(0)}`,
-      currency: 'EUR',
-      incoterm: 'CIF',
+      orderNo: `ORD-${2024000 + i}`,
+      orderQty: Math.floor(Math.random() * 1000) + 100,
+      invoicedQty: Math.floor(Math.random() * 800) + 50,
+      notInvoicedQty: Math.floor(Math.random() * 200) + 10,
+      orderDate: `${Math.floor(Math.random() * 28) + 1}/${Math.floor(Math.random() * 12) + 1}/2024`,
+      shipTo: `SHIP-${1000 + i}`,
+      item: `ITEM-${1000 + i}`,
+      purchaseOrderNo: `PO-${2024000 + i}`,
+      material: `MAT-${5000 + i}`,
+      materialDescript: `Tire Material Description ${i + 1}`,
+      invoiceNo: `INV-${2024000 + i}`,
+      season: ['Spring', 'Summer', 'Fall', 'Winter'][i % 4],
+      reqDeliveryDate: `${Math.floor(Math.random() * 28) + 1}/${Math.floor(Math.random() * 12) + 1}/2024`,
     }))
   );
 
-  // Refs to synchronize horizontal scroll between header and body
-  const headerScrollRef = useRef<any>(null);
-  const bodyScrollRef = useRef<any>(null);
 
-  const syncHeaderFromBody = (event: any) => {
-    const x = event?.nativeEvent?.contentOffset?.x || 0;
-    headerScrollRef.current?.scrollTo({ x, animated: false });
-  };
 
   // Column visibility handlers
   const [isColumnVisibilityModalOpen, setIsColumnVisibilityModalOpen] = useState(false);
@@ -80,18 +85,34 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
     setColumns((prev) => prev.map((c) => (c.key === key ? { ...c, visible: !c.visible } : c)));
   };
 
-  const visibleNonStickyColumns = useMemo(
-    () => columns.filter((c, idx) => idx !== 0 && c.visible),
+  const visibleColumns = useMemo(
+    () => columns.filter(c => c.visible),
     [columns]
   );
 
+  // Sticky column logic
+  const stickyColumn = visibleColumns[0]; // First column is sticky
+  const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
+  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  
+  // Scroll sync refs
+  const headerScrollRef = useRef<any>(null);
+  const bodyScrollRef = useRef<any>(null);
+  
+  // Sync header scroll with body scroll
+  const syncHeaderFromBody = (event: any) => {
+    const x = event?.nativeEvent?.contentOffset?.x || 0;
+    headerScrollRef.current?.scrollTo({ x, animated: false });
+  };
+
   // Pagination state (default 100 Show)
-  const [itemsPerPage, setItemsPerPage] = useState<number>(100);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(100); // -1 means "Show All"
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalItems = tableData.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const effectiveItemsPerPage = itemsPerPage === -1 ? totalItems : itemsPerPage;
+  const totalPages = Math.max(1, Math.ceil(totalItems / effectiveItemsPerPage));
+  const startIndex = (currentPage - 1) * effectiveItemsPerPage;
+  const endIndex = itemsPerPage === -1 ? totalItems : startIndex + effectiveItemsPerPage;
   const paginatedData = tableData.slice(startIndex, endIndex);
 
   const handleItemsPerPageChange = (value: number) => {
@@ -178,12 +199,20 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
     }
   };
 
+  const handlePrevious = () => {
+    navigation.navigate('OrderMonitoring', { reportData });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Order Monitoring</Text>
-      </View>
+             <View style={styles.titleContainer}>
+         <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
+           <AntDesign name="arrowleft" size={20} color="#DA3C42" />
+           <Text style={styles.previousButtonText}>Previous</Text>
+         </TouchableOpacity>
+         <Text style={styles.title}>Order Monitoring</Text>
+       </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           
@@ -269,70 +298,68 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
             <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} />
           </View>
 
-          {/* Table Section */}
-          <View style={styles.tableContainer}>
-            {/* Header Row with sticky left column and a synced horizontal scroller */}
-            <View style={styles.tableHeaderRow}>
-              <View style={[styles.tableHeaderSticky, styles.stickyColWidth]}>
-                <Text style={styles.tableHeaderCell}>{columns[0].label}</Text>
-              </View>
-              <ScrollView
-                ref={headerScrollRef}
-                horizontal
-                showsHorizontalScrollIndicator={true}
-                scrollEnabled={false}
-                scrollEventThrottle={16}
-                bounces={false}
-                overScrollMode="never"
-                style={styles.headerScrollable}
-              >
-                <View style={styles.headerScrollableRow}>
-                  {visibleNonStickyColumns.map((col) => (
-                    <Text key={col.key} style={[styles.tableHeaderCell, styles.colWidth]}>{col.label}</Text>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
+                     {/* Table */}
+           <View style={styles.tableContainer}>
+             {/* Table Header */}
+             <View style={styles.tableHeaderRow}>
+               <View style={styles.tableHeaderSticky}>
+                 <Text style={styles.tableHeaderCell}>{stickyColumn?.label}</Text>
+               </View>
+               <ScrollView 
+                 ref={headerScrollRef}
+                 horizontal 
+                 showsHorizontalScrollIndicator={false}
+                 scrollEnabled={false}
+                 style={styles.headerScrollable}
+               >
+                 <View style={styles.headerScrollableRow}>
+                   {scrollableColumns.map((col) => (
+                     <Text key={col.key} style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}>{col.label}</Text>
+                   ))}
+                 </View>
+               </ScrollView>
+             </View>
 
-            {/* Body with sticky left column and horizontally scrollable right side */}
-            <View style={styles.tableBody}>
-              <View style={styles.leftColumn}>
-                {paginatedData.map((item, index) => (
-                  <View
-                    key={index}
-                    style={[styles.leftCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                  >
-                    <Text style={styles.tableCell}>{item.orderNo}</Text>
-                  </View>
-                ))}
-              </View>
-              <ScrollView
-                ref={bodyScrollRef}
-                horizontal
-                showsHorizontalScrollIndicator={true}
-                onScroll={syncHeaderFromBody}
-                scrollEventThrottle={16}
-                bounces={false}
-                overScrollMode="never"
-                style={styles.bodyScrollable}
-              >
-                <View>
-                  {paginatedData.map((item, index) => (
-                    <View
-                      key={index}
-                      style={[styles.tableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                    >
-                      {visibleNonStickyColumns.map((col) => (
-                        <Text key={col.key} style={[styles.tableCell, styles.colWidth]}>
-                          {String((item as Record<string, any>)[col.key] ?? '')}
-                        </Text>
-                      ))}
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            </View>
-          </View>
+             {/* Table Body */}
+             <View style={styles.tableBody}>
+               <View style={styles.stickyColumn}>
+                 {paginatedData.map((item, index) => (
+                   <View
+                     key={index}
+                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                   >
+                     <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                     </Text>
+                   </View>
+                 ))}
+               </View>
+               <ScrollView 
+                 ref={bodyScrollRef}
+                 horizontal 
+                 showsHorizontalScrollIndicator={isScrollable} 
+                 scrollEnabled={isScrollable}
+                 onScroll={syncHeaderFromBody}
+                 scrollEventThrottle={16}
+                 style={styles.bodyScrollable}
+               >
+                 <View>
+                   {paginatedData.map((item, index) => (
+                     <View
+                       key={index}
+                       style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                     >
+                       {scrollableColumns.map((col) => (
+                         <Text key={col.key} style={[styles.tableCell, styles.scrollableCell]} numberOfLines={1} ellipsizeMode="tail">
+                           {String((item as Record<string, any>)[col.key] ?? '')}
+                         </Text>
+                       ))}
+                     </View>
+                   ))}
+                 </View>
+               </ScrollView>
+             </View>
+           </View>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -483,9 +510,9 @@ const styles = StyleSheet.create({
   tableHeaderRow: {
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
-    alignItems: 'center',
   },
   tableHeaderSticky: {
+    width: 120,
     paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#8D8D8D',
@@ -500,6 +527,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     fontFamily: 'MuseoSans-Bold',
+  },
+  headerScrollable: {
+    flex: 1,
+  },
+  headerScrollableRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+  },
+  scrollableHeaderCell: {
+    width: 120,
+    paddingHorizontal: 8,
+    minWidth: 120,
   },
   columnVisibilityHeader: {
     width: '100%',
@@ -568,56 +607,60 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  headerScrollable: {
-    flex: 1,
-  },
-  headerScrollableRow: {
+  previousButton: {
     flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 0,
+    alignItems: 'center',
+    marginRight: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#F8F8F8',
+  },
+  previousButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#DA3C42',
+    marginLeft: 4,
   },
   tableBody: {
     flexDirection: 'row',
   },
-  leftColumn: {
-    width: 110,
+  stickyColumn: {
+    width: 120,
   },
-  leftCell: {
+  stickyCell: {
     paddingVertical: 12,
+    paddingHorizontal: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
   },
-  tableRow: {
+  bodyScrollable: {
+    flex: 1,
+  },
+  scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
-  tableRowEven: {
-    backgroundColor: '#FFFFFF',
+  scrollableCell: {
+    width: 120,
+    paddingHorizontal: 8,
+    minWidth: 120,
   },
-  tableRowOdd: {
-    backgroundColor: '#F8F9FA',
-  },
-  tableCell: {
-    fontSize: 12,
-    color: '#495057',
-    textAlign: 'center',
+  // Common styles
+  tableRowEven: { backgroundColor: '#FFFFFF' },
+  tableRowOdd: { backgroundColor: '#F8F9FA' },
+  tableCell: { 
+    fontSize: 12, 
+    color: '#495057', 
+    textAlign: 'center', 
     fontFamily: 'MuseoSans-Regular',
-    padding: 4,
-  },
-  stickyColWidth: {
-    width: 110,
-  },
-  colWidth: {
-    width: 110,
-  },
-  bodyScrollable: {
-    flex: 1,
   },
 });
 

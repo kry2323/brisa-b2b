@@ -7,7 +7,7 @@ interface ShowDropdownProps {
   options?: number[];
 }
 
-const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 500] }: ShowDropdownProps) => {
+const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 500, -1] }: ShowDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -16,20 +16,16 @@ const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 5
         style={styles.dropdownButton}
         onPress={() => setIsOpen(!isOpen)}
       >
-        <Text style={styles.dropdownText}>{value} Show</Text>
+        <Text style={styles.dropdownText}>{value === -1 ? 'Show All' : `${value} Show`}</Text>
         <Text style={styles.dropdownIcon}>▼</Text>
       </TouchableOpacity>
       
-      <Modal
-        visible={isOpen}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsOpen(false)}
-      >
-        <TouchableOpacity 
-          style={styles.modalOverlay}
-          onPress={() => setIsOpen(false)}
-        >
+      {isOpen && (
+        <>
+          <TouchableOpacity 
+            style={styles.overlay}
+            onPress={() => setIsOpen(false)}
+          />
           <View style={styles.dropdownContent}>
             <ScrollView>
               {options.map((option) => (
@@ -48,14 +44,14 @@ const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 5
                     styles.dropdownItemText,
                     value === option && styles.dropdownItemTextSelected
                   ]}>
-                    {option} Show
+                    {option === -1 ? 'Show All' : `${option} Show`}
                   </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </>
+      )}
     </View>
   );
 };
@@ -63,6 +59,7 @@ const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 5
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
+    zIndex: 1000,
   },
   dropdownButton: {
     flexDirection: 'row',
@@ -85,21 +82,23 @@ const styles = StyleSheet.create({
     color: '#666',
     marginLeft: 8,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    paddingTop: 100,
-    paddingLeft: 20,
-  },
   dropdownContent: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
     backgroundColor: '#FFFFFF',
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#DDD',
     maxHeight: 200,
     minWidth: 120,
+    zIndex: 1001,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   dropdownItem: {
     paddingHorizontal: 12,
@@ -116,6 +115,15 @@ const styles = StyleSheet.create({
   },
   dropdownItemTextSelected: {
     color: '#FFFFFF',
+  },
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    zIndex: 999,
   },
 });
 
