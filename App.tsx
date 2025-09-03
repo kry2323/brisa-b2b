@@ -55,6 +55,8 @@ function LoginScreen({ navigation }: any) {
 function DashboardScreen({ navigation }: any) {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
   const [overdueCount, setOverdueCount] = useState<number>(0);
+  const [maxOverdueDays, setMaxOverdueDays] = useState<string | null>(null);
+  const [overdueCurrency, setOverdueCurrency] = useState<string | null>(null);
 
   // Handle navigation to report screens
   const handleNavigateToReport = (reportData: any) => {
@@ -99,12 +101,36 @@ function DashboardScreen({ navigation }: any) {
   };
 
   useEffect(() => {
-    // Load overdue report count once on mount
+    // Load overdue stats once on mount
     try {
       const data = getOverdueReportData();
-      setOverdueCount(Array.isArray(data) ? data.length : 0);
+      const items = Array.isArray(data) ? data : [];
+      setOverdueCount(items.length);
+      if (items.length > 0) {
+        // Find max overdue days
+        const maxDays = items.reduce((max, it) => {
+          const v = parseInt(String((it as any).overdueDays || '0'), 10) || 0;
+          return Math.max(max, v);
+        }, 0);
+        setMaxOverdueDays(String(maxDays));
+
+        // Choose dominant currency among overdue items
+        const currencyCounts: Record<string, number> = {};
+        for (const it of items) {
+          const c = String((it as any).curr || '').trim();
+          if (!c) continue;
+          currencyCounts[c] = (currencyCounts[c] || 0) + 1;
+        }
+        const dominant = Object.entries(currencyCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+        setOverdueCurrency(dominant);
+      } else {
+        setMaxOverdueDays(null);
+        setOverdueCurrency(null);
+      }
     } catch (e) {
       setOverdueCount(0);
+      setMaxOverdueDays(null);
+      setOverdueCurrency(null);
     }
   }, []);
 
@@ -122,7 +148,7 @@ function DashboardScreen({ navigation }: any) {
             onPress={() => navigation.navigate('OverdueReport', { reportData: { id: 'overdue-report' } })}
           />
         )}
-        <Snap />
+        <Snap overdueDays={maxOverdueDays} currency={overdueCurrency} />
         <Footer />
       </ScrollView>
       <BottomNavigation 

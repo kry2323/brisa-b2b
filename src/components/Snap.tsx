@@ -2,7 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const Snap = () => {
+type SnapProps = {
+  overdueDays?: string | null;
+  currency?: string | null;
+};
+
+const Snap = ({ overdueDays, currency }: SnapProps) => {
   const dashboardItems = [
     { id: 1, title: 'Ready Tyres', value: '0', icon: 'checkmark-circle' },
     { id: 2, title: 'Not Ready Tyres', value: '0', icon: 'close-circle' },
@@ -28,6 +33,16 @@ const Snap = () => {
           </View>
         </View>
       </View>
+      {(overdueDays || currency) && (
+        <View style={styles.overdueRow}>
+          {overdueDays ? (
+            <Text style={styles.overdueText}>Overdue Days: {overdueDays}</Text>
+          ) : null}
+          {currency ? (
+            <Text style={[styles.overdueText, styles.overdueCurrency]}>Curr.: {currency}</Text>
+          ) : null}
+        </View>
+      )}
       
       <View style={styles.dashboardContainer}>
         <View style={styles.dashboardGrid}>
@@ -105,6 +120,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+  },
+  overdueRow: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    flexDirection: 'row',
+    gap: 16,
+  },
+  overdueText: {
+    color: '#D53439',
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  overdueCurrency: {
+    // keep same red per requirement
   },
   headerTitle: {
     fontSize: 18,

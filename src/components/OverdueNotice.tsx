@@ -14,8 +14,8 @@ const OverdueNotice: React.FC<OverdueNoticeProps> = ({ count, onPress }) => {
       <View style={styles.container}>
         <Text style={styles.icon}>⏰</Text>
         <View style={styles.texts}>
-          <Text style={styles.title}>Vadesi Geçmiş Rapor</Text>
-          <Text style={styles.subtitle}>{count} kayıt bulundu. Detay için dokunun.</Text>
+          <Text style={styles.title}>Overdue Report</Text>
+          <Text style={styles.subtitle}>{count} records found. Tap for details.</Text>
         </View>
       </View>
     </TouchableOpacity>
