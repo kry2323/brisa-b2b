@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, Platform, NativeModules } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import ViewShot, { captureRef } from 'react-native-view-shot';
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -17,7 +16,12 @@ interface RowDetailModalProps {
 const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalProps) => {
   const [isExportOptionsOpen, setIsExportOptionsOpen] = useState(false);
   const scrollRef = useRef<any>(null);
-  const viewShotRef = useRef<ViewShot | null>(null);
+  const viewShotRef = useRef<any>(null);
+
+  // Some environments (e.g., Expo Go) do not include react-native-view-shot.
+  // Detect availability at runtime to avoid TurboModuleRegistry errors.
+  const isViewShotAvailable = !!(NativeModules as any)?.RNCViewShot;
+  const ViewShotComponent: any = isViewShotAvailable ? require('react-native-view-shot').default : View;
 
   const saveToDownloadsAndroid = async (
     localUri: string,
@@ -68,9 +72,9 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{ paddingBottom: 20 }}
           >
-            <ViewShot
+            <ViewShotComponent
               ref={viewShotRef}
-              options={{ format: 'jpg', quality: 0.95, result: 'tmpfile', backgroundColor: '#FFFFFF' }}
+              {...(isViewShotAvailable ? { options: { format: 'jpg', quality: 0.95, result: 'tmpfile', backgroundColor: '#FFFFFF' } } : {})}
               style={styles.captureContainer}
               collapsable={false}
             >
@@ -118,7 +122,7 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
                   <Text style={styles.closeDetailButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
-            </ViewShot>
+            </ViewShotComponent>
           </ScrollView>
         </View>
       </View>
@@ -138,6 +142,11 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
           <TouchableOpacity
             style={styles.exportAction}
             onPress={async () => {
+              if (!isViewShotAvailable) {
+                Alert.alert('Desteklenmiyor', 'Bu cihazda ekran görüntüsü alma desteklenmiyor.');
+                setIsExportOptionsOpen(false);
+                return;
+              }
               try {
                 const uriTmp: string = await viewShotRef.current?.capture?.();
                 const fileName = `RowDetail-${Date.now()}.jpg`;
@@ -163,6 +172,11 @@ const RowDetailModal = ({ visible, onClose, rowData, columns }: RowDetailModalPr
           <TouchableOpacity
             style={styles.exportAction}
             onPress={async () => {
+              if (!isViewShotAvailable) {
+                Alert.alert('Desteklenmiyor', 'Bu cihazda ekran görüntüsü alma desteklenmiyor.');
+                setIsExportOptionsOpen(false);
+                return;
+              }
               try {
                 const uriTmp: string = await viewShotRef.current?.capture?.();
                 const canShare = await Sharing.isAvailableAsync();
