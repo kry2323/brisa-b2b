@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } fr
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { t } from '../utils/translations';
 
 const FinancialReportsParentScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -11,24 +12,59 @@ const FinancialReportsParentScreen = ({ route, navigation }: any) => {
   const financialReportOptions = [
     {
       id: 'brisa-payments',
-      title: 'Brisa Payments',
-      description: 'View and manage Brisa payment reports',
-      icon: '💳',
+      title: t('screens.brisaPayments.title'),
+      description: t('common.viewAndManageBrisaPaymentReports'),
+      icon: t('common.brisaPaymentsIcon'),
       screen: 'BrisaPayments'
     },
     {
       id: 'overdue-report',
-      title: 'Overdue Report',
-      description: 'View overdue payment reports',
-      icon: '⏰',
+      title: t('screens.overdueReport.title'),
+      description: t('common.viewOverduePaymentReports'),
+      icon: t('common.overdueReportIcon'),
       screen: 'OverdueReport'
     },
     {
       id: 'account-transactions',
-      title: 'Account Transactions',
-      description: 'View account transaction history',
-      icon: '📊',
+      title: t('screens.accountTransactions.title'),
+      description: t('common.viewAccountTransactionHistory'),
+      icon: t('common.accountTransactionsIcon'),
       screen: 'AccountTransactions'
+    },
+    {
+      id: 'shipments-documents',
+      title: t('screens.shipmentsDocuments.title'),
+      description: t('common.viewShipmentDocuments'),
+      icon: '📦',
+      screen: 'ShipmentsDocuments'
+    },
+    {
+      id: 'sales-report',
+      title: t('screens.salesReport.title'),
+      description: t('common.viewSalesReports'),
+      icon: '📈',
+      screen: 'SalesReport'
+    },
+    {
+      id: 'order-monitoring',
+      title: t('screens.orderMonitoring.title'),
+      description: t('common.monitorOrderStatus'),
+      icon: '📋',
+      screen: 'OrderMonitoring'
+    },
+    {
+      id: 'tyres-on-the-way',
+      title: t('screens.tyresOnTheWay.title'),
+      description: t('common.trackTyresInTransit'),
+      icon: '🚚',
+      screen: 'TyresOnTheWay'
+    },
+    {
+      id: 'pos-material-tracking',
+      title: t('screens.posMaterialTracking.title'),
+      description: t('common.trackPOSMaterials'),
+      icon: '🏪',
+      screen: 'POSMaterialTracking'
     }
   ];
 

@@ -362,7 +362,7 @@ const SalesReportScreen = ({ route, navigation }: any) => {
                 data={filteredTableData}
                 visibleColumns={columns}
                 fileName={`SalesReport_${new Date().toISOString().split('T')[0]}`}
-                buttonText="Excel İndir"
+
                 buttonStyle={styles.exportButton}
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
               />
@@ -372,7 +372,7 @@ const SalesReportScreen = ({ route, navigation }: any) => {
                 onPress={() => setIsEmailModalOpen(true)}
               >
                 <MaterialIcons name="email" size={18} color="#FFFFFF" style={{marginRight: 8}} />
-                <Text style={styles.emailButtonText}>Mail Gönder</Text>
+                <Text style={styles.emailButtonText}>Send via Email</Text>
               </TouchableOpacity>
             </View>
           </View>

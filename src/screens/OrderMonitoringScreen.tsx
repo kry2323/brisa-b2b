@@ -304,7 +304,7 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
                 data={paginatedData}
                 visibleColumns={columns}
                 fileName={`OrderMonitoring_${new Date().toISOString().split('T')[0]}`}
-                buttonText="Excel İndir"
+
                 buttonStyle={styles.exportButton}
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
               />

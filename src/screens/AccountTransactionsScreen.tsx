@@ -319,7 +319,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                 data={filteredTableData}
                 visibleColumns={columns}
                 fileName={`AccountTransactions_${new Date().toISOString().split('T')[0]}`}
-                buttonText="Excel İndir"
+
                 buttonStyle={styles.exportButton}
               />
               
@@ -327,7 +327,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                 style={styles.emailButton} 
                 onPress={() => setIsEmailModalOpen(true)}
               >
-                <Text style={styles.emailButtonText}>Mail Gönder</Text>
+                <Text style={styles.emailButtonText}>Send via Email</Text>
               </TouchableOpacity>
             </View>
           </View>
