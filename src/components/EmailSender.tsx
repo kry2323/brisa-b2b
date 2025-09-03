@@ -8,9 +8,12 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as XLSX from 'xlsx';
+import { Ionicons } from '@expo/vector-icons';
+import { t } from '../utils/translations';
 
 interface EmailSenderProps {
   visible: boolean;
@@ -31,22 +34,23 @@ const EmailSender: React.FC<EmailSenderProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const validateEmails = (emails: string): boolean => {
-    // Split by comma, semicolon, or space
+    if (!emails.trim()) {
+      return false;
+    }
+
     const emailList = emails.split(/[,;\s]+/).filter(email => email.trim() !== '');
-    
-    // Simple email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     
     // Check if all emails are valid
     const allValid = emailList.every(email => emailRegex.test(email.trim()));
     
     if (!allValid) {
-      Alert.alert('Hata', 'Lütfen geçerli e-posta adresleri girin.');
+      Alert.alert(t('common.error'), t('components.emailSender.validationError'));
       return false;
     }
     
     if (emailList.length === 0) {
-      Alert.alert('Hata', 'Lütfen en az bir e-posta adresi girin.');
+      Alert.alert(t('common.error'), t('components.emailSender.emptyEmailError'));
       return false;
     }
     
@@ -102,13 +106,13 @@ const EmailSender: React.FC<EmailSenderProps> = ({
       const formattedEmails = emailList.join(', ');
       
       Alert.alert(
-        'Başarılı',
-        `Excel raporu şu adreslere gönderildi: ${formattedEmails}`,
-        [{ text: 'Tamam', onPress: onClose }]
+        t('common.success'),
+        t('components.emailSender.successMessage', { emails: formattedEmails }),
+        [{ text: t('common.ok'), onPress: onClose }]
       );
     } catch (error) {
       console.error('Email sending error:', error);
-      Alert.alert('Hata', 'E-posta gönderilirken bir hata oluştu.');
+      Alert.alert(t('common.error'), t('components.emailSender.errorMessage'));
     } finally {
       setIsLoading(false);
     }
@@ -123,16 +127,16 @@ const EmailSender: React.FC<EmailSenderProps> = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Raporu E-posta ile Gönder</Text>
+          <Text style={styles.modalTitle}>{t('components.emailSender.title')}</Text>
           
           <Text style={styles.label}>
-            E-posta Adresleri (virgül veya noktalı virgül ile ayırın)
+            {t('components.emailSender.emailAddresses')}
           </Text>
           <TextInput
             style={styles.input}
             value={emailAddresses}
             onChangeText={setEmailAddresses}
-            placeholder="ornek@firma.com, ornek2@firma.com"
+            placeholder={t('components.emailSender.placeholder')}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -144,7 +148,7 @@ const EmailSender: React.FC<EmailSenderProps> = ({
               onPress={onClose}
               disabled={isLoading}
             >
-              <Text style={styles.cancelButtonText}>İptal</Text>
+              <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -155,7 +159,7 @@ const EmailSender: React.FC<EmailSenderProps> = ({
               {isLoading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.sendButtonText}>Gönder</Text>
+                <Text style={styles.sendButtonText}>{t('common.send')}</Text>
               )}
             </TouchableOpacity>
           </View>

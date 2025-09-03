@@ -1,11 +1,13 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
 import DatePicker from '../components/DatePicker';
 import ShowDropdown from '../components/ShowDropdown';
 import ExcelExport from '../components/ExcelExport';
 import Pagination from '../components/Pagination';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import Header from '../components/Header';
@@ -21,6 +23,9 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('28/07/2025');
   const [orderNumber, setOrderNumber] = useState('');
   const [status, setStatus] = useState('');
+  const [customerCode, setCustomerCode] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Columns state for Order Monitoring
   const [columns, setColumns] = useState([
@@ -93,7 +98,7 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
   // Sticky column logic
   const stickyColumn = visibleColumns[0]; // First column is sticky
   const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
-  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  const isScrollable = scrollableColumns.length >= 2; // 2 veya daha fazla scrollable column varsa scroll etkin
   
   // Scroll sync refs
   const headerScrollRef = useRef<any>(null);
@@ -158,7 +163,6 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
-    console.log('Listing with filters:', { startDate, endDate, orderNumber, status });
     // For now we'll just use the mock data already set
   };
 
@@ -195,7 +199,8 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
@@ -206,13 +211,19 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
-             <View style={styles.titleContainer}>
-         <TouchableOpacity style={styles.previousButton} onPress={handlePrevious}>
-           <AntDesign name="arrowleft" size={20} color="#DA3C42" />
-           <Text style={styles.previousButtonText}>Previous</Text>
-         </TouchableOpacity>
-         <Text style={styles.title}>Order Monitoring</Text>
-       </View>
+      <View style={styles.titleContainer}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{
+            padding: 8,
+            marginRight: 10,
+            marginTop: -10,
+          }}
+        >
+          <Text style={{fontSize: 28, color: '#333', marginRight: -10}}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Order Monitoring</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           
@@ -261,6 +272,24 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
               </View>
             </View>
             
+            {/* Select Customer Row - full width */}
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : customerCode}
+                    placeholder="Type or select a customer"
+                    onChangeText={(txt) => { setSelectedCustomer(null); setCustomerCode(txt); }}
+                  />
+                  <TouchableOpacity style={{ height: 38, paddingHorizontal: 10, backgroundColor: '#F39C12', marginLeft: 8, borderRadius: 5, alignItems: 'center', justifyContent: 'center' }} onPress={() => setIsCustomerModalOpen(true)}>
+                    <AntDesign name="search1" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
             {/* List Button Row */}
             <View style={styles.formRow}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
@@ -275,7 +304,7 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
                 data={paginatedData}
                 visibleColumns={columns}
                 fileName={`OrderMonitoring_${new Date().toISOString().split('T')[0]}`}
-                buttonText="Excel İndir"
+
                 buttonStyle={styles.exportButton}
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
               />
@@ -295,71 +324,84 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
 
           {/* Show Dropdown */}
           <View style={styles.showDropdownContainer}>
-            <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} />
+            <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} fullWidth />
           </View>
 
-                     {/* Table */}
-           <View style={styles.tableContainer}>
-             {/* Table Header */}
-             <View style={styles.tableHeaderRow}>
-               <View style={styles.tableHeaderSticky}>
-                 <Text style={styles.tableHeaderCell}>{stickyColumn?.label}</Text>
-               </View>
-               <ScrollView 
-                 ref={headerScrollRef}
-                 horizontal 
-                 showsHorizontalScrollIndicator={false}
-                 scrollEnabled={false}
-                 style={styles.headerScrollable}
-               >
-                 <View style={styles.headerScrollableRow}>
-                   {scrollableColumns.map((col) => (
-                     <Text key={col.key} style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}>{col.label}</Text>
-                   ))}
-                 </View>
-               </ScrollView>
-             </View>
+          {/* Table */}
+          <View style={styles.tableContainer}>
+            {/* Table Header */}
+            <View style={styles.tableHeaderRow}>
+              <View style={styles.leadIconHeader} />
+              <View style={styles.tableHeaderSticky}>
+                <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
+              </View>
+              <ScrollView 
+                ref={headerScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+                style={styles.headerScrollable}
+              >
+                <View style={styles.headerScrollableRow}>
+                  {scrollableColumns.map((col) => (
+                    <Text key={col.key} style={[styles.tableHeaderCellText, styles.scrollableHeaderCell]}>{col.label}</Text>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
 
-             {/* Table Body */}
-             <View style={styles.tableBody}>
-               <View style={styles.stickyColumn}>
-                 {paginatedData.map((item, index) => (
-                   <View
-                     key={index}
-                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                   >
-                     <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
-                     </Text>
-                   </View>
-                 ))}
-               </View>
-               <ScrollView 
-                 ref={bodyScrollRef}
-                 horizontal 
-                 showsHorizontalScrollIndicator={isScrollable} 
-                 scrollEnabled={isScrollable}
-                 onScroll={syncHeaderFromBody}
-                 scrollEventThrottle={16}
-                 style={styles.bodyScrollable}
-               >
-                 <View>
-                   {paginatedData.map((item, index) => (
-                     <View
-                       key={index}
-                       style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                     >
-                       {scrollableColumns.map((col) => (
-                         <Text key={col.key} style={[styles.tableCell, styles.scrollableCell]} numberOfLines={1} ellipsizeMode="tail">
-                           {String((item as Record<string, any>)[col.key] ?? '')}
-                         </Text>
-                       ))}
-                     </View>
-                   ))}
-                 </View>
-               </ScrollView>
-             </View>
-           </View>
+            {/* Table Body */}
+            <View style={styles.tableBody}>
+              {/* Lead icon column */}
+              <View>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.leadIcon, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => { /* Handle row click if needed */ }}
+                  >
+                    <Ionicons name="search" size={18} color="#D53439" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.stickyColumn}>
+                {paginatedData.map((item, index) => (
+                  <View
+                    key={index}
+                    style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                  >
+                    <Text style={styles.stickyCellText} numberOfLines={1} ellipsizeMode="tail">
+                      {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <ScrollView 
+                ref={bodyScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={isScrollable} 
+                scrollEnabled={isScrollable}
+                onScroll={syncHeaderFromBody}
+                scrollEventThrottle={16}
+                style={styles.bodyScrollable}
+              >
+                <View>
+                  {paginatedData.map((item, index) => (
+                    <View
+                      key={index}
+                      style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    >
+                      {scrollableColumns.map((col) => (
+                        <Text key={col.key} style={[styles.tableCell, styles.scrollableCell]} numberOfLines={1} ellipsizeMode="tail">
+                          {String((item as Record<string, any>)[col.key] ?? '')}
+                        </Text>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -388,9 +430,16 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
         onColumnToggle={handleColumnToggle}
         maxVisibleColumns={null}
       />
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => { setSelectedCustomer(c); setCustomerCode(c.code); }}
+      />
     </SafeAreaView>
   );
 };
+
+const ROW_HEIGHT = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -407,12 +456,13 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 18,
@@ -441,6 +491,10 @@ const styles = StyleSheet.create({
   },
   formGroup: {
     width: '48%',
+    marginBottom: 10,
+  },
+  formGroupFull: {
+    width: '100%',
     marginBottom: 10,
   },
   formLabel: {
@@ -511,6 +565,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
   },
+  leadIconHeader: {
+    width: 34,
+    height: ROW_HEIGHT,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+  },
   tableHeaderSticky: {
     width: 120,
     paddingVertical: 12,
@@ -521,7 +582,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tableHeaderCell: {
+  tableHeaderCellText: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 12,
@@ -607,21 +668,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  previousButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#F8F8F8',
-  },
-  previousButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#DA3C42',
-    marginLeft: 4,
-  },
   tableBody: {
     flexDirection: 'row',
   },
@@ -629,6 +675,7 @@ const styles = StyleSheet.create({
     width: 120,
   },
   stickyCell: {
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 8,
     justifyContent: 'center',
@@ -644,6 +691,8 @@ const styles = StyleSheet.create({
   scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
@@ -654,13 +703,33 @@ const styles = StyleSheet.create({
     minWidth: 120,
   },
   // Common styles
-  tableRowEven: { backgroundColor: '#FFFFFF' },
-  tableRowOdd: { backgroundColor: '#F8F9FA' },
+  tableRowEven: { 
+    backgroundColor: '#FFFFFF' 
+  },
+  tableRowOdd: { 
+    backgroundColor: '#F8F9FA' 
+  },
   tableCell: { 
     fontSize: 12, 
     color: '#495057', 
     textAlign: 'center', 
     fontFamily: 'MuseoSans-Regular',
+  },
+  stickyCellText: {
+    fontSize: 12,
+    color: '#495057',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
+  },
+  leadIcon: {
+    width: 34,
+    height: ROW_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
   },
 });
 

@@ -13,6 +13,7 @@ import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { getAccountTransactionsData, TableDataItem } from '../utils/mockData';
 import { downloadBundledPdf } from '../utils/pdfAssets';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 
 const AccountTransactionsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -23,6 +24,8 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('31/12/2023');
   const [accountCode, setAccountCode] = useState('');
   const [transactionType, setTransactionType] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Column visibility state
   const [columns, setColumns] = useState([
@@ -101,9 +104,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
 
   // Handle list button press
   const handleList = () => {
-    console.log('Filtering with:', { startDate, endDate, accountCode, transactionType });
     updateFilteredData();
-    console.log('Filtered results:', filteredTableData.length, 'items');
   };
 
   // Handle column visibility toggle
@@ -232,7 +233,8 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
@@ -286,6 +288,24 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                 />
               </View>
             </View>
+
+            {/* Select Customer Row - full width */}
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : ''}
+                    placeholder="Type or select a customer"
+                    onChangeText={() => { setSelectedCustomer(null); }}
+                  />
+                  <TouchableOpacity style={{ height: 40, paddingHorizontal: 14, backgroundColor: '#F39C12', marginLeft: 8, borderRadius: 5, alignItems: 'center', justifyContent: 'center' }} onPress={() => setIsCustomerModalOpen(true)}>
+                    <Ionicons name="search" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
             
             <View style={[styles.formRow, { justifyContent: 'center', marginTop: 10 }]}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
@@ -299,7 +319,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                 data={filteredTableData}
                 visibleColumns={columns}
                 fileName={`AccountTransactions_${new Date().toISOString().split('T')[0]}`}
-                buttonText="Excel İndir"
+
                 buttonStyle={styles.exportButton}
               />
               
@@ -307,17 +327,17 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
                 style={styles.emailButton} 
                 onPress={() => setIsEmailModalOpen(true)}
               >
-                <Text style={styles.emailButtonText}>Mail Gönder</Text>
+                <Text style={styles.emailButtonText}>Send via Email</Text>
               </TouchableOpacity>
             </View>
           </View>
           
-          {/* Column Visibility Header - Full Width */}
+          {/* Column Visibility Header - Full Width (primary highlight) */}
           <TouchableOpacity 
-            style={styles.columnVisibilityHeader}
+            style={styles.columnVisibilityHeaderPrimary}
             onPress={() => setIsColumnVisibilityModalOpen(true)}
           >
-            <Text style={styles.columnVisibilityHeaderText}>Column Visibility</Text>
+            <Text style={styles.columnVisibilityHeaderPrimaryText}>Column Visibility</Text>
           </TouchableOpacity>
           
           {/* Show Dropdown */}
@@ -442,6 +462,11 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
         visibleColumns={columns}
         reportName="AccountTransactions"
       />
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => { setSelectedCustomer(c); setAccountCode(c.code); }}
+      />
     </SafeAreaView>
   );
 };
@@ -495,6 +520,10 @@ const styles = StyleSheet.create({
   },
   formGroup: {
     width: '48%',
+    marginBottom: 10,
+  },
+  formGroupFull: {
+    width: '100%',
     marginBottom: 10,
   },
   formLabel: {
@@ -582,6 +611,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    fontFamily: 'MuseoSans-Bold',
+  },
+  columnVisibilityHeaderPrimary: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DA3C42',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3.84,
+    elevation: 3,
+  },
+  columnVisibilityHeaderPrimaryText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#DA3C42',
     fontFamily: 'MuseoSans-Bold',
   },
   showDropdownContainer: {

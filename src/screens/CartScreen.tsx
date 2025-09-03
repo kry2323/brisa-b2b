@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import { useNavigation } from '@react-navigation/native';
 import { addToCart, getCartItems, updateCartItem, removeFromCart, clearCart, purgeCart, type CartItem, addSavedCart, getSavedCarts, getSavedCartById, removeSavedCart, updateSavedCart, type SavedCartStored } from '../utils/storage';
+import { t } from '../utils/translations';
 
 type ProductForCart = {
   code: string;
@@ -1216,19 +1217,19 @@ const CartScreen = () => {
           <TouchableOpacity style={styles.overlayBg} onPress={() => setIsMailOpen(false)} />
           <View style={[styles.centerPanel, { maxWidth: 520 }]}> 
             <View style={[styles.savedDetailsHeader, { borderBottomColor: '#E0E0E0' }]}> 
-              <Text style={[styles.modalTitle, { color: '#fff' }]}>Mail Gönder</Text>
+              <Text style={[styles.modalTitle, { color: '#fff' }]}>{t('common.sendMail')}</Text>
             </View>
             <View style={{ padding: 12 }}>
-              <Text style={styles.label}>E‑posta adres(ler)i</Text>
+              <Text style={styles.label}>{t('common.emailAddresses')}</Text>
               <TextInput
                 style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
-                placeholder="virgul, noktalı virgül veya boşluk ile birden fazla yazabilirsiniz"
+                placeholder={t('common.emailAddressesPlaceholder')}
                 value={mailTo}
                 onChangeText={setMailTo}
                 multiline
               />
               <TouchableOpacity style={[styles.sdBtnGreen, { marginTop: 12 }]} onPress={sendMailWithExport}>
-                <Text style={styles.sdBtnText}>Gönder</Text>
+                <Text style={styles.sdBtnText}>{t('common.send')}</Text>
               </TouchableOpacity>
             </View>
           </View>

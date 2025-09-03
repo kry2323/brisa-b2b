@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
+import { t } from '../src/utils/translations';
 
 interface LoginProps {
   onLogin: () => void;
@@ -10,7 +11,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Geçici olarak doğrulama yapılmadan giriş
+    // Temporary login without validation
     onLogin();
   };
 
@@ -19,11 +20,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.title}>Lassa B2B</Text>
+      <Text style={styles.title}>{t('screens.login.title')}</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="E-posta"
+        placeholder={t('screens.login.emailPlaceholder')}
         placeholderTextColor="#999"
         keyboardType="email-address"
         autoCapitalize="none"
@@ -33,7 +34,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Şifre"
+        placeholder={t('screens.login.passwordPlaceholder')}
         placeholderTextColor="#999"
         secureTextEntry
         value={password}
@@ -41,7 +42,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Giriş Yap</Text>
+        <Text style={styles.buttonText}>{t('screens.login.loginButton')}</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

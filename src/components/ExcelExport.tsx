@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as XLSX from 'xlsx';
+import { t } from '../utils/translations';
 
 interface ExcelExportProps {
   data: any[];
@@ -20,7 +21,7 @@ const ExcelExport: React.FC<ExcelExportProps> = ({
   fileName = 'report',
   buttonStyle,
   buttonTextStyle,
-  buttonText = 'Excel İndir',
+  buttonText = t('components.excelExport.buttonText'),
   buttonIcon,
 }) => {
   const exportToExcel = async () => {
@@ -57,14 +58,14 @@ const ExcelExport: React.FC<ExcelExportProps> = ({
       // Share the file
       await Sharing.shareAsync(fileUri, {
         mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        dialogTitle: 'Excel Dosyasını İndir',
+        dialogTitle: t('components.excelExport.downloadDialog'),
         UTI: 'com.microsoft.excel.xlsx',
       });
       
-      Alert.alert('Başarılı', 'Excel dosyası başarıyla oluşturuldu.');
+      Alert.alert(t('common.success'), t('components.excelExport.successMessage'));
     } catch (error) {
       console.error('Excel export error:', error);
-      Alert.alert('Hata', 'Excel dosyası oluşturulurken bir hata oluştu.');
+      Alert.alert(t('common.error'), t('components.excelExport.errorMessage'));
     }
   };
 
