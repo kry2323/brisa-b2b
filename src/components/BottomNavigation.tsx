@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, ScrollView, Linking } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { 
+  financialReports, 
+  orderSalesReports, 
+  marketingItems, 
+  orderCategories, 
+  navigationItems, 
+  routeToTabMapping, 
+  MODAL_TYPES,
+  type ModalType 
+} from '../constants/navigationData';
 
 interface BottomNavigationProps {
   isReportsModalOpen: boolean;
@@ -21,134 +31,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
   const [selectedOrderCategory, setSelectedOrderCategory] = useState<string | null>(null);
 
-  const financialReports = [
-    { id: 'account-transactions', title: 'Account Transactions', icon: '🧾', url: '/b2b/account-transactions' },
-    { id: 'brisa-payments', title: 'Brisa Payments', icon: '💳', url: '/b2b/brisa-payments' },
-    { id: 'overdue-report', title: 'Overdue Report', icon: '⏰', url: '/b2b/overdue-report' },
-  ];
 
-  const orderSalesReports = [
-    { id: 'shipments-documents', title: 'Shipments, Documents and Status', icon: '📦', url: '/b2b/proforma/proforma-list' },
-    { id: 'sales-report', title: 'Sales Report', icon: '📈', url: '/b2b/cis/dispatch-report' },
-    { id: 'order-monitoring', title: 'Order Monitoring', icon: '👁️', url: '/b2b/cis/order-monitoring' },
-    { id: 'tyres-on-the-way', title: 'Tyres On The Way', icon: '🚚', url: '/b2b/cis/tyres-on-the-way' },
-    { id: 'pos-material-tracking', title: 'POS Material Tracking', icon: '🏪', url: '/b2b/proforma/branded-product-report' },
-  ];
-  
-  const marketingItems = [
-    { id: 'PRODUCT_PHOTO', title: 'Product Photos, Presentations', icon: '📸', url: '/b2b/cis-marketing-library/PRODUCT_PHOTO' },
-    { id: 'CAMPAIGN_MATERIAL', title: 'Campaign Materials', icon: '🎯', url: '/b2b/cis-marketing-library/CAMPAIGN_MATERIAL' },
-    { id: 'POS_MATERIAL', title: 'POS Materials', icon: '🏪', url: '/b2b/cis-marketing-library/POS_MATERIAL' },
-    { id: 'SHOP_BRANDING', title: 'Shop Branding', icon: '🏬', url: '/b2b/cis-marketing-library/SHOP_BRANDING' },
-    { id: 'LOGO_GUIDE', title: 'Logo Guidelines', icon: '🅻', url: '/b2b/cis-marketing-library/LOGO_GUIDE' },
-    { id: 'PRODUCT_CATALOG', title: 'Catalogues, Leaflets, Posters', icon: '📚', url: '/b2b/cis-marketing-library/PRODUCT_CATALOG' },
-    { id: 'VIDEO', title: 'Videos', icon: '🎬', url: '/b2b/cis-marketing-library/VIDEO' },
-    { id: 'CAR_BRANDING', title: 'Car Branding', icon: '🚗', url: '/b2b/cis-marketing-library/CAR_BRANDING' },
-    { id: 'SOCIAL_MEDIA_DATABASE', title: 'Social Media Database', icon: '📱', url: '/b2b/cis-marketing-library/SOCIAL_MEDIA_DATABASE' },
-  ];
-
-  const orderCategories = [
-    {
-      id: 'passenger-car',
-      title: 'PASSENGER CAR',
-      icon: '🚗',
-      subCategories: [
-        { id: 'psr-13-14', title: 'PSR 13-14', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-13-14/c/CIS_PC_PSR13' },
-        { id: 'psr-15', title: 'PSR 15', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-15/c/CIS_PC_PSR15' },
-        { id: 'psr-16', title: 'PSR 16', url: '/b2b/All-Categories/PASSENGER-CAR/PSR-16/c/CIS_PC_PSR16' },
-        { id: 'uhp', title: 'UHP', url: '/b2b/All-Categories/PASSENGER-CAR/UHP/c/CIS_PC_UHP' },
-        { id: '4x4', title: '4X4', url: '/b2b/All-Categories/PASSENGER-CAR/4X4/c/CIS_PC_4X4' },
-      ],
-    },
-    {
-      id: 'light-truck',
-      title: 'LIGHT TRUCK',
-      icon: '🚚',
-      subCategories: [
-        { id: 'lt-12', title: 'LT 12', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-12/c/CIS_LT_LT12' },
-        { id: 'lt-13', title: 'LT 13', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-13/c/CIS_LT_LT13' },
-        { id: 'lt-14', title: 'LT 14', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-14/c/CIS_LT_LT14' },
-        { id: 'lt-15', title: 'LT 15', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-15/c/CIS_LT_LT15' },
-        { id: 'lt-16', title: 'LT 16', url: '/b2b/All-Categories/LIGHT-TRUCK/LT-16/c/CIS_LT_LT16' },
-      ],
-    },
-    {
-      id: 'agriculture',
-      title: 'AGRICULTURE',
-      icon: '🚜',
-      subCategories: [
-        { id: 'ags-s', title: 'AGS-S', url: '/b2b/All-Categories/AGRICULTURE/AGS-S/c/CIS_AG_AGSS' },
-        { id: 'ags-l', title: 'AGS-L', url: '/b2b/All-Categories/AGRICULTURE/AGS-L/c/CIS_AG_AGSL' },
-        { id: 'agri', title: 'AGRI', url: '/b2b/All-Categories/AGRICULTURE/AGRI/c/CIS_AG_AGRI' },
-      ],
-    },
-    {
-      id: 'off-the-road',
-      title: 'OFF THE ROAD',
-      icon: '🏔️',
-      subCategories: [
-        { id: 'ors', title: 'ORS', url: '/b2b/All-Categories/OFF-THE-ROAD/ORS/c/CIS_OTR_ORS' },
-      ],
-    },
-    {
-      id: 'tbr',
-      title: 'TBR',
-      icon: '🚛',
-      subCategories: [
-        { id: 'tbr-17-5', title: 'TBR 17.5', url: '/b2b/All-Categories/TBR/TBR-17-5/c/CIS_TBR_TBR17' },
-        { id: 'tbr-22-5', title: 'TBR 22.5', url: '/b2b/All-Categories/TBR/TBR-22-5/c/CIS_TBR_TBR22' },
-      ],
-    },
-    {
-      id: 'promotional-materials',
-      title: 'PROMOTIONAL MATERIALS',
-      icon: '🎁',
-      subCategories: [
-        { id: 'branded-consumer-products', title: 'Branded Consumer Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3ABranded%2BConsumer%2BProducts&text=#' },
-        { id: 'textile-products', title: 'Textile Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3ATextile%2BProducts&text=#' },
-        { id: 'stands-shop-branding-products', title: 'Stands & Shop Branding Products', url: '/b2b/All-Categories/Promotional-Materials-Order/c/CIS_PMO?q=%3Acis-name-asc%3ApatternDescription%3AStands%2B%2526%2BShop%2BBranding%2BProducts&text=#' },
-      ],
-    },
-  ];
-
-  const navigationItems = [
-    {
-      id: 'home',
-      title: 'Homepage',
-      icon: '🏠',
-      shortTitle: 'Homepage',
-    },
-    {
-      id: 'create-order',
-      title: 'Create Order',
-      icon: '📋',
-      shortTitle: 'Create Order',
-    },
-    {
-      id: 'order-sales',
-      title: 'Order & Sales Reports',
-      icon: '📊',
-      shortTitle: 'Order & Sales Reports',
-    },
-    {
-      id: 'financial',
-      title: 'Financial Reports',
-      icon: '💰',
-      shortTitle: 'Financial Reports',
-    },
-    {
-      id: 'marketing-library',
-      title: 'Marketing Library',
-      icon: '📚',
-      shortTitle: 'Marketing Library',
-    },
-    {
-      id: 'other',
-      title: 'Other',
-      icon: '☰',
-      shortTitle: 'Other',
-    },
-  ];
 
   // Other menu now shows only Company, E Warranty and Links sections
 
@@ -189,7 +72,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   };
 
   const handleMenuItemPress = (itemId: string) => {
-    setIsMenuOpen(false);
+    handleModalClose(MODAL_TYPES.MENU);
     // Menü item'ı için işlemler burada yapılacak
     console.log('Menu item pressed:', itemId);
     
@@ -220,7 +103,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const handleReportItemPress = (report: any) => {
     console.log('Report item pressed:', report);
     onNavigateToReport(report);
-    setIsReportsModalOpen(false);
+    handleModalClose(MODAL_TYPES.REPORTS);
   };
 
   const closeAllModals = () => {
@@ -231,11 +114,46 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     setIsUploadOrderModalOpen(false);
     setIsHelpModalOpen(false);
     setIsCreateOrderModalOpen(false);
+    
+    // Reset selected states when closing modals
+    setSelectedReportType(null);
+    setSelectedOrderCategory(null);
   };
 
   const handleForwardedTabPress = (tabId: string) => {
     closeAllModals();
     handleTabPress(tabId);
+  };
+
+  // Function to handle modal close and ensure proper tab state
+  const handleModalClose = (modalType: ModalType) => {
+    switch (modalType) {
+      case MODAL_TYPES.REPORTS:
+        setIsReportsModalOpen(false);
+        break;
+      case MODAL_TYPES.MENU:
+        setIsMenuOpen(false);
+        break;
+      case MODAL_TYPES.MARKETING:
+        setIsMarketingModalOpen(false);
+        break;
+      case MODAL_TYPES.FINANCIAL:
+        setIsFinancialModalOpen(false);
+        break;
+      case MODAL_TYPES.UPLOAD_ORDER:
+        setIsUploadOrderModalOpen(false);
+        break;
+      case MODAL_TYPES.HELP:
+        setIsHelpModalOpen(false);
+        break;
+      case MODAL_TYPES.CREATE_ORDER:
+        setIsCreateOrderModalOpen(false);
+        break;
+    }
+    
+    // Reset selected states when closing modals
+    setSelectedReportType(null);
+    setSelectedOrderCategory(null);
   };
 
   const renderModalBottomTapLayer = () => (
@@ -258,7 +176,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   
   const handleOrderSubCategoryPress = (subCategory: any) => {
     console.log('Order subcategory pressed:', subCategory);
-    setIsCreateOrderModalOpen(false);
+    handleModalClose(MODAL_TYPES.CREATE_ORDER);
     // Navigate to the product listing with the selected category
     // @ts-ignore
     navigation.navigate('ProductListing', { categoryUrl: subCategory.url });
@@ -266,7 +184,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   
   const handleMarketingItemPress = (item: any) => {
     console.log(`Marketing item pressed: ${item.id}`);
-    setIsMarketingModalOpen(false);
+    handleModalClose(MODAL_TYPES.MARKETING);
     // Navigate to marketing item based on ID
     switch (item.id) {
       case 'VIDEO':
@@ -303,44 +221,83 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
     }
   };
 
-  // Sync active tab with current route
-  useEffect(() => {
-    const routeName = (route as any)?.name;
-    const params = (route as any)?.params || {};
+  // Sync active tab with current route using useFocusEffect for better navigation tracking
+  useFocusEffect(
+    React.useCallback(() => {
+      const routeName = (route as any)?.name;
+      const params = (route as any)?.params || {};
 
-    const routeToTab: Record<string, string> = {
-      Dashboard: 'home',
-      Home: 'home',
-      ShipmentsDocuments: 'order-sales',
-      SalesReport: 'order-sales',
-      OrderMonitoring: 'order-sales',
-      PlannedOrders: 'order-sales',
-      UnplannedOrders: 'order-sales',
-      TyresOnTheWay: 'order-sales',
-      POSMaterialTracking: 'order-sales',
-      BrisaPayments: 'financial',
-      OverdueReport: 'financial',
-      AccountTransactions: 'financial',
-      FinancialReports: 'financial',
-      VideoLibrary: 'marketing-library',
-      VideoDetail: 'marketing-library',
-      VideoPlayer: 'marketing-library',
-      LassaTeam: 'other',
-    };
+      let nextActive: string | undefined = routeToTabMapping[routeName];
 
-    let nextActive: string | undefined = routeToTab[routeName];
-
-    // Special case: ProductListing can come from Create Order
-    if (routeName === 'ProductListing') {
-      if (params && (params as any).categoryUrl) {
-        nextActive = 'create-order';
+      // Special case: ProductListing can come from Create Order
+      if (routeName === 'ProductListing') {
+        if (params && (params as any).categoryUrl) {
+          nextActive = 'create-order';
+        }
       }
-    }
 
-    if (nextActive && nextActive !== activeTab) {
-      setActiveTab(nextActive);
-    }
-  }, [route]);
+      // Only update if we have a valid mapping and it's different from current
+      if (nextActive && nextActive !== activeTab) {
+        setActiveTab(nextActive);
+      }
+    }, [route, activeTab])
+  );
+
+  // Add navigation listener to handle back button and state changes
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', (e) => {
+      // When navigation state changes, ensure modals are closed and active tab is updated
+      const currentRoute = e.data.state.routes[e.data.state.index];
+      if (currentRoute) {
+        const routeName = currentRoute.name;
+        const params = currentRoute.params || {};
+
+        let nextActive: string | undefined = routeToTabMapping[routeName];
+
+        // Special case: ProductListing can come from Create Order
+        if (routeName === 'ProductListing') {
+          if (params && (params as any).categoryUrl) {
+            nextActive = 'create-order';
+          }
+        }
+
+        // Update active tab if different
+        if (nextActive && nextActive !== activeTab) {
+          setActiveTab(nextActive);
+        }
+
+        // Close all modals when navigating to a new screen
+        closeAllModals();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, activeTab]);
+
+  // Add focus listener to handle when screens come into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // When a screen comes into focus, ensure the active tab is correct
+      const routeName = (route as any)?.name;
+      const params = (route as any)?.params || {};
+
+      let nextActive: string | undefined = routeToTabMapping[routeName];
+
+      // Special case: ProductListing can come from Create Order
+      if (routeName === 'ProductListing') {
+        if (params && (params as any).categoryUrl) {
+          nextActive = 'create-order';
+        }
+      }
+
+      // Update active tab if different
+      if (nextActive && nextActive !== activeTab) {
+        setActiveTab(nextActive);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, route, activeTab]);
 
   const getReportItems = () => {
     switch (selectedReportType) {
@@ -408,19 +365,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isMenuOpen}
-        onRequestClose={() => setIsMenuOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.MENU)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsMenuOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.MENU)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Menü</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsMenuOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.MENU)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -494,20 +451,20 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isMarketingModalOpen}
-        onRequestClose={() => setIsMarketingModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.MARKETING)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsMarketingModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.MARKETING)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Marketing Library</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsMarketingModalOpen(false)}
-              >
+                onPress={() => handleModalClose(MODAL_TYPES.MARKETING)}
+            >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -535,19 +492,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isUploadOrderModalOpen}
-        onRequestClose={() => setIsUploadOrderModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.UPLOAD_ORDER)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsUploadOrderModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.UPLOAD_ORDER)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Sipariş Yükle</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsUploadOrderModalOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.UPLOAD_ORDER)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -579,19 +536,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isCreateOrderModalOpen}
-        onRequestClose={() => setIsCreateOrderModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.CREATE_ORDER)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsCreateOrderModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.CREATE_ORDER)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Sipariş Oluştur</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsCreateOrderModalOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.CREATE_ORDER)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -638,19 +595,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isHelpModalOpen}
-        onRequestClose={() => setIsHelpModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.HELP)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsHelpModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.HELP)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Yardım</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsHelpModalOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.HELP)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -698,19 +655,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isReportsModalOpen}
-        onRequestClose={() => setIsReportsModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.REPORTS)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsReportsModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.REPORTS)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Order & Sales Reports</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsReportsModalOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.REPORTS)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -739,19 +696,19 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
         transparent={true}
         statusBarTranslucent={true}
         visible={isFinancialModalOpen}
-        onRequestClose={() => setIsFinancialModalOpen(false)}
+        onRequestClose={() => handleModalClose(MODAL_TYPES.FINANCIAL)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalBackground}
-            onPress={() => setIsFinancialModalOpen(false)}
-          />
+                      <TouchableOpacity 
+              style={styles.modalBackground}
+              onPress={() => handleModalClose(MODAL_TYPES.FINANCIAL)}
+            />
           <View style={styles.menuContainer}>
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Financial Reports</Text>
               <TouchableOpacity 
                 style={styles.closeButton}
-                onPress={() => setIsFinancialModalOpen(false)}
+                onPress={() => handleModalClose(MODAL_TYPES.FINANCIAL)}
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
@@ -764,7 +721,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
                   style={styles.menuItem}
                   onPress={() => {
                     handleReportItemPress(report);
-                    setIsFinancialModalOpen(false);
+                    handleModalClose(MODAL_TYPES.FINANCIAL);
                   }}
                 >
                   <Text style={styles.menuItemIcon}>{report.icon}</Text>
