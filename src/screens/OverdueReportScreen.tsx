@@ -26,20 +26,18 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
   
   // Column visibility state for Overdue Report
   const [columns, setColumns] = useState([
-    { key: 'invoiceDate', label: 'Invoice Date', visible: true },
-    { key: 'tyres', label: 'Tyres', visible: true },
+    { key: 'invoice', label: 'Invoice', visible: true },
+    { key: 'overdueDays', label: 'Overdue Days', visible: true },
     { key: 'invoiceAmount', label: 'Invoice Amount', visible: true },
     { key: 'curr', label: 'Curr.', visible: true },
-    { key: 'paymentTerm', label: 'Payment Term', visible: true },
-    { key: 'customer', label: 'Customer', visible: false },
-    { key: 'customerName', label: 'Customer Name', visible: false },
+    { key: 'invoiceDate', label: 'Invoice Date', visible: true },
+    { key: 'dueDate', label: 'Due Date', visible: true },
     { key: 'plannedOrders', label: 'Planned Orders', visible: false },
-    { key: 'invoice', label: 'Invoice', visible: false },
     { key: 'partialPayment', label: 'Partial Payment', visible: false },
     { key: 'remainAmount', label: 'Remain Amount', visible: false },
     { key: 'incoterm', label: 'Incoterm', visible: false },
-    { key: 'dueDate', label: 'Due Date', visible: false },
-    { key: 'overdueDays', label: 'Overdue Days', visible: false },
+    { key: 'tyres', label: 'Tyres', visible: false },
+    { key: 'paymentTerm', label: 'Payment Term', visible: false },
   ]);
   
   // Modal states
@@ -389,7 +387,7 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
                     onPress={() => handleRowClick(item)}
                   >
-                    <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={[styles.tableCell, stickyColumn?.key === 'overdueDays' && styles.overdueDaysText]} numberOfLines={1} ellipsizeMode="tail">
                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
                     </Text>
                   </TouchableOpacity>
@@ -434,6 +432,10 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                                 {String((item as Record<string, any>)[col.key] ?? '')}
                               </Text>
                             )
+                          ) : col.key === 'overdueDays' ? (
+                            <Text style={[styles.tableCell, styles.overdueDaysText]} numberOfLines={1} ellipsizeMode="tail">
+                              {String((item as Record<string, any>)[col.key] ?? '')}
+                            </Text>
                           ) : (
                             <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
                               {String((item as Record<string, any>)[col.key] ?? '')}
@@ -808,6 +810,11 @@ const styles = StyleSheet.create({
     color: '#1976D2',
     textDecorationLine: 'underline',
     textAlign: 'center',
+  },
+  overdueDaysText: {
+    color: '#DA3C42',
+    fontWeight: 'bold',
+    fontFamily: 'MuseoSans-Bold',
   },
   noDataContainer: {
     padding: 40,
