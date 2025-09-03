@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TextInput, TouchableOpacity, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import DatePicker from '../components/DatePicker';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
@@ -7,9 +8,11 @@ import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
 import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
+import RowDetailModal from '../components/RowDetailModal';
 import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
 import ShowDropdown from '../components/ShowDropdown';
 import Pagination from '../components/Pagination';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
@@ -22,6 +25,9 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('28/07/2025');
   const [shipmentNumber, setShipmentNumber] = useState('');
   const [productCode, setProductCode] = useState('');
+  const [customerCode, setCustomerCode] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Columns state for Tyres On The Way
   const [columns, setColumns] = useState([
@@ -88,7 +94,7 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
   // Sticky column logic
   const stickyColumn = visibleColumns[0]; // First column is sticky
   const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
-  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  const isScrollable = scrollableColumns.length >= 2; // 2 veya daha fazla scrollable column varsa scroll etkin
   
   // Scroll sync refs
   const headerScrollRef = useRef<any>(null);
@@ -129,10 +135,11 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
   
   // Email modal state
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isRowDetailModalOpen, setIsRowDetailModalOpen] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState<any>(null);
 
   const handleList = () => {
     // In a real app, this would fetch data based on the form inputs
-    console.log('Listing with filters:', { startDate, endDate, shipmentNumber, productCode });
     // For now we'll just use the mock data already set
   };
 
@@ -169,16 +176,29 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <Header />
+      <View style={styles.titleContainer}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{
+            padding: 8,
+            marginRight: 10,
+            marginTop: -10,
+          }}
+        >
+          <Text style={{fontSize: 28, color: '#333', marginRight: -10}}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Tyres On The Way</Text>
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
-          <Text style={styles.title}>Tyres On The Way</Text>
           
           {/* Form Section */}
           <View style={styles.formContainer}>
@@ -220,6 +240,24 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
               </View>
             </View>
             
+            {/* Select Customer Row - full width */}
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : customerCode}
+                    placeholder="Type or select a customer"
+                    onChangeText={(txt) => { setSelectedCustomer(null); setCustomerCode(txt); }}
+                  />
+                  <TouchableOpacity style={{ height: 40, paddingHorizontal: 14, backgroundColor: '#F39C12', marginLeft: 8, borderRadius: 5, alignItems: 'center', justifyContent: 'center' }} onPress={() => setIsCustomerModalOpen(true)}>
+                    <AntDesign name="search1" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
             {/* List Button Row */}
             <View style={styles.formRow}>
               <TouchableOpacity style={styles.listButton} onPress={handleList}>
@@ -252,15 +290,16 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
 
           {/* Show Dropdown */}
           <View style={styles.showDropdownContainer}>
-            <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} />
+            <ShowDropdown value={itemsPerPage} onValueChange={handleItemsPerPageChange} fullWidth />
           </View>
           
           {/* Table */}
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeaderRow}>
+              <View style={styles.leadIconHeader} />
               <View style={styles.tableHeaderSticky}>
-                <Text style={styles.tableHeaderCell}>{stickyColumn?.label}</Text>
+                <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
               </View>
               <ScrollView 
                 ref={headerScrollRef}
@@ -271,7 +310,7 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
               >
                 <View style={styles.headerScrollableRow}>
                   {scrollableColumns.map((col) => (
-                    <Text key={col.key} style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}>{col.label}</Text>
+                    <Text key={col.key} style={[styles.tableHeaderCellText, styles.scrollableHeaderCell]}>{col.label}</Text>
                   ))}
                 </View>
               </ScrollView>
@@ -279,16 +318,29 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
 
             {/* Table Body */}
             <View style={styles.tableBody}>
+              {/* Lead icon column */}
+              <View>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.leadIcon, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => { setSelectedRowData(item); setIsRowDetailModalOpen(true); }}
+                  >
+                    <Ionicons name="search" size={18} color="#D53439" />
+                  </TouchableOpacity>
+                ))}
+              </View>
               <View style={styles.stickyColumn}>
                 {paginatedData.map((item, index) => (
-                  <View
+                  <TouchableOpacity
                     key={index}
                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => { setSelectedRowData(item); setIsRowDetailModalOpen(true); }}
                   >
-                    <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={styles.stickyCellText} numberOfLines={1} ellipsizeMode="tail">
                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
               <ScrollView 
@@ -307,9 +359,11 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
                       style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
                     >
                       {scrollableColumns.map((col) => (
-                        <Text key={col.key} style={[styles.tableCell, styles.scrollableCell]} numberOfLines={1} ellipsizeMode="tail">
-                          {String((item as Record<string, any>)[col.key] ?? '')}
-                        </Text>
+                        <TouchableOpacity key={col.key} style={styles.scrollableCell} onPress={() => { setSelectedRowData(item); setIsRowDetailModalOpen(true); }}>
+                          <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                            {String((item as Record<string, any>)[col.key] ?? '')}
+                          </Text>
+                        </TouchableOpacity>
                       ))}
                     </View>
                   ))}
@@ -341,9 +395,24 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
       />
 
       <ColumnVisibilityModal visible={isColumnVisibilityModalOpen} onClose={() => setIsColumnVisibilityModalOpen(false)} columns={columns} onColumnToggle={handleColumnToggle} maxVisibleColumns={null} />
+
+      {/* Row Detail Modal */}
+      <RowDetailModal
+        visible={isRowDetailModalOpen}
+        onClose={() => setIsRowDetailModalOpen(false)}
+        rowData={selectedRowData}
+        columns={columns}
+      />
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => { setSelectedCustomer(c); setCustomerCode(c.code); }}
+      />
     </SafeAreaView>
   );
 };
+
+const ROW_HEIGHT = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -358,13 +427,22 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 500,
   },
+  titleContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
     textAlign: 'left',
     fontFamily: 'MuseoSans-Medium',
-    marginBottom: 20,
   },
   formContainer: {
     width: '100%',
@@ -447,6 +525,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
   },
+  leadIconHeader: {
+    width: 34,
+    height: ROW_HEIGHT,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+  },
   tableHeaderSticky: {
     width: 120,
     paddingVertical: 12,
@@ -457,7 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tableHeaderCell: {
+  tableHeaderCellText: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 12,
@@ -534,6 +619,7 @@ const styles = StyleSheet.create({
     width: 120,
   },
   stickyCell: {
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 8,
     justifyContent: 'center',
@@ -549,7 +635,8 @@ const styles = StyleSheet.create({
   scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'center',
+    height: ROW_HEIGHT,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
@@ -565,6 +652,22 @@ const styles = StyleSheet.create({
     color: '#495057', 
     textAlign: 'center', 
     fontFamily: 'MuseoSans-Regular',
+  },
+  stickyCellText: {
+    fontSize: 12,
+    color: '#495057',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
+  },
+  leadIcon: {
+    width: 34,
+    height: ROW_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
   },
 });
 

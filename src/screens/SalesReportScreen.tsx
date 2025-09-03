@@ -13,6 +13,7 @@ import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { getSalesReportData, TableDataItem } from '../utils/mockData';
 import { downloadBundledPdf } from '../utils/pdfAssets';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 
 const SalesReportScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -23,6 +24,8 @@ const SalesReportScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('31/12/2023');
   const [productCode, setProductCode] = useState('');
   const [customerCode, setCustomerCode] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Column visibility state for Sales Report
   const [columns, setColumns] = useState([
@@ -30,8 +33,8 @@ const SalesReportScreen = ({ route, navigation }: any) => {
     { key: 'season', label: 'Season', visible: true },
     { key: 'totalQuantity', label: 'Total Quantity', visible: true },
     { key: 'netValue', label: 'Net Value', visible: true },
-    { key: 'customer', label: 'Customer', visible: false },
-    { key: 'customerName', label: 'Customer Name', visible: false },
+    { key: 'customer', label: 'Customer', visible: true },
+    { key: 'customerName', label: 'Customer Name', visible: true },
     { key: 'shipToParty', label: 'Ship-to Party', visible: false },
     { key: 'shipToPartyName', label: 'Ship-To Party Name', visible: false },
     { key: 'customerOrder', label: 'Customer Order', visible: false },
@@ -98,9 +101,16 @@ const SalesReportScreen = ({ route, navigation }: any) => {
   };
 
   const handleList = () => {
-    console.log('Listing with filters:', { startDate, endDate, productCode, customerCode });
-    updateFilteredData();
-    console.log('Filtered results:', filteredTableData.length, 'items');
+    // Load fresh data with current filters
+    const freshData = getSalesReportData({
+      startDate,
+      endDate,
+      productCode,
+      customerCode,
+    });
+    
+    setTableData(freshData);
+    setFilteredTableData(freshData);
   };
 
   // Handle column visibility toggle
@@ -206,7 +216,7 @@ const SalesReportScreen = ({ route, navigation }: any) => {
   // Sticky column logic
   const stickyColumn = visibleColumns[0]; // First column is sticky
   const scrollableColumns = visibleColumns.slice(1); // Rest are scrollable
-  const isScrollable = scrollableColumns.length >= 4; // 4 or more scrollable columns (total 5+) - scrollable when 5 or more total columns
+  const isScrollable = scrollableColumns.length >= 2; // 2 veya daha fazla scrollable column varsa scroll etkin
   
   // Scroll sync refs
   const headerScrollRef = useRef<any>(null);
@@ -251,7 +261,8 @@ const SalesReportScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
@@ -259,6 +270,16 @@ const SalesReportScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header />
       <View style={styles.titleContainer}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{
+            padding: 8,
+            marginRight: 10,
+            marginTop: -10,
+          }}
+        >
+          <Text style={{fontSize: 28, color: '#333', marginRight: -10}}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Sales Report</Text>
       </View>
       <ScrollView style={styles.scrollView}>
@@ -306,6 +327,24 @@ const SalesReportScreen = ({ route, navigation }: any) => {
                   onChangeText={setCustomerCode}
                   placeholder="Enter customer code"
                 />
+              </View>
+            </View>
+
+            {/* Select Customer Row - full width */}
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : ''}
+                    placeholder="Type or select a customer"
+                    onChangeText={(txt) => { setSelectedCustomer(null); setCustomerCode(txt); }}
+                  />
+                  <TouchableOpacity style={{ height: 38, flexGrow: 0, paddingHorizontal: 10, backgroundColor: '#F39C12', marginLeft: 8, borderRadius: 5, alignItems: 'center', justifyContent: 'center' }} onPress={() => setIsCustomerModalOpen(true)}>
+                    <Ionicons name="search" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
             
@@ -358,14 +397,9 @@ const SalesReportScreen = ({ route, navigation }: any) => {
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeaderRow}>
+              <View style={styles.leadIconHeader} />
               <View style={styles.tableHeaderSticky}>
-                                 <Text style={{
-                   fontSize: 12,
-                   fontWeight: 'bold',
-                   color: '#FFFFFF',
-                   textAlign: 'center',
-                   fontFamily: 'MuseoSans-Bold',
-                 }}>{stickyColumn?.label}</Text>
+                <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
               </View>
               <ScrollView 
                 ref={headerScrollRef}
@@ -381,13 +415,7 @@ const SalesReportScreen = ({ route, navigation }: any) => {
                       style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}
                       onPress={() => handleColumnSort(col.key)}
                     >
-                                             <Text style={{
-                         fontSize: 12,
-                         fontWeight: 'bold',
-                         color: '#FFFFFF',
-                         textAlign: 'center',
-                         fontFamily: 'MuseoSans-Bold',
-                       }}>{col.label}</Text>
+                      <Text style={styles.tableHeaderCellText}>{col.label}</Text>
                       {sortColumn === col.key && (
                         <Text style={styles.sortIcon}>
                           {sortDirection === 'asc' ? '▲' : '▼'}
@@ -399,72 +427,84 @@ const SalesReportScreen = ({ route, navigation }: any) => {
               </ScrollView>
             </View>
             
-                         {/* Table Body */}
-             <View style={styles.tableBody}>
-               <View style={styles.stickyColumn}>
-                 {paginatedData.map((item, index) => (
-                   <TouchableOpacity
-                     key={index}
-                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                     onPress={() => handleRowClick(item)}
-                   >
-                     <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
-                     </Text>
-                   </TouchableOpacity>
-                 ))}
-               </View>
-               <ScrollView 
-                 ref={bodyScrollRef}
-                 horizontal 
-                 showsHorizontalScrollIndicator={isScrollable} 
-                 scrollEnabled={isScrollable}
-                 onScroll={syncHeaderFromBody}
-                 scrollEventThrottle={16}
-                 style={styles.bodyScrollable}
-               >
-                 <View>
-                   {paginatedData.map((item, index) => (
-                     <View
-                       key={index}
-                       style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
-                     >
-                       {scrollableColumns.map((col) => (
-                         <TouchableOpacity 
-                           key={col.key} 
-                           style={styles.scrollableCell}
-                           onPress={() => handleRowClick(item)}
-                         >
-                           {col.key === 'invoice' ? (
-                             <TouchableOpacity onPress={handleInvoiceDownload}>
-                               <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
-                                 {String((item as Record<string, any>)[col.key] ?? '')}
-                               </Text>
-                             </TouchableOpacity>
-                           ) : col.key === 'plannedOrder' ? (
-                             isPlannedOrderEligible((item as Record<string, any>)[col.key]) ? (
-                               <TouchableOpacity onPress={() => handlePlannedOrderDraftDownload((item as Record<string, any>)[col.key])}>
-                                 <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
-                                   {String((item as Record<string, any>)[col.key] ?? '')}
-                                 </Text>
-                               </TouchableOpacity>
-                             ) : (
-                               <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                                 {String((item as Record<string, any>)[col.key] ?? '')}
-                               </Text>
-                             )
-                           ) : (
-                             <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                               {String((item as Record<string, any>)[col.key] ?? '')}
-                             </Text>
-                           )}
-                         </TouchableOpacity>
-                       ))}
-                     </View>
-                   ))}
-                 </View>
-               </ScrollView>
-             </View>
+            {/* Table Body */}
+            <View style={styles.tableBody}>
+              {/* Lead icon column */}
+              <View>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.leadIcon, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => handleRowClick(item)}
+                  >
+                    <Ionicons name="search" size={18} color="#D53439" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.stickyColumn}>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => handleRowClick(item)}
+                  >
+                    <Text style={styles.stickyCellText} numberOfLines={1} ellipsizeMode="tail">
+                      {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <ScrollView 
+                ref={bodyScrollRef}
+                horizontal 
+                showsHorizontalScrollIndicator={isScrollable} 
+                scrollEnabled={isScrollable}
+                onScroll={syncHeaderFromBody}
+                scrollEventThrottle={16}
+                style={styles.bodyScrollable}
+              >
+                <View>
+                  {paginatedData.map((item, index) => (
+                    <View
+                      key={index}
+                      style={[styles.scrollableRow, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    >
+                      {scrollableColumns.map((col) => (
+                        <TouchableOpacity 
+                          key={col.key} 
+                          style={styles.scrollableCell}
+                          onPress={() => handleRowClick(item)}
+                        >
+                          {col.key === 'invoice' ? (
+                            <TouchableOpacity onPress={handleInvoiceDownload}>
+                              <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
+                                {String((item as Record<string, any>)[col.key] ?? '')}
+                              </Text>
+                            </TouchableOpacity>
+                          ) : col.key === 'plannedOrder' ? (
+                            isPlannedOrderEligible((item as Record<string, any>)[col.key]) ? (
+                              <TouchableOpacity onPress={() => handlePlannedOrderDraftDownload((item as Record<string, any>)[col.key])}>
+                                <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
+                                  {String((item as Record<string, any>)[col.key] ?? '')}
+                                </Text>
+                              </TouchableOpacity>
+                            ) : (
+                              <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                                {String((item as Record<string, any>)[col.key] ?? '')}
+                              </Text>
+                            )
+                          ) : (
+                            <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                              {String((item as Record<string, any>)[col.key] ?? '')}
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
           </View>
           
           {/* Pagination */}
@@ -511,9 +551,16 @@ const SalesReportScreen = ({ route, navigation }: any) => {
         visibleColumns={columns}
         reportName="SalesReport"
       />
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => { setSelectedCustomer(c); setCustomerCode(c.code); }}
+      />
     </SafeAreaView>
   );
 };
+
+const ROW_HEIGHT = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -528,12 +575,14 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
+    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.1)',
   },
   title: {
     fontSize: 18,
@@ -566,6 +615,10 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 10,
   },
+  formGroupFull: {
+    width: '100%',
+    marginBottom: 10,
+  },
   formLabel: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -578,7 +631,7 @@ const styles = StyleSheet.create({
     borderColor: '#DDD',
     borderRadius: 5,
     paddingVertical: 10,
-    paddingHorizontal: 24,
+    paddingHorizontal: 14,
     fontSize: 16,
     backgroundColor: '#FFF',
     fontFamily: 'MuseoSans-Regular',
@@ -663,7 +716,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 15,
+    marginTop: -5,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DA3C42',
@@ -709,8 +763,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
   },
+  leadIconHeader: {
+    width: 34,
+    height: ROW_HEIGHT,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+  },
   tableHeaderSticky: {
-    width: 90,
+    width: 120,
     paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#8D8D8D',
@@ -727,16 +788,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   scrollableHeaderCell: {
-    width: 90,
+    width: 120,
     paddingHorizontal: 8,
-    minWidth: 90,
+    minWidth: 120,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  leadIconHeader: {
-    width: 34,
-  },
   tableHeaderCellContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -746,6 +804,13 @@ const styles = StyleSheet.create({
   },
   tableHeaderCell: {
     // Empty style for ViewStyle compatibility
+  },
+  tableHeaderCellText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Bold',
   },
   sortIcon: {
     fontSize: 12,
@@ -761,9 +826,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   stickyColumn: {
-    width: 90,
+    width: 120,
   },
   stickyCell: {
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 8,
     justifyContent: 'center',
@@ -779,20 +845,26 @@ const styles = StyleSheet.create({
   scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
   scrollableCell: {
-    width: 90,
+    width: 120,
     paddingHorizontal: 8,
-    minWidth: 90,
+    minWidth: 120,
   },
   leadIcon: {
     width: 34,
+    height: ROW_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
   },
   tableRowEven: {
     backgroundColor: '#FFFFFF',
@@ -805,8 +877,12 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
   },
   tableCell: {
-    flex: 1,
-    padding: 12,
+   fontSize: 12,
+    color: '#495057',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
+  },
+  stickyCellText: {
     fontSize: 12,
     color: '#495057',
     textAlign: 'center',

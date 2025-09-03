@@ -14,6 +14,7 @@ import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { getBrisaPaymentsData, TableDataItem } from '../utils/mockData';
 import { downloadBundledPdf } from '../utils/pdfAssets';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 
 const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -24,6 +25,9 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('31/12/2023');
   const [paymentNumber, setPaymentNumber] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
+  const [customerCode, setCustomerCode] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Column visibility state for Brisa Payments
   const [columns, setColumns] = useState([
@@ -32,8 +36,8 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
     { key: 'description', label: 'Description', visible: true },
     { key: 'amount', label: 'Amount', visible: true },
     { key: 'curr', label: 'Curr.', visible: true },
-    { key: 'customer', label: 'Customer', visible: false },
-    { key: 'customerName', label: 'Customer Name', visible: false },
+    { key: 'customer', label: 'Customer', visible: true },
+    { key: 'customerName', label: 'Customer Name', visible: true },
     { key: 'shipToParty', label: 'Ship-to Party', visible: false },
     { key: 'shipToPartyName', label: 'Ship-To Party Name', visible: false },
     { key: 'customerOrder', label: 'Customer Order', visible: false },
@@ -74,14 +78,14 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
   // Load initial data
   useEffect(() => {
     const loadData = () => {
-      const data = getBrisaPaymentsData({
-        startDate,
-        endDate,
-        paymentNumber,
-        paymentStatus,
-      });
-      setTableData(data);
-      setFilteredTableData(data);
+          const data = getBrisaPaymentsData({
+      startDate,
+      endDate,
+      paymentNumber,
+      paymentStatus,
+    });
+    setTableData(data);
+    setFilteredTableData(data);
     };
     
     loadData();
@@ -106,9 +110,7 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
 
   // Handle list button press
   const handleList = () => {
-    console.log('Filtering with:', { startDate, endDate, paymentNumber, paymentStatus });
     updateFilteredData();
-    console.log('Filtered results:', filteredTableData.length, 'items');
   };
 
   // Handle column visibility toggle
@@ -259,7 +261,8 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
@@ -270,11 +273,12 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
         <TouchableOpacity 
           onPress={() => navigation.goBack()} 
           style={{
-            padding: 10,
-            marginRight: 10
-          }}
+            padding: 8,
+            marginRight: 10,
+            marginTop: -10,
+      }}
         >
-          <Text style={{fontSize: 24, color: '#333'}}>←</Text>
+          <Text style={{fontSize: 28, color: '#333', marginRight: -10}}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Brisa Payments</Text>
       </View>
@@ -322,6 +326,24 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
                   onChangeText={setPaymentStatus}
                   placeholder="Enter status"
                 />
+              </View>
+            </View>
+
+            {/* Select Customer Row - full width */}
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : customerCode}
+                    placeholder="Type or select a customer"
+                    onChangeText={(txt) => { setSelectedCustomer(null); setCustomerCode(txt); }}
+                  />
+                  <TouchableOpacity style={{ height: 40, paddingHorizontal: 14, backgroundColor: '#F39C12', marginLeft: 8, borderRadius: 5, alignItems: 'center', justifyContent: 'center' }} onPress={() => setIsCustomerModalOpen(true)}>
+                    <AntDesign name="search1" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
             
@@ -373,8 +395,9 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeaderRow}>
+              <View style={styles.leadIconHeader} />
               <View style={styles.tableHeaderSticky}>
-                <Text style={styles.tableHeaderCell}>{stickyColumn?.label}</Text>
+                <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
               </View>
               <ScrollView 
                 ref={headerScrollRef}
@@ -387,7 +410,7 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
                   {scrollableColumns.map((col) => (
                     <TouchableOpacity
                       key={col.key}
-                      style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}
+                      style={styles.scrollableHeaderCell}
                       onPress={() => handleColumnSort(col.key)}
                     >
                       <Text style={styles.tableHeaderCellText}>{col.label}</Text>
@@ -404,6 +427,18 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
             
             {/* Table Body */}
             <View style={styles.tableBody}>
+              {/* Lead icon column */}
+              <View>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.leadIcon, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => handleRowClick(item)}
+                  >
+                    <Ionicons name="search" size={18} color="#D53439" />
+                  </TouchableOpacity>
+                ))}
+              </View>
               <View style={styles.stickyColumn}>
                 {paginatedData.map((item, index) => (
                   <TouchableOpacity
@@ -411,7 +446,7 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
                     onPress={() => handleRowClick(item)}
                   >
-                    <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={styles.stickyCellText} numberOfLines={1} ellipsizeMode="tail">
                       {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
                     </Text>
                   </TouchableOpacity>
@@ -514,9 +549,16 @@ const BrisaPaymentsScreen = ({ route, navigation }: any) => {
         visibleColumns={columns}
         reportName="BrisaPayments"
       />
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => { setSelectedCustomer(c); setCustomerCode(c.code); }}
+      />
     </SafeAreaView>
   );
 };
+
+const ROW_HEIGHT = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -561,12 +603,13 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 18,
@@ -599,6 +642,10 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 10,
   },
+  formGroupFull: {
+    width: '100%',
+    marginBottom: 10,
+  },
   formLabel: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -611,7 +658,7 @@ const styles = StyleSheet.create({
     borderColor: '#DDD',
     borderRadius: 5,
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     fontSize: 16,
     backgroundColor: '#FFF',
     fontFamily: 'MuseoSans-Regular',
@@ -672,6 +719,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     marginBottom: 10,
+    marginTop: -5,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DA3C42',
@@ -711,8 +759,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
   },
+  leadIconHeader: {
+    width: 34,
+    height: ROW_HEIGHT,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+  },
   tableHeaderSticky: {
-    width: 90,
+    width: 120,
     paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#8D8D8D',
@@ -748,9 +803,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
-  leadIconHeader: {
-    width: 34,
-  },
   tableHeaderCellContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -773,10 +825,21 @@ const styles = StyleSheet.create({
   tableBody: {
     flexDirection: 'row',
   },
+  leadIcon: {
+    width: 34,
+    height: ROW_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
+  },
   stickyColumn: {
-    width: 90,
+    width: 120,
   },
   stickyCell: {
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 8,
     justifyContent: 'center',
@@ -792,7 +855,8 @@ const styles = StyleSheet.create({
   scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'center',
+    height: ROW_HEIGHT,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
@@ -805,12 +869,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
-  },
-  leadIcon: {
-    width: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
   },
   tableRowEven: {
     backgroundColor: '#FFFFFF',
@@ -834,6 +892,12 @@ const styles = StyleSheet.create({
     color: '#1976D2',
     textDecorationLine: 'underline',
     textAlign: 'center',
+  },
+  stickyCellText: {
+    fontSize: 12,
+    color: '#495057',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
   },
   noDataContainer: {
     padding: 40,

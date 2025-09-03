@@ -1,5 +1,6 @@
 // Mock Data Generator for Report Screens
 // This file serves as a static backend for the application
+import { CUSTOMERS } from './customers';
 
 export interface TableDataItem {
   customer: string;
@@ -26,23 +27,7 @@ export interface TableDataItem {
 
 // Helper function to generate random data
 const generateRandomData = (count: number): TableDataItem[] => {
-  const customers = [
-    { code: 'CUST001', name: 'ABC Company Ltd.' },
-    { code: 'CUST002', name: 'XYZ Corporation' },
-    { code: 'CUST003', name: 'DEF Industries' },
-    { code: 'CUST004', name: 'GHI Motors' },
-    { code: 'CUST005', name: 'JKL Transport' },
-    { code: 'CUST006', name: 'MNO Racing' },
-    { code: 'CUST007', name: 'PQR Fleet' },
-    { code: 'CUST008', name: 'STU Construction' },
-    { code: 'CUST009', name: 'VWX Aviation' },
-    { code: 'CUST010', name: 'YZA Marine' },
-    { code: 'CUST011', name: 'BCD Electronics' },
-    { code: 'CUST012', name: 'EFG Pharmaceuticals' },
-    { code: 'CUST013', name: 'HIJ Automotive' },
-    { code: 'CUST014', name: 'KLM Aerospace' },
-    { code: 'CUST015', name: 'NOP Energy' },
-  ];
+  const customers = CUSTOMERS;
 
   const shipToParties = [
     { code: '93000030', name: 'SC RADBURG SOFT SRL' },
@@ -134,7 +119,6 @@ const generateRandomData = (count: number): TableDataItem[] => {
   return data;
 };
 
-// Generate 100 items for each report type
 // Generate Overdue Report specific data
 const generateOverdueReportData = (count: number): TableDataItem[] => {
   const tyres = [
@@ -157,6 +141,7 @@ const generateOverdueReportData = (count: number): TableDataItem[] => {
   const data: TableDataItem[] = [];
 
   for (let i = 1; i <= count; i++) {
+    const customer = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)];
     const tyre = tyres[Math.floor(Math.random() * tyres.length)];
     const amount = amounts[Math.floor(Math.random() * amounts.length)];
     const currency = currencies[Math.floor(Math.random() * currencies.length)];
@@ -180,20 +165,20 @@ const generateOverdueReportData = (count: number): TableDataItem[] => {
     const overdueDays = Math.max(0, Math.floor((today.getTime() - dueDate.getTime()) / (24 * 60 * 60 * 1000)));
 
     data.push({
-      invoiceDate: invoiceDate,
-      tyres: tyre,
+      customer: customer.code,
+      customerName: customer.name,
+      invoice: `INV${String(i).padStart(6, '0')}`,
+      overdueDays: overdueDays.toString(),
       invoiceAmount: amount.toFixed(2),
       curr: currency,
-      paymentTerm: paymentTerm,
-      customer: `CUST${String(i).padStart(3, '0')}`,
-      customerName: `Customer ${i}`,
+      invoiceDate: invoiceDate,
+      dueDate: dueDateStr,
       plannedOrders: `PL${String(i).padStart(8, '0')}`,
-      invoice: `INV${String(i).padStart(8, '0')}`,
       partialPayment: partialPayment.toFixed(2),
       remainAmount: remainAmount.toFixed(2),
       incoterm: ['FOB', 'CIF', 'EXW', 'DDP'][i % 4],
-      dueDate: dueDateStr,
-      overdueDays: overdueDays.toString(),
+      tyres: tyre,
+      paymentTerm: paymentTerm,
       // Keep other fields for compatibility
       shipToParty: `93000${String(i).padStart(3, '0')}`,
       shipToPartyName: `Ship-to Party ${i}`,

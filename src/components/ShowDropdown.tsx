@@ -5,15 +5,16 @@ interface ShowDropdownProps {
   value: number;
   onValueChange: (value: number) => void;
   options?: number[];
+  fullWidth?: boolean;
 }
 
-const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 500, -1] }: ShowDropdownProps) => {
+const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 500, -1], fullWidth = false }: ShowDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, fullWidth && { width: '100%' }]}>
       <TouchableOpacity 
-        style={styles.dropdownButton}
+        style={[styles.dropdownButton, fullWidth && styles.dropdownButtonFull]}
         onPress={() => setIsOpen(!isOpen)}
       >
         <Text style={styles.dropdownText}>{value === -1 ? 'Show All' : `${value} Show`}</Text>
@@ -26,7 +27,7 @@ const ShowDropdown = ({ value, onValueChange, options = [10, 25, 50, 100, 200, 5
             style={styles.overlay}
             onPress={() => setIsOpen(false)}
           />
-          <View style={styles.dropdownContent}>
+          <View style={[styles.dropdownContent, fullWidth && { width: '100%' }]}>
             <ScrollView>
               {options.map((option) => (
                 <TouchableOpacity
@@ -72,6 +73,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     minWidth: 100,
+  },
+  dropdownButtonFull: {
+    width: '100%',
   },
   dropdownText: {
     fontSize: 14,

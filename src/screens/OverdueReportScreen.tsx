@@ -13,6 +13,7 @@ import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { getOverdueReportData, TableDataItem } from '../utils/mockData';
 import { downloadBundledPdf } from '../utils/pdfAssets';
+import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
 
 const OverdueReportScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -23,9 +24,13 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
   const [endDate, setEndDate] = useState('31/12/2023');
   const [customerCode, setCustomerCode] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerItem | null>(null);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   
   // Column visibility state for Overdue Report
   const [columns, setColumns] = useState([
+    { key: 'customer', label: 'Customer', visible: true },
+    { key: 'customerName', label: 'Customer Name', visible: true },
     { key: 'invoice', label: 'Invoice', visible: true },
     { key: 'overdueDays', label: 'Overdue Days', visible: true },
     { key: 'invoiceAmount', label: 'Invoice Amount', visible: true },
@@ -94,9 +99,7 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
 
   // Handle list button press
   const handleList = () => {
-    console.log('Filtering with:', { startDate, endDate, customerCode, invoiceNumber });
     updateFilteredData();
-    console.log('Filtered results:', filteredTableData.length, 'items');
   };
 
   // Handle column visibility toggle
@@ -247,7 +250,8 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
         navigation.navigate('POSMaterialTracking', { reportData });
         break;
       default:
-        console.log('Unknown report type');
+        // Unknown report type
+        break;
     }
   };
 
@@ -255,6 +259,16 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
     <SafeAreaView style={styles.container}>
       <Header />
       <View style={styles.titleContainer}>
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()} 
+          style={{
+            padding: 8,
+            marginRight: 10,
+            marginTop: -10,
+          }}
+        >
+          <Text style={{fontSize: 28, color: '#333', marginRight: -10}}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Overdue Report</Text>
       </View>
       <ScrollView style={styles.scrollView}>
@@ -282,6 +296,26 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                           </View>
                         </View>
             
+            <View style={styles.formRow}>
+              <View style={styles.formGroupFull}>
+                <Text style={styles.formLabel}>Select Customer</Text>
+                <View style={styles.selectCustomerWrap}>
+                  <TextInput
+                    style={[styles.textInput, { flex: 1 }]}
+                    value={selectedCustomer ? `${selectedCustomer.code} - ${selectedCustomer.name}` : ''}
+                    placeholder="Type or select a customer"
+                    onChangeText={(txt) => {
+                      setSelectedCustomer(null);
+                      setCustomerCode(txt);
+                    }}
+                  />
+                  <TouchableOpacity style={styles.searchBtn} onPress={() => setIsCustomerModalOpen(true)}>
+                    <Ionicons name="search" size={18} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
             <View style={styles.formRow}>
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Customer Code:</Text>
@@ -349,6 +383,7 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
           <View style={styles.tableContainer}>
             {/* Table Header */}
             <View style={styles.tableHeaderRow}>
+              <View style={styles.leadIconHeader} />
               <View style={styles.tableHeaderSticky}>
                 <Text style={styles.tableHeaderCellText}>{stickyColumn?.label}</Text>
               </View>
@@ -363,7 +398,7 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                   {scrollableColumns.map((col) => (
                     <TouchableOpacity
                       key={col.key}
-                      style={[styles.tableHeaderCell, styles.scrollableHeaderCell]}
+                      style={styles.scrollableHeaderCell}
                       onPress={() => handleColumnSort(col.key)}
                     >
                       <Text style={styles.tableHeaderCellText}>{col.label}</Text>
@@ -380,6 +415,18 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
             
             {/* Table Body */}
             <View style={styles.tableBody}>
+              {/* Lead icon column */}
+              <View>
+                {paginatedData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.leadIcon, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
+                    onPress={() => handleRowClick(item)}
+                  >
+                    <Ionicons name="search" size={18} color="#D53439" />
+                  </TouchableOpacity>
+                ))}
+              </View>
               <View style={styles.stickyColumn}>
                 {paginatedData.map((item, index) => (
                   <TouchableOpacity
@@ -387,9 +434,9 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                     style={[styles.stickyCell, index % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}
                     onPress={() => handleRowClick(item)}
                   >
-                    <Text style={[styles.tableCell, stickyColumn?.key === 'overdueDays' && styles.overdueDaysText]} numberOfLines={1} ellipsizeMode="tail">
-                      {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
-                    </Text>
+                                                              <Text style={styles.stickyCellText} numberOfLines={1} ellipsizeMode="tail">
+                        {String((item as Record<string, any>)[stickyColumn?.key] ?? '')}
+                      </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -414,33 +461,16 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
                           style={styles.scrollableCell}
                           onPress={() => handleRowClick(item)}
                         >
-                          {col.key === 'invoice' ? (
-                            <TouchableOpacity onPress={handleInvoiceDownload}>
-                              <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
-                                {String((item as Record<string, any>)[col.key] ?? '')}
-                              </Text>
-                            </TouchableOpacity>
-                          ) : col.key === 'plannedOrders' ? (
-                            isPlannedOrderEligible((item as Record<string, any>)[col.key]) ? (
-                              <TouchableOpacity onPress={() => handlePlannedOrderDraftDownload((item as Record<string, any>)[col.key])}>
-                                <Text style={[styles.tableCell, styles.linkText]} numberOfLines={1} ellipsizeMode="tail">
-                                  {String((item as Record<string, any>)[col.key] ?? '')}
-                                </Text>
-                              </TouchableOpacity>
-                            ) : (
-                              <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                                {String((item as Record<string, any>)[col.key] ?? '')}
-                              </Text>
-                            )
-                          ) : col.key === 'overdueDays' ? (
-                            <Text style={[styles.tableCell, styles.overdueDaysText]} numberOfLines={1} ellipsizeMode="tail">
-                              {String((item as Record<string, any>)[col.key] ?? '')}
-                            </Text>
-                          ) : (
-                            <Text style={styles.tableCell} numberOfLines={1} ellipsizeMode="tail">
-                              {String((item as Record<string, any>)[col.key] ?? '')}
-                            </Text>
-                          )}
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              col.key === 'overdueDays' && styles.overdueDaysText,
+                            ]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
+                            {String((item as Record<string, any>)[col.key] ?? '')}
+                          </Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -494,9 +524,21 @@ const OverdueReportScreen = ({ route, navigation }: any) => {
         visibleColumns={columns}
         reportName="OverdueReport"
       />
+
+      {/* Customer Select Modal */}
+      <CustomerSelectModal
+        visible={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
+        onSelect={(c) => {
+          setSelectedCustomer(c);
+          setCustomerCode(c.code);
+        }}
+      />
     </SafeAreaView>
   );
 };
+
+const ROW_HEIGHT = 52;
 
 const styles = StyleSheet.create({
   container: {
@@ -541,12 +583,13 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#DDD',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 18,
@@ -579,6 +622,23 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 10,
   },
+  formGroupFull: {
+    width: '100%',
+    marginBottom: 10,
+  },
+  selectCustomerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchBtn: {
+    height: 36,
+    paddingHorizontal: 8,
+    backgroundColor: '#F39C12',
+    marginLeft: 8,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   formLabel: {
     fontSize: 14,
     fontWeight: 'bold',
@@ -590,7 +650,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     borderRadius: 5,
-    padding: 10,
+    padding: 8,
     fontSize: 16,
     backgroundColor: '#FFF',
     fontFamily: 'MuseoSans-Regular',
@@ -648,6 +708,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     marginBottom: 10,
+    marginTop: -10,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DA3C42',
@@ -687,8 +748,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#8D8D8D',
   },
+  // Removed duplicate leadIconHeader to fix linter
+  leadIconHeader: {
+    width: 34,
+    height: ROW_HEIGHT,
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#555',
+  },
   tableHeaderSticky: {
-    width: 90,
+    width: 120,
     paddingVertical: 12,
     paddingHorizontal: 8,
     backgroundColor: '#8D8D8D',
@@ -724,9 +793,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
-  leadIconHeader: {
-    width: 34,
-  },
+  
   tableHeaderCellContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -749,10 +816,21 @@ const styles = StyleSheet.create({
   tableBody: {
     flexDirection: 'row',
   },
+  leadIcon: {
+    width: 34,
+    height: ROW_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E9ECEF',
+    borderRightWidth: 1,
+    borderRightColor: '#E9ECEF',
+  },
   stickyColumn: {
-    width: 90,
+    width: 120,
   },
   stickyCell: {
+    height: ROW_HEIGHT,
     paddingVertical: 12,
     paddingHorizontal: 8,
     justifyContent: 'center',
@@ -768,7 +846,8 @@ const styles = StyleSheet.create({
   scrollableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'center',
+    height: ROW_HEIGHT,
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
@@ -782,12 +861,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E9ECEF',
   },
-  leadIcon: {
-    width: 34,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-  },
+  
   tableRowEven: {
     backgroundColor: '#FFFFFF',
   },
@@ -815,6 +889,12 @@ const styles = StyleSheet.create({
     color: '#DA3C42',
     fontWeight: 'bold',
     fontFamily: 'MuseoSans-Bold',
+  },
+  stickyCellText: {
+    fontSize: 12,
+    color: '#495057',
+    textAlign: 'center',
+    fontFamily: 'MuseoSans-Regular',
   },
   noDataContainer: {
     padding: 40,
