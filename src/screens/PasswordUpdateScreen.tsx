@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import { t } from '../utils/translations';
 
 interface PasswordUpdateScreenProps {
@@ -37,7 +38,10 @@ const PasswordUpdateScreen: React.FC<PasswordUpdateScreenProps> = ({ navigation,
   const [isLoading, setIsLoading] = useState(false);
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
 
-  // Get username from route params or use default
+  
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+// Get username from route params or use default
   const username = route?.params?.username || 'cisuser';
 
   // Password validation function
@@ -140,46 +144,6 @@ const PasswordUpdateScreen: React.FC<PasswordUpdateScreenProps> = ({ navigation,
     navigation.goBack();
   };
 
-  // Handle navigation to report screens
-  const handleNavigateToReport = (reportData: any) => {
-    setIsReportsModalOpen(false);
-    
-    // Navigate based on report ID using React Navigation
-    switch (reportData.id) {
-      case 'financial-reports':
-        navigation.navigate('FinancialReports', { reportData });
-        break;
-      case 'brisa-payments':
-        navigation.navigate('BrisaPayments', { reportData });
-        break;
-      case 'overdue-report':
-        navigation.navigate('OverdueReport', { reportData });
-        break;
-      case 'account-transactions':
-        navigation.navigate('AccountTransactions', { reportData });
-        break;
-      case 'shipments-documents':
-        navigation.navigate('ShipmentsDocuments', { reportData });
-        break;
-      case 'sales-report':
-        navigation.navigate('SalesReport', { reportData });
-        break;
-      case 'order-monitoring':
-        navigation.navigate('OrderMonitoring', { reportData });
-        break;
-      case 'tyres-on-the-way':
-        navigation.navigate('TyresOnTheWay', { reportData });
-        break;
-      case 'pos-material-tracking':
-        navigation.navigate('POSMaterialTracking', { reportData });
-        break;
-      case 'lassa-team':
-        navigation.navigate('LassaTeam', { reportData });
-        break;
-      default:
-        console.log('Unknown report type');
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -372,7 +336,7 @@ const PasswordUpdateScreen: React.FC<PasswordUpdateScreenProps> = ({ navigation,
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen} 
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
     </SafeAreaView>
   );

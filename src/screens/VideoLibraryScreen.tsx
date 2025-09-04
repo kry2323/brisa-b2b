@@ -14,6 +14,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getVideoLibraryData, getAllTags, VideoItem } from '../utils/mockData';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 
 const VideoLibraryScreen = () => {
   const navigation = useNavigation();
@@ -24,6 +28,10 @@ const VideoLibraryScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [allTags] = useState<string[]>(getAllTags());
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
+
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
 
   useEffect(() => {
     const data = getVideoLibraryData();
@@ -65,6 +73,7 @@ const VideoLibraryScreen = () => {
     setSelectedTags([]);
     setSearchQuery('');
   };
+
 
   const renderVideoCard = ({ item }: { item: VideoItem }) => (
     <TouchableOpacity
@@ -186,6 +195,8 @@ const VideoLibraryScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header />
+      
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Video Library</Text>
@@ -226,7 +237,15 @@ const VideoLibraryScreen = () => {
         showsVerticalScrollIndicator={false}
       />
 
+      <Footer />
+
       {renderFilterModal()}
+
+      <BottomNavigation 
+        isReportsModalOpen={isReportsModalOpen} 
+        setIsReportsModalOpen={setIsReportsModalOpen}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
+      />
     </SafeAreaView>
   );
 };

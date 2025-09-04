@@ -39,6 +39,8 @@ import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
 import PasswordUpdateScreen from './src/screens/PasswordUpdateScreen';
+import MarketingLibraryScreen from './src/screens/MarketingLibraryScreen';
+import MarketingDetailScreen from './src/screens/MarketingDetailScreen';
 import { getOverdueReportData } from './src/utils/mockData';
 const Stack = createNativeStackNavigator();
 
@@ -572,6 +574,104 @@ export default function App() {
           name="PasswordUpdate"
           component={PasswordUpdateScreen}
           options={{ title: 'Update Password' }}
+        />
+        <Stack.Screen
+          name="MarketingLibrary"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Marketing Library' }}
+        />
+        <Stack.Screen
+          name="MarketingDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Marketing Detail' }}
+        />
+        <Stack.Screen
+          name="ProductPhotos"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Product Photos' }}
+          initialParams={{ category: 'ProductPhotos' }}
+        />
+        <Stack.Screen
+          name="ProductPhotoDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Product Photo Detail' }}
+        />
+        <Stack.Screen
+          name="CampaignMaterials"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Campaign Materials' }}
+          initialParams={{ category: 'CampaignMaterials' }}
+        />
+        <Stack.Screen
+          name="CampaignMaterialDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Campaign Material Detail' }}
+        />
+        <Stack.Screen
+          name="POSMaterials"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Pos Materials' }}
+          initialParams={{ category: 'POSMaterials' }}
+        />
+        <Stack.Screen
+          name="POSMaterialDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'POS Material Detail' }}
+        />
+        <Stack.Screen
+          name="ShopBranding"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Shop Branding' }}
+          initialParams={{ category: 'ShopBranding' }}
+        />
+        <Stack.Screen
+          name="ShopBrandingDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Shop Branding Detail' }}
+        />
+        <Stack.Screen
+          name="LogoGuide"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Logo Guidelines' }}
+          initialParams={{ category: 'LogoGuide' }}
+        />
+        <Stack.Screen
+          name="LogoGuideDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Logo Guide Detail' }}
+        />
+        <Stack.Screen
+          name="Catalogues"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Catalogues, Leaflets, Posters' }}
+          initialParams={{ category: 'Catalogues' }}
+        />
+        <Stack.Screen
+          name="CataloguesDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Catalogue Detail' }}
+        />
+        <Stack.Screen
+          name="CarBranding"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Car Branding' }}
+          initialParams={{ category: 'CarBranding' }}
+        />
+        <Stack.Screen
+          name="CarBrandingDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Car Branding Detail' }}
+        />
+        <Stack.Screen
+          name="SocialMediaDatabase"
+          component={MarketingLibraryScreen}
+          options={{ title: 'Social Media Database' }}
+          initialParams={{ category: 'SocialMediaDatabase' }}
+        />
+        <Stack.Screen
+          name="SocialMediaDatabaseDetail"
+          component={MarketingDetailScreen}
+          options={{ title: 'Social Media Database Detail' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -5,6 +5,7 @@ import EnergyLabel from '../components/EnergyLabel';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import FilterPanel from '../components/FilterPanel';
 import { ListViewIcon, GridViewIcon } from '../components/ViewTypeIcons';
 import { addToCart } from '../utils/storage';
@@ -31,7 +32,10 @@ type SizeOption = { value: string; qty: number };
 
 const ProductListingScreen = ({ route, navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-  const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
+  
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState(route?.params?.initialQuery || '');
   const [sortOption, setSortOption] = useState('Name (Ascending)');
   const [viewType, setViewType] = useState('list'); // 'list' or 'grid'
@@ -551,45 +555,6 @@ const ProductListingScreen = ({ route, navigation }: any) => {
   const initialProducts: Product[] = isPromotionalMaterials ? promotionalProducts : tyreProducts;
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  // Rapor sayfalarına yönlendirme işlevi
-  const handleNavigateToReport = (reportData: any) => {
-    console.log('Navigation triggered for:', reportData);
-    setIsReportsModalOpen(false);
-    
-    // Navigate based on report ID using React Navigation
-    switch (reportData.id) {
-      case 'financial-reports':
-        navigation.navigate('FinancialReports', { reportData });
-        break;
-      case 'brisa-payments':
-        navigation.navigate('BrisaPayments', { reportData });
-        break;
-      case 'overdue-report':
-        navigation.navigate('OverdueReport', { reportData });
-        break;
-      case 'account-transactions':
-        navigation.navigate('AccountTransactions', { reportData });
-        break;
-      case 'shipments-documents':
-        navigation.navigate('ShipmentsDocuments', { reportData });
-        break;
-      case 'sales-report':
-        navigation.navigate('SalesReport', { reportData });
-        break;
-      case 'order-monitoring':
-        navigation.navigate('OrderMonitoring', { reportData });
-        break;
-      case 'tyres-on-the-way':
-        navigation.navigate('TyresOnTheWay', { reportData });
-        break;
-      case 'pos-material-tracking':
-        navigation.navigate('POSMaterialTracking', { reportData });
-        break;
-      default:
-        console.log('Unknown report type');
-    }
-  };
-
   // Ürün miktarını artırma/azaltma işlevi
   const handleQuantityChange = (productId: string, change: number) => {
     const currentQuantity = quantities[productId] || 1;
@@ -1093,7 +1058,7 @@ const ProductListingScreen = ({ route, navigation }: any) => {
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen} 
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
 
       <Modal

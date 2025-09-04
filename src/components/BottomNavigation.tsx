@@ -177,48 +177,63 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ isReportsModalOpen,
   const handleOrderSubCategoryPress = (subCategory: any) => {
     console.log('Order subcategory pressed:', subCategory);
     handleModalClose(MODAL_TYPES.CREATE_ORDER);
-    // Navigate to the product listing with the selected category
-    // @ts-ignore
-    navigation.navigate('ProductListing', { categoryUrl: subCategory.url });
+    
+    // Navigate after modal closes
+    setTimeout(() => {
+      // @ts-ignore
+      navigation.navigate('ProductListing', { categoryUrl: subCategory.url });
+    }, 300);
   };
   
   const handleMarketingItemPress = (item: any) => {
     console.log(`Marketing item pressed: ${item.id}`);
     handleModalClose(MODAL_TYPES.MARKETING);
-    // Navigate to marketing item based on ID
-    switch (item.id) {
-      case 'VIDEO':
-        // @ts-ignore
-        navigation.navigate('VideoLibrary');
-        break;
-      case 'PRODUCT_PHOTO':
-        // @ts-ignore
-        navigation.navigate('ProductListing');
-        break;
-      case 'CAMPAIGN_MATERIAL':
-        // @ts-ignore
-        navigation.navigate('Dashboard');
-        break;
-      case 'SOCIAL_MEDIA_DATABASE':
-        // @ts-ignore
-        navigation.navigate('Dashboard');
-        break;
-      case 'PRODUCT_CATALOG':
-        // @ts-ignore
-        navigation.navigate('Dashboard');
-        break;
-      case 'POS_MATERIAL':
-      case 'SHOP_BRANDING':
-      case 'LOGO_GUIDE':
-      case 'CAR_BRANDING':
-        // @ts-ignore
-        navigation.navigate('Dashboard');
-        break;
-      default:
-        // @ts-ignore
-        navigation.navigate('Dashboard');
-        break;
-    }
+    
+    // Navigate after modal closes
+    setTimeout(() => {
+      switch (item.id) {
+        case 'VIDEO':
+          // @ts-ignore
+          navigation.navigate('VideoLibrary');
+          break;
+        case 'PRODUCT_PHOTO':
+          // @ts-ignore
+          navigation.navigate('ProductPhotos');
+          break;
+                     case 'CAMPAIGN_MATERIAL':
+               // @ts-ignore
+               navigation.navigate('CampaignMaterials');
+               break;
+        case 'PRODUCT_CATALOG':
+          // @ts-ignore
+          navigation.navigate('Catalogues');
+          break;
+        case 'POS_MATERIAL':
+          // @ts-ignore
+          navigation.navigate('POSMaterials');
+          break;
+        case 'SHOP_BRANDING':
+          // @ts-ignore
+          navigation.navigate('ShopBranding');
+          break;
+        case 'LOGO_GUIDE':
+          // @ts-ignore
+          navigation.navigate('LogoGuide');
+          break;
+        case 'CAR_BRANDING':
+          // @ts-ignore
+          navigation.navigate('CarBranding');
+          break;
+        case 'SOCIAL_MEDIA_DATABASE':
+          // @ts-ignore
+          navigation.navigate('SocialMediaDatabase');
+          break;
+        default:
+          // @ts-ignore
+          navigation.navigate('Dashboard');
+          break;
+      }
+    }, 300);
   };
 
   // Sync active tab with current route using useFocusEffect for better navigation tracking
