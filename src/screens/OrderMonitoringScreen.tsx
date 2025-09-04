@@ -8,8 +8,8 @@ import ShowDropdown from '../components/ShowDropdown';
 import ExcelExport from '../components/ExcelExport';
 import Pagination from '../components/Pagination';
 import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
-import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as Print from 'expo-print';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
@@ -130,14 +130,12 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
     setCurrentPage(page);
   };
 
-  // Print current visible table as PDF and share
   const handlePrint = async () => {
-    const visibleCols = columns.filter(c => c.visible);
     const rowsHtml = paginatedData.map(row => {
-      const tds = visibleCols.map(c => `<td style=\"border:1px solid #ddd;padding:6px;font-size:12px;\">${String((row as Record<string, any>)[c.key] ?? '')}</td>`).join('');
+      const tds = visibleColumns.map(c => `<td style=\"border:1px solid #ddd;padding:6px;font-size:12px;\">${String((row as Record<string, any>)[c.key] ?? '')}</td>`).join('');
       return `<tr>${tds}</tr>`;
     }).join('');
-    const headerHtml = visibleCols.map(c => `<th style=\"border:1px solid #ddd;padding:8px;background:#666;color:#fff;font-weight:600;font-size:12px;\">${c.label}</th>`).join('');
+    const headerHtml = visibleColumns.map(c => `<th style=\"border:1px solid #ddd;padding:8px;background:#666;color:#fff;font-weight:600;font-size:12px;\">${c.label}</th>`).join('');
     const html = `<!DOCTYPE html><html><head><meta charset=\"utf-8\" /></head><body>
       <h1 style=\"font-family:Arial; font-size:16px;\">Order Monitoring</h1>
       <table style=\"width:100%;border-collapse:collapse;font-family:Arial;\">
@@ -158,7 +156,7 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
         }
       }
     } catch (e) {
-      console.error('Print error', e);
+      // Print error
     }
   };
 
@@ -271,9 +269,6 @@ const OrderMonitoringScreen = ({ route, navigation }: any) => {
                 buttonStyle={styles.exportButton}
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
               />
-              <TouchableOpacity style={styles.printButton} onPress={handlePrint}>
-                <Text style={styles.emailButtonText}>Print</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -613,18 +608,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   exportButton: {
-    width: '48%',
-    marginRight: 8,
-  },
-  printButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-    width: '48%',
+    width: '100%',
   },
   emailButtonText: {
     color: '#FFFFFF',

@@ -129,7 +129,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
     try {
       await downloadBundledPdf(require('../../INVOICE 2.pdf'), 'INVOICE_2.pdf');
     } catch (e) {
-      console.error('Failed to download invoice PDF', e);
+      // Error downloading invoice PDF
     }
   };
 
@@ -140,7 +140,7 @@ const AccountTransactionsScreen = ({ route, navigation }: any) => {
     try {
       await downloadBundledPdf(require('../../INVOICE DRAFT.pdf'), `INVOICE_DRAFT_${val}.pdf`);
     } catch (e) {
-      console.error('Failed to download draft PDF', e);
+      // Error downloading draft PDF
     }
   };
 
