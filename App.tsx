@@ -149,7 +149,7 @@ function DashboardScreen({ navigation }: any) {
             onPress={() => navigation.navigate('OverdueReport', { reportData: { id: 'overdue-report' } })}
           />
         )}
-        <Snap overdueDays={maxOverdueDays} currency={overdueCurrency} />
+        <Snap overdueDays={maxOverdueDays} currency={overdueCurrency} navigation={navigation} />
         <Footer />
       </ScrollView>
       <BottomNavigation 
