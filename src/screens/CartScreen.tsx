@@ -1277,10 +1277,6 @@ const CartScreen = () => {
                   <Text style={styles.shipActionIcon}>📥</Text>
                   <Text style={styles.shipActionText}>Download Excel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.shipActionBtn, styles.shipActionBtnBorder]} onPress={() => { /* stub print */ }}>
-                  <Text style={styles.shipActionIcon}>🖨️</Text>
-                  <Text style={styles.shipActionText}>Print</Text>
-                </TouchableOpacity>
               </View>
               {/* Table */}
               <View style={styles.shipTable}>
@@ -1343,10 +1339,6 @@ const CartScreen = () => {
                 <TouchableOpacity style={[styles.shipActionBtn, styles.shipActionBtnBorder]}> 
                   <Text style={styles.shipActionIcon}>📥</Text>
                   <Text style={styles.shipActionText}>Download Excel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.shipActionBtn, styles.shipActionBtnBorder]}> 
-                  <Text style={styles.shipActionIcon}>🖨️</Text>
-                  <Text style={styles.shipActionText}>Print</Text>
                 </TouchableOpacity>
                 <View style={styles.prodShowWrap}>
                   <TouchableOpacity style={styles.prodShowBtn} onPress={() => setProductShow((s) => (s === 100 ? 50 : s === 50 ? 25 : 100))}>

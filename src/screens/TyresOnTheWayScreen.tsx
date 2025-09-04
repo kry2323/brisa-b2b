@@ -14,8 +14,8 @@ import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
 import ShowDropdown from '../components/ShowDropdown';
 import Pagination from '../components/Pagination';
 import CustomerSelectModal, { CustomerItem } from '../components/CustomerSelectModal';
-import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as Print from 'expo-print';
 
 const TyresOnTheWayScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
@@ -121,19 +121,28 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
   const handleItemsPerPageChange = (value: number) => { setItemsPerPage(value); setCurrentPage(1); };
   const handlePageChange = (page: number) => setCurrentPage(page);
 
-  // Print
   const handlePrint = async () => {
-    const visibleCols = columns.filter(c => c.visible);
     const rowsHtml = paginatedData.map(row => {
-      const tds = visibleCols.map(c => `<td style=\"border:1px solid #ddd;padding:6px;font-size:12px;\">${String((row as any)[c.key] ?? '')}</td>`).join('');
+      const tds = visibleColumns.map(c => `<td style=\"border:1px solid #ddd;padding:6px;font-size:12px;\">${String((row as any)[c.key] ?? '')}</td>`).join('');
       return `<tr>${tds}</tr>`;
     }).join('');
-    const headerHtml = visibleCols.map(c => `<th style=\"border:1px solid #ddd;padding:8px;background:#666;color:#fff;font-weight:600;font-size:12px;\">${c.label}</th>`).join('');
+    const headerHtml = visibleColumns.map(c => `<th style=\"border:1px solid #ddd;padding:8px;background:#666;color:#fff;font-weight:600;font-size:12px;\">${c.label}</th>`).join('');
     const html = `<!DOCTYPE html><html><head><meta charset=\"utf-8\" /></head><body><h1 style=\"font-family:Arial; font-size:16px;\">Tyres On The Way</h1><table style=\"width:100%;border-collapse:collapse;font-family:Arial;\"><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table></body></html>`;
     try {
-      if (Platform.OS === 'web') { await Print.printAsync({ html }); }
-      else { const { uri } = await Print.printToFileAsync({ html }); const canShare = await Sharing.isAvailableAsync(); if (canShare) await Sharing.shareAsync(uri); else await Print.printAsync({ html }); }
-    } catch {}
+      if (Platform.OS === 'web') {
+        await Print.printAsync({ html });
+      } else {
+        const { uri } = await Print.printToFileAsync({ html });
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(uri);
+        } else {
+          await Print.printAsync({ html });
+        }
+      }
+    } catch (e) {
+      // Print error
+    }
   };
   
   // Email modal state
@@ -243,9 +252,6 @@ const TyresOnTheWayScreen = ({ route, navigation }: any) => {
                 buttonIcon={<FontAwesome name="file-excel-o" size={18} color="#FFFFFF" style={{marginRight: 8}} />}
               />
               
-              <TouchableOpacity style={styles.printButton} onPress={handlePrint}>
-                <Text style={styles.emailButtonText}>Print</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -560,18 +566,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   exportButton: {
-    width: '48%',
-    marginRight: 8,
-  },
-  printButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
-    width: '48%',
+    width: '100%',
   },
   emailButtonText: {
     color: '#FFFFFF',
