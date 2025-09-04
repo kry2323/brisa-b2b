@@ -309,6 +309,31 @@ export const translations = {
     team: {
       title: 'Lassa Team',
     },
+    
+    passwordUpdate: {
+      title: 'Update Password',
+      username: 'Username',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmNewPassword: 'Confirm New Password',
+      updateButton: 'Update',
+      cancelButton: 'Cancel',
+      currentPasswordPlaceholder: 'Enter current password',
+      newPasswordPlaceholder: 'Enter new password',
+      confirmPasswordPlaceholder: 'Confirm new password',
+      successMessage: 'Password updated successfully',
+      errorMessage: 'Failed to update password',
+      validationMessages: {
+        currentPasswordRequired: 'Current password is required',
+        newPasswordRequired: 'New password is required',
+        confirmPasswordRequired: 'Please confirm your new password',
+        passwordsDoNotMatch: 'New passwords do not match',
+        passwordTooShort: 'Password must be at least 8 characters long',
+        passwordTooWeak: 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+        currentPasswordIncorrect: 'Current password is incorrect',
+        newPasswordSameAsCurrent: 'New password must be different from current password',
+      },
+    },
   },
   
   // Component specific translations

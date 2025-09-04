@@ -38,6 +38,7 @@ import CartScreen from './src/screens/CartScreen';
 import VideoLibraryScreen from './src/screens/VideoLibraryScreen';
 import VideoPlayerScreen from './src/screens/VideoPlayerScreen';
 import VideoDetailScreen from './src/screens/VideoDetailScreen';
+import PasswordUpdateScreen from './src/screens/PasswordUpdateScreen';
 import { getOverdueReportData } from './src/utils/mockData';
 const Stack = createNativeStackNavigator();
 
@@ -417,6 +418,15 @@ const linking = {
           title: (title: string) => encodeURIComponent(title),
         },
       },
+      PasswordUpdate: {
+        path: '/password-update',
+        parse: {
+          username: (username: string) => decodeURIComponent(username),
+        },
+        stringify: {
+          username: (username: string) => encodeURIComponent(username),
+        },
+      },
     },
   },
 };
@@ -557,6 +567,11 @@ export default function App() {
           name="VideoDetail"
           component={VideoDetailScreen as unknown as React.ComponentType<any>}
           options={{ title: 'Video Detail' }}
+        />
+        <Stack.Screen
+          name="PasswordUpdate"
+          component={PasswordUpdateScreen}
+          options={{ title: 'Update Password' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
