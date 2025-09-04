@@ -147,6 +147,7 @@ export const routeToTabMapping: Record<string, string> = {
   VideoDetail: 'marketing-library',
   VideoPlayer: 'marketing-library',
   LassaTeam: 'other',
+  PasswordUpdate: 'other', // Password update should be in other section
   Cart: 'home', // Cart should not highlight any specific tab
   ProductListing: 'home', // Default to home unless it's from create-order
   ProductDetail: 'home', // Product detail should not highlight any specific tab

@@ -91,7 +91,7 @@ const Header = () => {
               style={styles.profileOptionRow}
               onPress={() => {
                 setIsProfileOpen(false);
-                Alert.alert('Password', 'Change password coming soon.');
+                (navigation as any).navigate('PasswordUpdate', { username: 'cisuser' });
               }}
             >
               <Ionicons name="key-outline" size={20} color="#333" style={styles.profileOptionIcon} />
