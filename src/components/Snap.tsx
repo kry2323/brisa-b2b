@@ -5,9 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 type SnapProps = {
   overdueDays?: string | null;
   currency?: string | null;
+  navigation?: any;
 };
 
-const Snap = ({ overdueDays, currency }: SnapProps) => {
+const Snap = ({ overdueDays, currency, navigation }: SnapProps) => {
   const dashboardItems = [
     { id: 1, title: 'Ready Tyres', value: '0', icon: 'checkmark-circle' },
     { id: 2, title: 'Not Ready Tyres', value: '0', icon: 'close-circle' },
@@ -16,6 +17,18 @@ const Snap = ({ overdueDays, currency }: SnapProps) => {
     { id: 5, title: 'Quarter to Date\nSales', value: '0', icon: 'bar-chart' },
     { id: 6, title: 'Tyres on the Way', value: '0', icon: 'car' },
   ];
+
+  const handleReadyTyresPress = () => {
+    if (navigation) {
+      navigation.navigate('PlannedOrders', { reportData: { id: 'planned-orders' } });
+    }
+  };
+
+  const handleMonthlyShippedPress = () => {
+    if (navigation) {
+      navigation.navigate('ShipmentsDocuments', { reportData: { id: 'shipments-documents' } });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -66,7 +79,8 @@ const Snap = ({ overdueDays, currency }: SnapProps) => {
         </View>
         
         <View style={styles.shipmentStatus}>
-          <View style={styles.shipmentItem}>
+          <Text style={styles.shipmentTitle}>Monthly Shipment Status</Text>
+          <TouchableOpacity style={styles.shipmentItem} onPress={handleReadyTyresPress}>
             <View style={styles.shipmentBar}>
               <View style={[styles.shipmentProgress, { backgroundColor: '#D53439' }]}>
                 <Text style={styles.shipmentIcon}>🚚</Text>
@@ -76,9 +90,9 @@ const Snap = ({ overdueDays, currency }: SnapProps) => {
                 <Text style={styles.percentageText}>% 0</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
           
-          <View style={styles.shipmentItem}>
+          <TouchableOpacity style={styles.shipmentItem} onPress={handleMonthlyShippedPress}>
             <View style={styles.shipmentBar}>
               <View style={[styles.shipmentProgress, { backgroundColor: '#FFFFFF' }]}>
                 <Text style={styles.shipmentIcon}>🚚</Text>
@@ -88,7 +102,7 @@ const Snap = ({ overdueDays, currency }: SnapProps) => {
                 <Text style={styles.percentageText}>% 0</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
