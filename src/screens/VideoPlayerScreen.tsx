@@ -2,6 +2,10 @@ import React from 'react';
 import { View, StyleSheet, SafeAreaView, TouchableOpacity, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 
 interface VideoPlayerScreenProps {
   route: {
@@ -15,6 +19,7 @@ interface VideoPlayerScreenProps {
 const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({ route }) => {
   const navigation = useNavigation();
   const { videoUrl, title } = route.params;
+  const [isReportsModalOpen, setIsReportsModalOpen] = React.useState(false);
 
   const handleClose = () => {
     navigation.goBack();
@@ -65,6 +70,8 @@ const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header />
+      
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
@@ -107,6 +114,14 @@ const VideoPlayerScreen: React.FC<VideoPlayerScreenProps> = ({ route }) => {
           `}
         />
       </View>
+      
+      <Footer />
+      
+      <BottomNavigation 
+        isReportsModalOpen={isReportsModalOpen} 
+        setIsReportsModalOpen={setIsReportsModalOpen}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
+      />
     </SafeAreaView>
   );
 };

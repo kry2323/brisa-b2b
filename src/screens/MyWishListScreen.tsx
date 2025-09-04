@@ -3,11 +3,15 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Ima
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import { getFavoriteProducts, removeFavoriteProduct, FavoriteProduct, addToCart } from '../utils/storage';
 
 const MyWishListScreen = ({ navigation }: any) => {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-  const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
+  
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+const [favorites, setFavorites] = useState<FavoriteProduct[]>([]);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -27,10 +31,6 @@ const MyWishListScreen = ({ navigation }: any) => {
 
   const handleNavigateToProduct = (product: FavoriteProduct) => {
     navigation.navigate('ProductDetail', { product });
-  };
-
-  const handleNavigateToReport = (reportData: any) => {
-    setIsReportsModalOpen(false);
   };
 
   return (
@@ -109,7 +109,7 @@ const MyWishListScreen = ({ navigation }: any) => {
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen}
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
     </SafeAreaView>
   );
@@ -148,5 +148,4 @@ const styles = StyleSheet.create({
 });
 
 export default MyWishListScreen;
-
 

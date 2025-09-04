@@ -3,13 +3,16 @@ import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } fr
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import { t } from '../utils/translations';
 
 const FinancialReportsParentScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
 
-  const financialReportOptions = [
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+const financialReportOptions = [
     {
       id: 'brisa-payments',
       title: t('screens.brisaPayments.title'),
@@ -68,43 +71,6 @@ const FinancialReportsParentScreen = ({ route, navigation }: any) => {
     }
   ];
 
-  const handleNavigateToReport = (reportData: any) => {
-    setIsReportsModalOpen(false);
-    
-    // Navigate based on report ID using React Navigation
-    switch (reportData.id) {
-      case 'financial-reports':
-        navigation.navigate('FinancialReports', { reportData });
-        break;
-      case 'brisa-payments':
-        navigation.navigate('BrisaPayments', { reportData });
-        break;
-      case 'overdue-report':
-        navigation.navigate('OverdueReport', { reportData });
-        break;
-      case 'account-transactions':
-        navigation.navigate('AccountTransactions', { reportData });
-        break;
-      case 'shipments-documents':
-        navigation.navigate('ShipmentsDocuments', { reportData });
-        break;
-      case 'sales-report':
-        navigation.navigate('SalesReport', { reportData });
-        break;
-      case 'order-monitoring':
-        navigation.navigate('OrderMonitoring', { reportData });
-        break;
-      case 'tyres-on-the-way':
-        navigation.navigate('TyresOnTheWay', { reportData });
-        break;
-      case 'pos-material-tracking':
-        navigation.navigate('POSMaterialTracking', { reportData });
-        break;
-      default:
-        console.log('Unknown report type');
-    }
-  };
-
   const handleOptionPress = (option: any) => {
     navigation.navigate(option.screen, { reportData });
   };
@@ -141,7 +107,7 @@ const FinancialReportsParentScreen = ({ route, navigation }: any) => {
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen} 
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
     </SafeAreaView>
   );

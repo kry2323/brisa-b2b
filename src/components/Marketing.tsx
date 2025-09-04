@@ -41,8 +41,26 @@ const Marketing = () => {
             key={category.id} 
             style={styles.categoryItem}
             onPress={() => {
-              if (category.id === 7) { // Videos category
-                navigation.navigate('VideoLibrary' as never);
+              // Map category IDs to screen names
+              const categoryMap: { [key: number]: string } = {
+                1: 'ProductPhotos',
+                2: 'CampaignMaterials', 
+                3: 'POSMaterials',
+                4: 'ShopBranding',
+                5: 'LogoGuide',
+                6: 'Catalogues',
+                7: 'VideoLibrary',
+                8: 'SocialMediaDatabase'
+              };
+              
+              const screenName = categoryMap[category.id];
+              if (screenName) {
+                if (screenName === 'VideoLibrary') {
+                  navigation.navigate('VideoLibrary' as never);
+                } else {
+                  // Navigate directly to the specific category route (including SocialMediaDatabase)
+                  navigation.navigate(screenName as never);
+                }
               }
             }}
           >

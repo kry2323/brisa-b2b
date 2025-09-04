@@ -14,6 +14,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { WebView } from 'react-native-webview';
 import { getVideoLibraryData, VideoItem } from '../utils/mockData';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 
 interface VideoDetailScreenProps {
   route: {
@@ -37,8 +41,11 @@ const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({ route }) => {
   const isPlayingRef = React.useRef(false);
   // isPlaying state'i sadece UI güncellemeleri için kullanılacak
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
 
-  // Bileşen ilk yüklendiğinde veya videoId değiştiğinde çalışacak
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+// Bileşen ilk yüklendiğinde veya videoId değiştiğinde çalışacak
   useEffect(() => {
     // Video verilerini bir kez yükle
     const loadVideoData = () => {
@@ -213,8 +220,14 @@ const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({ route }) => {
   if (!currentVideo) {
     return (
       <SafeAreaView style={styles.container}>
+        <Header />
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Text style={styles.loadingText}>Loading...</Text>
+        <BottomNavigation 
+          isReportsModalOpen={isReportsModalOpen} 
+          setIsReportsModalOpen={setIsReportsModalOpen}
+          onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
+        />
       </SafeAreaView>
     );
   }
@@ -223,6 +236,7 @@ const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header />
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       
       <ScrollView style={styles.scrollView}>
@@ -368,10 +382,17 @@ const VideoDetailScreen: React.FC<VideoDetailScreenProps> = ({ route }) => {
           </View>
         </View>
       </ScrollView>
+      
+      <Footer />
+      
+      <BottomNavigation 
+        isReportsModalOpen={isReportsModalOpen} 
+        setIsReportsModalOpen={setIsReportsModalOpen}
+        onNavigateToReport={handleNavigateToReport}
+      />
     </SafeAreaView>
   );
 };
-
 
 const { width } = Dimensions.get('window');
 

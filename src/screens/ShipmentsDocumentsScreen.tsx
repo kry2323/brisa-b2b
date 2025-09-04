@@ -5,6 +5,7 @@ import { AntDesign, MaterialIcons, FontAwesome, Ionicons } from '@expo/vector-ic
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import ExcelExport from '../components/ExcelExport';
 import EmailSender from '../components/EmailSender';
 import { downloadBundledPdf } from '../utils/pdfAssets';
@@ -16,8 +17,10 @@ import Pagination from '../components/Pagination';
 const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-  
-  // Form state
+
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+// Form state
   const [startDate, setStartDate] = useState('30/12/2018');
   const [endDate, setEndDate] = useState('28/07/2025');
   const [planNo, setPlanNo] = useState('');
@@ -183,43 +186,6 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
     }
   };
 
-  const handleNavigateToReport = (reportData: any) => {
-    setIsReportsModalOpen(false);
-    
-    // Navigate based on report ID using React Navigation
-    switch (reportData.id) {
-      case 'financial-reports':
-        navigation.navigate('FinancialReports', { reportData });
-        break;
-      case 'brisa-payments':
-        navigation.navigate('BrisaPayments', { reportData });
-        break;
-      case 'overdue-report':
-        navigation.navigate('OverdueReport', { reportData });
-        break;
-      case 'account-transactions':
-        navigation.navigate('AccountTransactions', { reportData });
-        break;
-      case 'shipments-documents':
-        navigation.navigate('ShipmentsDocuments', { reportData });
-        break;
-      case 'sales-report':
-        navigation.navigate('SalesReport', { reportData });
-        break;
-      case 'order-monitoring':
-        navigation.navigate('OrderMonitoring', { reportData });
-        break;
-      case 'tyres-on-the-way':
-        navigation.navigate('TyresOnTheWay', { reportData });
-        break;
-      case 'pos-material-tracking':
-        navigation.navigate('POSMaterialTracking', { reportData });
-        break;
-      default:
-        // Unknown report type
-        break;
-    }
-  };
 
   // Visible columns and horizontal scroll config (match Overdue style)
   const visibleColumns = useMemo(() => columns.filter(c => c.visible), [columns]);
@@ -457,7 +423,7 @@ const ShipmentsDocumentsScreen = ({ route, navigation }: any) => {
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen} 
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
       
       {/* Column Visibility Modal */}

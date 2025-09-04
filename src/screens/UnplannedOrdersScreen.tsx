@@ -5,6 +5,7 @@ import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import BottomNavigation from '../components/BottomNavigation';
+import { useReportNavigation } from '../utils/navigationUtils';
 import DatePicker from '../components/DatePicker';
 import ExcelExport from '../components/ExcelExport';
 import ColumnVisibilityModal from '../components/ColumnVisibilityModal';
@@ -17,8 +18,10 @@ import * as Sharing from 'expo-sharing';
 const UnplannedOrdersScreen = ({ route, navigation }: any) => {
   const { reportData } = route.params || {};
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false);
-  
-  // Form state
+
+  // Use centralized report navigation
+  const handleNavigateToReport = useReportNavigation(navigation);
+// Form state
   const [startDate, setStartDate] = useState('30/12/2018');
   const [endDate, setEndDate] = useState('28/07/2025');
   const [orderNumber, setOrderNumber] = useState('');
@@ -129,41 +132,6 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
     // Listing unplanned orders with filters
   };
 
-  const handleNavigateToReport = (reportData: any) => {
-    setIsReportsModalOpen(false);
-    switch (reportData.id) {
-      case 'financial-reports':
-        navigation.navigate('FinancialReports', { reportData });
-        break;
-      case 'brisa-payments':
-        navigation.navigate('BrisaPayments', { reportData });
-        break;
-      case 'overdue-report':
-        navigation.navigate('OverdueReport', { reportData });
-        break;
-      case 'account-transactions':
-        navigation.navigate('AccountTransactions', { reportData });
-        break;
-      case 'shipments-documents':
-        navigation.navigate('ShipmentsDocuments', { reportData });
-        break;
-      case 'sales-report':
-        navigation.navigate('SalesReport', { reportData });
-        break;
-      case 'order-monitoring':
-        navigation.navigate('OrderMonitoring', { reportData });
-        break;
-      case 'tyres-on-the-way':
-        navigation.navigate('TyresOnTheWay', { reportData });
-        break;
-      case 'pos-material-tracking':
-        navigation.navigate('POSMaterialTracking', { reportData });
-        break;
-      default:
-        // Unknown report type
-        break;
-    }
-  };
 
   const handlePrevious = () => {
     navigation.navigate('OrderMonitoring', { reportData });
@@ -352,7 +320,7 @@ const UnplannedOrdersScreen = ({ route, navigation }: any) => {
       <BottomNavigation 
         isReportsModalOpen={isReportsModalOpen} 
         setIsReportsModalOpen={setIsReportsModalOpen}
-        onNavigateToReport={handleNavigateToReport}
+        onNavigateToReport={(reportData) => handleNavigateToReport(reportData, setIsReportsModalOpen)}
       />
 
       <ColumnVisibilityModal visible={isColumnVisibilityModalOpen} onClose={() => setIsColumnVisibilityModalOpen(false)} columns={columns} onColumnToggle={handleColumnToggle} maxVisibleColumns={null} />
