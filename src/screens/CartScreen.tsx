@@ -1490,7 +1490,7 @@ const CartScreen = () => {
                       </View>
                       <View style={[styles.savedLineInfo, { paddingRight: 8 }]}> 
                         {/* Brand (logo) */}
-                        <Image source={require('../../assets/lassa-logo.png')} style={{ width: 80, height: 14, marginBottom: 6 }} resizeMode="contain" />
+                        <Image source={require('../../assets/lassa_logo.png')} style={{ width: 80, height: 14, marginBottom: 6 }} resizeMode="contain" />
                         {/* Product name */}
                         <Text style={styles.savedLineNameLink} onPress={() => navigateToProductDetail(it.code)}>{prod.name}</Text>
                         <Text style={styles.savedLineCode}>{it.code}</Text>

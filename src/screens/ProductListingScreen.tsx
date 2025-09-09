@@ -868,7 +868,7 @@ const [isFilterPanelVisible, setIsFilterPanelVisible] = useState(false);
                   <View style={styles.brandLogoContainer}>
                     {product.brand === 'Lassa' && (
                       <Image
-                        source={require('../../assets/lassa-logo.png')}
+                        source={require('../../assets/lassa_logo.png')}
                         style={styles.brandLogo}
                         resizeMode="contain"
                       />

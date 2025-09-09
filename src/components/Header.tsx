@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import LassaLogo from '../../assets/lassa-logo.svg';
+import LassaLogo from '../../assets/lassa_logo.svg';
 import { Ionicons } from '@expo/vector-icons';
 import { getCartItems } from '../utils/storage';
 import { subscribeCart } from '../utils/cartEvents';
