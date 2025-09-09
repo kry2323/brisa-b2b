@@ -1,0 +1,36 @@
+[debug] [2025-09-09T08:51:18.554Z] ----------------------------------------------------------------------
+[debug] [2025-09-09T08:51:18.555Z] Command:       C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\firebase-tools\lib\bin\firebase.js deploy --only storage
+[debug] [2025-09-09T08:51:18.556Z] CLI Version:   14.15.1
+[debug] [2025-09-09T08:51:18.556Z] Platform:      win32
+[debug] [2025-09-09T08:51:18.556Z] Node Version:  v20.15.1
+[debug] [2025-09-09T08:51:18.556Z] Time:          Tue Sep 09 2025 11:51:18 GMT+0300 (GMT+03:00)
+[debug] [2025-09-09T08:51:18.556Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-09T08:51:18.669Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-09T08:51:18.669Z] > authorizing via signed-in user (koray.korkmaz@e-commint.com)
+[debug] [2025-09-09T08:51:18.669Z] [iam] checking project brisa-cis-mobile for permissions ["firebase.projects.get","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]
+[debug] [2025-09-09T08:51:18.670Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:18.670Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:18.671Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/brisa-cis-mobile:testIamPermissions [none]
+[debug] [2025-09-09T08:51:18.671Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/brisa-cis-mobile:testIamPermissions x-goog-quota-user=projects/brisa-cis-mobile
+[debug] [2025-09-09T08:51:18.671Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/brisa-cis-mobile:testIamPermissions {"permissions":["firebase.projects.get","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[debug] [2025-09-09T08:51:19.631Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/brisa-cis-mobile:testIamPermissions 200
+[debug] [2025-09-09T08:51:19.631Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/brisa-cis-mobile:testIamPermissions {"permissions":["firebase.projects.get","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[info] 
+[info] === Deploying to 'brisa-cis-mobile'...
+[info] 
+[info] i  deploying storage 
+[info] i  storage: ensuring required API firebasestorage.googleapis.com is enabled... 
+[debug] [2025-09-09T08:51:19.633Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:19.633Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:19.633Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com [none]
+[debug] [2025-09-09T08:51:19.633Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com x-goog-quota-user=projects/brisa-cis-mobile
+[debug] [2025-09-09T08:51:20.781Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com 200
+[debug] [2025-09-09T08:51:20.781Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com [omitted]
+[warn] !  storage: missing required API firebasestorage.googleapis.com. Enabling now... 
+[debug] [2025-09-09T08:51:20.781Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:20.781Z] Checked if tokens are valid: true, expires at: 1757410161430
+[debug] [2025-09-09T08:51:20.781Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com:enable [none]
+[debug] [2025-09-09T08:51:20.781Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com:enable x-goog-quota-user=projects/brisa-cis-mobile
+[debug] [2025-09-09T08:51:21.651Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com:enable 200
+[debug] [2025-09-09T08:51:21.651Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/brisa-cis-mobile/services/firebasestorage.googleapis.com:enable [omitted]
